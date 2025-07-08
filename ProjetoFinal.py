@@ -12,6 +12,9 @@ from sklearn.model_selection import train_test_split
 from openpyxl import load_workbook
 import unicodedata
 
+for recurso in ['stopwords', 'punkt', 'wordnet', 'omw-1.4']:
+    nltk.download(recurso)
+    
 # 1. PRE-PROCESSAMENTO
 def preprocess(text):
     text = re.sub(r'[^a-zA-Z]', ' ', text.lower())
