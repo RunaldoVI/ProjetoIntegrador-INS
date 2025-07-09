@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 from openpyxl import load_workbook
 import unicodedata
 
-for recurso in ['stopwords', 'punkt', 'wordnet', 'omw-1.4']:
+for recurso in ['stopwords', 'punkt', "punkt_tab",'wordnet', 'omw-1.4']:
     nltk.download(recurso)
     
 # 1. PRE-PROCESSAMENTO
@@ -163,7 +163,7 @@ def classificar_linhas(linhas):
     return out
 
 # 6. EXECUÇÃO
-pdf_path = "DPQ_J.pdf"  # ou "PHQ9.pdf"
+pdf_path = "Alcohol_Use.pdf"  # ou "PHQ9.pdf"
 
 if "DPQ" in pdf_path.upper():
     linhas_dpq = extrair_dpq(pdf_path)
@@ -175,6 +175,14 @@ else:
     frases_individuais = extrair_frases_unificadas(pdf_path)
 
 resultados = classificar_linhas(frases_individuais)
+
+prefixo = None
+for frase, tipo in resultados:
+    if tipo == "Identificador" and re.match(r'^[A-Z]{2,5}\.\d{3}$', frase):
+        prefixo = frase.split('.')[0]
+        break
+if not prefixo:
+    prefixo = "GEN"
 
 # 6.5. ESCREVER NO EXCEL
 
@@ -430,7 +438,7 @@ if resultados:
     bloco_temp = {}
     for frase, tipo in resultados:
         if tipo == "Identificador":
-            if not re.match(r'^[A-Z]{2,5}\.\d{3}$', frase):
+            if not re.match(r'^[A-Z]{2,5}\.\d{3}$', frase) or any(char.isdigit() for char in frase[:3]) == False:
                 print(f"⚠️ Ignorado identificador inválido: {frase}")
                 continue
             if bloco_temp:
@@ -481,6 +489,6 @@ if bloco_atual:
         print(f"Resposta - {resp}")
     escrever_no_excel(blocos_processados, "INS-NHANES-2017-2018-DPQ_J.xlsx")
     escrever_codebooks_no_excel(blocos_processados, "INS-NHANES-2017-2018-DPQ_J.xlsx")
-    escrever_response_options(blocos_processados, "INS-NHANES-2017-2018-DPQ_J.xlsx", questionario_nome="DPQ")
-    escrever_codebook_slots_corrigido("INS-NHANES-2017-2018-DPQ_J.xlsx")
+    escrever_response_options(blocos_processados, "INS-NHANES-2017-2018-DPQ_J.xlsx", questionario_nome=prefixo)
+    escrever_codebook_slots_corrigido("INS-NHANES-2017-2018-DPQ_J.xlsx", questionario_nome=prefixo)
 
