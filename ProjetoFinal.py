@@ -44,11 +44,16 @@ def extrair_dpq(pdf_path):
                         respostas = []
                     elif "HANDCARD" in linha or "HAND CARD" in linha:
                         continue
-                    elif re.search(r'\bnot at all\b|\bseveral days\b|\bmore than half\b|\bnearly every day\b|\bsomewhat\b|\bvery\b|\bextremely\b|\brefused\b|\bdon’t know\b', linha, re.IGNORECASE):
+                    elif any(p in linha.lower() for p in [
+                        "not at all", "several days", "more than half", "nearly every day",
+                        "somewhat", "very", "extremely", "refused", "don't know", "do not know"]):
                         respostas.append(linha)
+                        continue
+
                     else:
-                        if not respostas:
-                            pergunta_atual += " " + linha
+                     if not respostas:
+                        pergunta_atual += " " + linha
+
     if pergunta_atual and respostas:
         perguntas.append((pergunta_atual, respostas))
 
@@ -115,47 +120,48 @@ def classificar_linhas(linhas):
     out = []
     for frase in linhas:
         frase = frase.strip()
-        
-        # Separar identificador DPQ.xxx
-        match = re.match(r'^(DPQ\.\d{3})(.*)', frase)
+
+        # ✅ Forçar como resposta se contiver padrões típicos
+        if any(p in frase.lower() for p in [
+            "not at all", "several days", "more than half", "nearly every day",
+            "somewhat", "very", "extremely", "refused", "don't know", "do not know"]):
+            out.append((frase, "Resposta"))
+            continue
+
+        # Tentar identificar padrão tipo XXX.123
+        match = re.match(r'^([A-Z]{2,5}\.\d{3})(.*)', frase)
         if match:
             identificador = match.group(1).strip()
             restante = match.group(2).strip()
             out.append((identificador, "Identificador"))
-            
+
             if restante:
                 if ":" in restante:
                     partes = restante.split(":", 1)
                     secao = partes[0].replace("[", "").strip() + ":"
                     pergunta = partes[1].replace("]", "").strip()
-                    
-                    # Classifica secção
+
                     tokens_sec = preprocess(secao)
                     vec_sec = sent_to_vec(tokens_sec).reshape(1, -1)
-                    pred_sec = int(clf.predict(vec_sec)[0])
-                    tipo_sec = label_map.get(pred_sec, "Desconhecido")
+                    tipo_sec = label_map.get(int(clf.predict(vec_sec)[0]), "Desconhecido")
                     out.append((secao, tipo_sec))
 
-                    # Classifica pergunta
                     tokens_perg = preprocess(pergunta)
                     vec_perg = sent_to_vec(tokens_perg).reshape(1, -1)
-                    pred_perg = int(clf.predict(vec_perg)[0])
-                    tipo_perg = label_map.get(pred_perg, "Desconhecido")
+                    tipo_perg = label_map.get(int(clf.predict(vec_perg)[0]), "Desconhecido")
                     out.append((pergunta, tipo_perg))
                 else:
                     tokens = preprocess(restante)
                     vec = sent_to_vec(tokens).reshape(1, -1)
-                    pred = int(clf.predict(vec)[0])
-                    tipo = label_map.get(pred, "Desconhecido")
+                    tipo = label_map.get(int(clf.predict(vec)[0]), "Desconhecido")
                     out.append((restante, tipo))
         else:
-            # Frase sem identificador → classifica como está (pode ser resposta)
             tokens = preprocess(frase)
             vec = sent_to_vec(tokens).reshape(1, -1)
-            pred = int(clf.predict(vec)[0])
-            tipo = label_map.get(pred, "Desconhecido")
+            tipo = label_map.get(int(clf.predict(vec)[0]), "Desconhecido")
             out.append((frase, tipo))
     return out
+
 # 6. EXECUÇÃO
 pdf_path = "DPQ_J.pdf"  # ou "PHQ9.pdf"
 
@@ -424,6 +430,9 @@ if resultados:
     bloco_temp = {}
     for frase, tipo in resultados:
         if tipo == "Identificador":
+            if not re.match(r'^[A-Z]{2,5}\.\d{3}$', frase):
+                print(f"⚠️ Ignorado identificador inválido: {frase}")
+                continue
             if bloco_temp:
                 blocos_processados.append(bloco_temp)
             bloco_temp = {'Identificador': frase, 'Secção': '', 'Pergunta': '', 'Respostas': []}
@@ -433,6 +442,11 @@ if resultados:
             bloco_temp['Pergunta'] = frase
         elif tipo == "Resposta":
             bloco_temp.setdefault('Respostas', []).append(frase)
+
+    # Adiciona o último bloco
+    if bloco_temp:
+        blocos_processados.append(bloco_temp)
+
 
     # Adiciona o último bloco
     if bloco_temp:
