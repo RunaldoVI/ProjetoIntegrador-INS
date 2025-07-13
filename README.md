@@ -24,8 +24,9 @@ Passo 4 - Aceder ao site para instalar o Ollama:
 https://ollama.com/
 
 Passo 5 - Instalar o model Mistral:7b
-https://ollama.com/library/mistral
-Após a instalação do mistral:7b.
+Abrir o cmd, correr a seguinte linha:
+ollama run mistral
+Deixar a instalar os 4.4gb 
 
 Passo 6 - Correr o projeto:
 python ProjetoFinal.py
