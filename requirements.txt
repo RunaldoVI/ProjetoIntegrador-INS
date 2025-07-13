@@ -1,9 +1,5 @@
-nltk
-scikit-learn
-pandas
-numpy
-pdfminer.six
 pdfplumber
-pytesseract
-openpyxl
-pdf2image    
+requests
+scikit-learn
+sentence-transformers
+pandas
