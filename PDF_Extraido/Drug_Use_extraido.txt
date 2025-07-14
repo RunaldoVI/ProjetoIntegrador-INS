@@ -1,0 +1,517 @@
+===== Página 1 =====
+
+NHANES 2017
+9/22/16 Questionnaire: MEC
+DRUG USE – DUQ
+Target Group: SPs 12-69 (Audio-CASI)
+DUQ.200_ The following questions ask about use of drugs not prescribed by a doctor. Please remember that your
+answers to these questions will be kept confidential.
+BOX 1a
+CHECK ITEM DUQ.201:
+ IF 60 – 69 YEARS GO TO DUQ.240.
+ ELSE CONTINUE.
+DUQ.200 The first questions are about marijuana and hashish. Marijuana is also called pot or grass. Marijuana is
+usually smoked, either in cigarettes, called joints, or in a pipe. It is sometimes cooked in food. Hashish is a
+form of marijuana that is also called “hash.” It is usually smoked in a pipe. Another form of hashish is hash
+oil.
+Have you ever, even once, used marijuana or hashish?
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2 (DUQ.240)
+REFUSED ..................................................... 7 (DUQ.240)
+DON'T KNOW ............................................... 9 (DUQ.240)
+DUQ.210 How old were you the first time you used marijuana or hashish?
+INSTRUCTIONS TO SP:
+Please enter an age.
+|___|___|
+ENTER AGE IN YEARS
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+HARD EDIT VALUES: 0-59
+Error message: “Your response cannot exceed 59 years. Please press the “Back” button, press “Clear,” and
+try again.”
+HARD EDIT: DUQ.210 must be equal to or less than current age.
+Error message: “Your response is greater than your recorded age. Please press the “Back” button, press
+“Clear,” and try again.”
+DUQ-1
+
+===== Página 2 =====
+
+DUQ.211 Have you ever smoked marijuana or hashish at least once a month for more than one year?
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2 (DUQ.220G)
+REFUSED ..................................................... 7 (DUQ.220G)
+DON'T KNOW ............................................... 9 (DUQ.220G)
+DUQ.213 How old were you when you started smoking marijuana or hashish at least once a month for one year?
+INSTRUCTIONS TO SP:
+Please enter an age.
+|___|___|
+ENTER AGE IN YEARS
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+HARD EDIT VALUES: 0-59
+Error message: “Your response cannot exceed 59 years. Please press the “Back” button, press “Clear,” and
+try again.”
+HARD EDIT: DUQ.213 must be equal to or less than current age.
+Error message: “Your response is greater than your recorded age. Please press the “Back” button, press
+“Clear,” and try again.”
+HARD EDIT: DUQ.213 must be equal to or greater than DUQ.210.
+Error message: “Your response is earlier than your response to the age when you first used marijuana or
+hashish. Please press the “Back” button, press “Clear,” and try again.”
+DUQ.215 How long has it been since you last smoked marijuana or hashish at least once a month for one year?
+INSTRUCTIONS TO SP: Please enter the number of days, weeks, months, or years, then select the unit of
+time.
+CAPI INSTRUCTIONS:
+HARD EDIT: If DUQ.215 equal to 0 weeks, 0 months, or 0 years, display error message.
+Error message: “Your response must be greater than 0. Please press the “Back” button, press “Clear,” and
+try again.
+|___|___|___|
+ENTER NUMBER OF DAYS, WEEKS, MONTHS, OR YEARS
+REFUSED .................................................. 777
+DON'T KNOW ............................................ 999
+ENTER UNIT
+Days .............................................................. 1
+Weeks ........................................................... 2
+Months ........................................................... 3
+Years ............................................................. 4
+DUQ-2
+
+===== Página 3 =====
+
+DUQ.217 During the time that you smoked marijuana or hashish, how often would you usually use it?
+INSTRUCTIONS TO SP:
+Please select . . .
+Once per month ............................................. 1
+2-3 times per month ....................................... 2
+4-8 times per month (about 1-2 times per
+week) ........................................................... 3
+9-24 times per month (about 3-6 times per
+week) ........................................................... 4
+25-30 times per month (one or more times
+per day) ....................................................... 5
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+DUQ.219 During the time that you smoked marijuana or hashish, how many joints or pipes would you usually smoke in
+a day?
+INSTRUCTIONS TO SP:
+Please select . . .
+1 per day ....................................................... 1
+2 per day ....................................................... 2
+3-5 per day .................................................... 3
+Six or more per day ....................................... 4
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+DUQ-3
+
+===== Página 4 =====
+
+DUQ.220 How long has it been since you last used marijuana or hashish?
+G/Q/U
+INSTRUCTIONS TO SP:
+Please enter the number of days, weeks, months, or years, then select the unit of time.
+CAPI INSTRUCTIONS:
+If SP Ref/DK then store 7/9 in DUQ.220G and DUQ.220U, 7/9-fill in DUQ.220Q.
+If a value is entered in Quantity and Unit store Quantity in DUQ.220Q, Unit in DUQ.220U and 1 in DUQ.220G.
+HARD EDIT: Response must be equal to or less than current age minus DUQ.210.
+Error message: “Your response to time of last use is earlier than your response to age of first use. Please
+press the “Back” button, press “Clear,” and try again.”
+HARD EDIT: If DUQ.220 equal to 0 weeks, 0 months, or 0 years, display error message.
+Error message: “Your response must be greater than 0. Please press the “Back” button, press “Clear,” and
+try again.
+|___|___|___|
+ENTER NUMBER OF DAYS, WEEKS, MONTHS, OR YEARS
+REFUSED .................................................. 777
+DON'T KNOW ............................................ 999
+ENTER UNIT
+Days .............................................................. 1
+Weeks ........................................................... 2
+Months ........................................................... 3
+Years ............................................................. 4
+BOX 1
+CHECK ITEM DUQ.225:
+ IF SP USED MARIJUANA WITHIN THE PAST MONTH (CODED 0-30 DAYS, OR
+1-4 WEEKS, OR 1 MONTH IN DUQ.220), CONTINUE WITH DUQ.230.
+ OTHERWISE, GO TO DUQ.240.
+DUQ.230 During the past 30 days, on how many days did you use marijuana or hashish?
+INSTRUCTIONS TO SP:
+Please enter a number.
+HARD EDIT VALUES: 1-30.
+If DUQ.230 = 0, display error message: “Your response must be greater than 0. Please press the “Back”
+button, press “Clear,” and try again.
+If DUQ.230 > 30, display error message: “Your response cannot exceed 30 days. Please press the “Back”
+button, press “Clear,” and try again.”
+|___|___|
+ENTER A NUMBER
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+DUQ-4
+
+===== Página 5 =====
+
+DUQ.240 Have you ever used cocaine, crack cocaine, heroin, or methamphetamine?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2 (DUQ.370_)
+REFUSED ..................................................... 7 (DUQ.370_)
+DON'T KNOW ............................................... 9 (DUQ.370_)
+DUQ.250_ The following questions are about cocaine, including all the different forms of cocaine such as powder, ‘crack’,
+‘free base’, and coca paste.
+DUQ.250 Have you ever, even once, used cocaine, in any form?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2 (DUQ.290_)
+REFUSED ..................................................... 7 (DUQ.290_)
+DON'T KNOW ............................................... 9 (DUQ.290_)
+BOX 2a
+CHECK ITEM DUQ.255:
+ IF 60 – 69 YEARS GO TO DUQ.290_.
+ ELSE CONTINUE.
+DUQ.260 How old were you the first time you used cocaine, in any form?
+INSTRUCTIONS TO SP:
+Please enter an age.
+|___|___|
+ENTER AGE IN YEARS
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+HARD EDIT VALUES: 0-59
+Error message: “Your response cannot exceed 59 years. Please press the “Back” button, press “Clear,” and
+try again.”
+HARD EDIT: DUQ.260 must be equal to or less than current age.
+Error message: “Your response is greater than your recorded age. Please press the “Back” button, press
+“Clear,” and try again.”
+DUQ-5
+
+===== Página 6 =====
+
+DUQ.270 How long has it been since you last used cocaine, in any form?
+G/Q/U
+INSTRUCTIONS TO SP:
+Please enter the number of days, weeks, months, or years, then select unit of time.
+CAPI INSTRUCTIONS:
+If SP Ref/DK then store 7/9 in DUQ.270G and DUQ.270U, 7/9-fill in DUQ.270Q.
+If a value is entered in Quantity and Unit store Quantity in DUQ.270Q, Unit in DUQ.270U and 1 in DUQ.270G.
+HARD EDIT: Response must be equal to or less than current age minus DUQ.260.
+Error message: “Your response to time of last use is earlier than your response to age of first use. Please
+press the “Back” button, press “Clear,” and try again.”
+HARD EDIT: If DUQ.270 equal to 0 weeks, 0 months, or 0 years, display error message.
+Error message: “Your response must be greater than 0. Please press the “Back” button, press “Clear,” and
+try again.
+|___|___|___|
+ENTER NUMBER OF DAYS, WEEKS, MONTHS, OR YEARS
+REFUSED .................................................. 777
+DON'T KNOW ............................................ 999
+ENTER UNIT
+Days .............................................................. 1
+Weeks ........................................................... 2
+Months ........................................................... 3
+Years ............................................................. 4
+DUQ.272 During your life, altogether how many times have you used cocaine, in any form?
+INSTRUCTIONS TO SP:
+Please select one of the following choices.
+Once .............................................................. 1
+2-5 times ........................................................ 2
+6-19 times ...................................................... 3
+20-49 times .................................................... 4
+50-99 times .................................................... 5
+100 times or more .......................................... 6
+REFUSED ..................................................... 77
+DON’T KNOW ............................................... 99
+BOX 2
+CHECK ITEM DUQ.275:
+ IF SP USED COCAINE WITHIN THE PAST MONTH (CODED 0-30 DAYS, OR 1-4
+WEEKS, OR 1 MONTH IN DUQ.270), CONTINUE WITH DUQ.280.
+ OTHERWISE, GO TO DUQ.290_.
+DUQ-6
+
+===== Página 7 =====
+
+DUQ.280 During the past 30 days, on how many days did you use cocaine, in any form?
+INSTRUCTIONS TO SP:
+Please enter a number.
+HARD EDIT VALUES: 1-30.
+If DUQ.280 = 0, display error message: “Your response must be greater than 0. Please press the “Back”
+button, press “Clear,” and try again.
+If DUQ.280 > 30, display error message: “Your response cannot exceed 30 days. Please press the “Back”
+button, press “Clear,” and try again.”
+|___|___|
+ENTER A NUMBER
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+DUQ.290_ The following questions are about heroin.
+DUQ.290 Have you ever, even once, used heroin?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2 (DUQ.330_)
+REFUSED ..................................................... 7 (DUQ.330_)
+DON'T KNOW ............................................... 9 (DUQ.330_)
+BOX 3a
+CHECK ITEM DUQ.295:
+ IF SP 60-69 YEARS GO TO DUQ.330_.
+ OTHERWISE, CONTINUE.
+DUQ-7
+
+===== Página 8 =====
+
+DUQ.300 How old were you the first time you used heroin?
+INSTRUCTIONS TO SP:
+Please enter an age.
+|___|___|
+ENTER AGE IN YEARS
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+HARD EDIT VALUES: 0-59
+Error message: “Your response cannot exceed 59 years. Please press the “Back” button, press “Clear,” and
+try again.”
+HARD EDIT: DUQ.300 must be equal to or less than current age.
+Error message: “Your response is greater than your recorded age. Please press the “Back” button, press
+“Clear,” and try again.”
+DUQ.310 How long has it been since you last used heroin?
+G/Q/U
+INSTRUCTIONS TO SP:
+Please enter the number of days, weeks, months, or years, then select the unit of time.
+CAPI INSTRUCTIONS:
+If SP Ref/DK then store 7/9 in DUQ.310G and DUQ.310U, 7/9-fill in DUQ.310Q.
+If a value is entered in Quantity and Unit store Quantity in DUQ.310Q, Unit in DUQ.310U and 1 in DUQ.310G.
+HARD EDIT: Response must be equal to or less than current age minus DUQ.300.
+Error message: “Your response to time of last use is earlier than your response to age of first use. Please
+press the “Back” button, press “Clear,” and try again.”
+HARD EDIT: If DUQ.310 equal to 0 weeks, 0 months, or 0 years, display error message.
+Error message: “Your response must be greater than 0. Please press the “Back” button, press “Clear,” and
+try again.
+|___|___|___|
+ENTER NUMBER OF DAYS, WEEKS, MONTHS, OR YEARS
+REFUSED .................................................. 777
+DON'T KNOW ............................................ 999
+ENTER UNIT
+Days .............................................................. 1
+Weeks ........................................................... 2
+Months ........................................................... 3
+Years ............................................................. 4
+BOX 3
+CHECK ITEM DUQ.315:
+ IF SP USED HEROIN WITHIN THE PAST MONTH (CODED 0-30 DAYS, OR 1-4
+WEEKS, OR 1 MONTH IN DUQ.310), CONTINUE WITH DUQ.320.
+ OTHERWISE, GO TO DUQ.330_.
+DUQ-8
+
+===== Página 9 =====
+
+DUQ.320 During the past 30 days, on how many days did you use heroin?
+INSTRUCTIONS TO SP:
+Please enter a number.
+HARD EDIT VALUES: 1-30.
+If DUQ.320 = 0, display error message: “Your response must be greater than 0. Please press the “Back”
+button, press “Clear,” and try again.
+If DUQ.320 > 30, display error message: “Your response cannot exceed 30 days. Please press the “Back”
+button, press “Clear,” and try again.”
+|___|___|
+ENTER A NUMBER
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+DUQ.330_ The following questions are about methamphetamine, also known as crank, crystal, ice or speed.
+DUQ.330 Have you ever, even once, used methamphetamine?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2 (DUQ.370_)
+REFUSED ..................................................... 7 (DUQ.370_)
+DON'T KNOW ............................................... 9 (DUQ.370_)
+BOX 4a
+CHECK ITEM DUQ.335:
+ IF SP 60-69 YEARS GO TO DUQ.370_.
+ OTHERWISE, CONTINUE.
+DUQ-9
+
+===== Página 10 =====
+
+DUQ.340 How old were you the first time you used methamphetamine?
+INSTRUCTIONS TO SP:
+Please enter an age.
+|___|___|
+ENTER AGE IN YEARS
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+HARD EDIT VALUES: 0-59
+Error message: “Your response cannot exceed 59 years. Please press the “Back” button, press “Clear,” and
+try again.”
+HARD EDIT: DUQ.340 must be equal to or less than current age.
+Error message: “Your response is greater than your recorded age. Please press the “Back” button, press
+“Clear,” and try again.”
+DUQ.350 How long has it been since you last used methamphetamine?
+G/Q/U
+INSTRUCTIONS TO SP:
+Please enter the number of days, weeks, months, or years, then select the unit of time.
+CAPI INSTRUCTIONS:
+If SP Ref/DK then store 7/9 in DUQ.350G and DUQ.350U, 7/9-fill in DUQ.350Q.
+If a value is entered in Quantity and Unit store Quantity in DUQ.350Q, Unit in DUQ.350U and 1 in DUQ.350G.
+HARD EDIT: Response must be equal to or less than current age minus DUQ.340.
+Error message: “Your response to time of last use is earlier than your response to age of first use. Please
+press the “Back” button, press “Clear,” and try again.”
+HARD EDIT: If DUQ.350 equal to 0 weeks, 0 months, or 0 years, display error message.
+Error message: “Your response must be greater than 0. Please press the “Back” button, press “Clear,” and
+try again.
+|___|___|___|
+ENTER NUMBER OF DAYS, WEEKS, MONTHS, OR YEARS
+REFUSED .................................................. 777
+DON'T KNOW ............................................ 999
+ENTER UNIT
+Days .............................................................. 1
+Weeks ........................................................... 2
+Months ........................................................... 3
+Years ............................................................. 4
+DUQ-10
+
+===== Página 11 =====
+
+DUQ.352 During your life, altogether how many times have you used methamphetamine?
+INSTRUCTIONS TO SP:
+Please select one of the following choices.
+Once .............................................................. 1
+2-5 times ........................................................ 2
+6-19 times ...................................................... 3
+20-49 times .................................................... 4
+50-99 times .................................................... 5
+100 times or more .......................................... 6
+REFUSED ..................................................... 77
+DON’T KNOW ............................................... 99
+BOX 4
+CHECK ITEM DUQ.355:
+ IF SP USED METHAMPHETAMINE WITHIN THE PAST MONTH (CODED 0-30
+DAYS, OR 1-4 WEEKS, OR 1 MONTH IN DUQ.350), CONTINUE WITH DUQ.360.
+ OTHERWISE, GO TO DUQ.370_.
+DUQ.360 During the past 30 days, on how many days did you use methamphetamine?
+INSTRUCTIONS TO SP:
+Please enter a number.
+HARD EDIT VALUES: 1-30.
+If DUQ.360 = 0, display error message: “Your response must be greater than 0. Please press the “Back”
+button, press “Clear,” and try again.
+If DUQ.360 > 30, display error message: “Your response cannot exceed 30 days. Please press the “Back”
+button, press “Clear,” and try again.”
+|___|___|
+ENTER A NUMBER
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+DUQ.370_ The following questions are about the different ways that certain drugs can be used.
+DUQ.370 Have you ever, even once, used a needle to inject a drug not prescribed by a doctor?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2 (BOX 5)
+REFUSED ..................................................... 7 (BOX 5)
+DON'T KNOW ............................................... 9 (BOX 5)
+DUQ-11
+
+===== Página 12 =====
+
+DUQ.380 Which of the following drugs have you injected using a needle?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select all the drugs that you injected.
+CAPI INSTRUCTION:
+SHOW ALL FIVE ITEMS ON SINGLE ACASI SCREEN
+Cocaine ......................................................... 1
+Heroin ............................................................ 2
+Methamphetamine ......................................... 3
+Steroids ......................................................... 4
+Any other drugs ............................................. 5
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+DUQ.390 How old were you when you first used a needle to inject any drug not prescribed by a doctor?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please enter an age.
+|___|___|
+ENTER AGE IN YEARS
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+HARD EDIT VALUES: 0-69
+Error message: “Your response cannot exceed 69 years. Please press the “Back” button, press “Clear,” and
+try again.”
+HARD EDIT: DUQ.390 must be equal to or less than current age.
+Error message: “Your response is greater than your recorded age. Please press the “Back” button, press
+“Clear,” and try again.”
+DUQ-12
+
+===== Página 13 =====
+
+DUQ.400 How long ago has it been since you last used a needle to inject a drug not prescribed by a doctor?
+G/Q/U
+(Target 12-69) INSTRUCTIONS TO SP:
+Please enter the number of days, weeks, months, or years, then select the unit of time.
+CAPI INSTRUCTIONS:
+If SP Ref/DK then store 7/9 in DUQ.400G and DUQ.400U, 7/9-fill in DUQ.400Q.
+If a value is entered in Quantity and Unit store Quantity in DUQ.400Q, Unit in DUQ.400U and 1 in DUQ.400G.
+HARD EDIT: Response must be equal to or less than current age minus DUQ.390.
+Error message: “Your response to time of last use is earlier than your response to age of first use. Please
+press the “Back” button, press “Clear,” and try again.”
+HARD EDIT: If DUQ.400 equal to 0 weeks, 0 months, or 0 years, display error message.
+Error message: “Your response must be greater than 0. Please press the “Back” button, press “Clear,” and
+try again.
+|___|___|___|
+ENTER NUMBER OF DAYS, WEEKS, MONTHS, OR YEARS
+REFUSED .................................................. 7777
+DON'T KNOW ............................................ 9999
+ENTER UNIT
+Days .............................................................. 1
+Weeks ........................................................... 2
+Months ........................................................... 3
+Years ............................................................. 4
+DUQ.410 During your life, altogether how many times have you injected drugs not prescribed by a doctor?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select one of the following choices.
+Once .............................................................. 1 (BOX 5)
+2-5 times ........................................................ 2
+6-19 times ...................................................... 3
+20-49 times .................................................... 4
+50-99 times .................................................... 5
+100 times or more .......................................... 6
+REFUSED ..................................................... 77
+DON’T KNOW ............................................... 99
+DUQ-13
+
+===== Página 14 =====
+
+DUQ.420 Think about the period of your life when you injected drugs the most often. How often did you inject then?
+(Target 12-69)
+INSTRUCTIONS TO SP:
+Please select one of the following choices.
+More than once a day .................................... 1
+About once a day ........................................... 2
+At least once a week but not every day ......... 3
+At least once a month but not every week ..... 4
+Less than once a month ................................ 5
+REFUSED ..................................................... 7
+DON’T KNOW ............................................... 9
+BOX 5
+CHECK ITEM DUQ.426:
+ IF SP 60-69 YEARS, GO TO END OF SECTION.
+ IF SP HAS USED MARIJUANA (CODED ‘1’) IN DUQ.200 OR SP HAS USED
+COCAINE, HEROIN, OR METHAMPHETAMINE (CODED ‘1’) IN DUQ.240, OR
+SP HAS INJECTED ANY DRUG NOT PRESCRIBED BY A DOCTOR (CODED ‘1’)
+IN DUQ.370, GO TO DUQ.430.
+ OTHERWISE, GO TO END OF SECTION.
+DUQ.430 Have you ever been in a drug treatment or drug rehabilitation program?
+INSTRUCTIONS TO SP:
+Please select . . .
+Yes ................................................................ 1
+No .................................................................. 2
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+DUQ-14
+
+===== Página 15 =====
+
+15
+

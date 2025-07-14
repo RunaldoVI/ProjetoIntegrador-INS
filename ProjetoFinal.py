@@ -46,7 +46,7 @@ with open(caminho_txt, "r", encoding="utf-8") as f:
 paginas = conteudo.split("===== Página")
 paginas = [p.strip() for p in paginas if p.strip()]
 
-# 6. Pergunta ao modelo
+# 6. Pergunta ao modelo e ao LLM
 pergunta = (
     "Consegues fazer uma lista organizada com os identificadores, as perguntas e as suas opções de resposta "
     "que aparecem neste questionário?\n\n"
