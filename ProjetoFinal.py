@@ -59,6 +59,7 @@ pergunta = (
     "  - [opção 1] (valor)\n"
     "  - [opção 2] (valor)\n"
     "  - ...\n\n"
+    "Consegues me colocar tudo num formato json?\n"
 )
 
 # Carregar o CSV
