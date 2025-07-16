@@ -32,7 +32,7 @@ def extrair_texto_para_txt(caminho_pdf):
     return caminho_txt
 
 # 2. Caminho para o PDF a extrair
-caminho_pdf = "DPQ_J.pdf"  # Altera aqui se necessário
+caminho_pdf = "Alcohol_Use.pdf"  # Altera aqui se necessário
 
 # 3. Extrai o texto e guarda no .txt
 caminho_txt = extrair_texto_para_txt(caminho_pdf)
@@ -50,19 +50,25 @@ paginas = [p.strip() for p in paginas if p.strip()]
 pergunta = (
     "Consegues fazer uma lista organizada com os identificadores, as perguntas e as suas opções de resposta "
     "que aparecem neste questionário?\n\n"
-    "❗ Importante:\n"
+    "❗ Instruções importantes:\n"
     "- Não traduzas nada.\n"
-    "- Usa o seguinte formato exato:\n\n"
+    "- Se houver algum texto introdutório ou enunciado que se aplica a várias perguntas seguidas (por exemplo, uma frase geral antes de uma lista de perguntas), considera esse texto como uma **Secção** comum.\n"
+    "- Se não houver um enunciado comum, coloca 'Secção: Nenhuma'.\n"
+    "- **Ignora blocos que sejam apenas instruções, anotações ou encaminhamentos** (ex: 'BOX 2', 'GO TO', 'CHECK ITEM', etc).\n"
+    "- **Ignora qualquer pergunta que não tenha pelo menos uma opção de resposta com valor numérico associado** (ex: '(0)', '(1)', '(2)'...).\n"
+    "- Usa exatamente o seguinte formato:\n\n"
     "Identificador: [código]\n"
-    "Pergunta: [texto completo]\n"
+    "Secção: [texto da secção ou 'Nenhuma']\n"
+    "Pergunta: [texto completo da pergunta]\n"
     "Respostas:\n"
     "  - [opção 1] (valor)\n"
     "  - [opção 2] (valor)\n"
     "  - ...\n\n"
-    "Consegues me colocar tudo num formato json?\n"
+    "Consegues colocar tudo num formato JSON estruturado?\n"
 )
 
 # Carregar o CSV
+'''
 df = pd.read_csv("training_data.csv")
 df = df.dropna(subset=["texto", "label"])
 df["label"] = df["label"].astype(str).str.strip()
@@ -136,7 +142,7 @@ labels_sub = label_encoder.inverse_transform(preds_sub)
 print("\n📄 [MiniLM] Classificação por sub-blocos (mais precisos) da Página 1:\n")
 for label, sub in zip(labels_sub, subblocos_todos):
     print(f"\n[{label}]\n{sub}\n{'-'*60}")
-
+'''
 # 7. Payload para a API do Ollama
 for i, texto_pagina in enumerate(paginas, start=1):
     if len(texto_pagina.strip()) < 20:
