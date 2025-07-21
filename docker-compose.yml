@@ -1,9 +1,12 @@
+
 version: '3.9'
 
 services:
   app:
     build: .
     container_name: projeto_app
+    ports:
+      - "5000:5000"
     volumes:
       - ./app:/app
     depends_on:
@@ -16,6 +19,7 @@ services:
       - DB_NAME=meubanco
     networks:
       - projeto_net
+    command: python app.py
 
   db:
     image: mysql:8.0

@@ -5,6 +5,6 @@ WORKDIR /app
 COPY app/ /app/
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.org/simple --timeout=100
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "ProjetoFinal.py"]
+CMD ["python", "app.py"]

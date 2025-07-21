@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Leitor de PDFs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Leitor de PDFs com LLM</h1>
+
+    <input type="file" id="pdfInput" accept=".pdf">
+    <button onclick="enviarPDF()">Enviar</button>
+    <button onclick="limparPDF()">Limpar</button>
+
+    <div class="progress-container">
+        <div id="progressBar"></div>
+    </div>
+
+    <div id="resultado"></div>
+
+    <script>
+        function enviarPDF() {
+            const fileInput = document.getElementById('pdfInput');
+            const file = fileInput.files[0];
+            if (!file) return alert("Seleciona um ficheiro PDF.");
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = '0%';
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.resultados) {
+                      progressBar.style.width = '100%';
+                      document.getElementById('resultado').innerText = data.resultados.join('\n\n');
+                  } else {
+                      alert("Erro ao processar PDF.");
+                  }
+              });
+        }
+
+        function limparPDF() {
+            fetch('/limpar', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('pdfInput').value = '';
+                    document.getElementById('resultado').innerText = '';
+                    document.getElementById('progressBar').style.width = '0%';
+                    alert(data.mensagem);
+                });
+        }
+    </script>
+</body>
+</html>
