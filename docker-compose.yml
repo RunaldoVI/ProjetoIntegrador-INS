@@ -1,4 +1,3 @@
-
 version: '3.9'
 
 services:
@@ -9,6 +8,7 @@ services:
       - "5000:5000"
     volumes:
       - ./app:/app
+      - ./pdfs-excels:/app/pdfs-excels
     depends_on:
       - db
       - ollama
@@ -17,9 +17,12 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root
       - DB_NAME=meubanco
+      - OLLAMA_URL=http://ollama:11434/api/chat  
+      - OLLAMA_MODEL=mistral
     networks:
       - projeto_net
-    command: python app.py
+    command: >
+      sh -c "sleep 10 && python ProjetoFinal.py"  
 
   db:
     image: mysql:8.0
@@ -36,14 +39,22 @@ services:
       - projeto_net
 
   ollama:
-    image: ollama/ollama
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
     container_name: projeto_ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
     networks:
       - projeto_net
+    restart: always
 
 volumes:
   mysql_data:

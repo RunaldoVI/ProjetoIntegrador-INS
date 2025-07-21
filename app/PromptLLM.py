@@ -1,5 +1,7 @@
 import requests
 import json
+import os
+import time
 
 def obter_pergunta():
     return (
@@ -22,7 +24,10 @@ def obter_pergunta():
         "Consegues colocar tudo num formato JSON estruturado?\n"
     )
 
-def enviar_pagina_para_llm(texto_pagina, pergunta, modelo="mistral", url="http://localhost:11434/api/chat"):
+def enviar_pagina_para_llm(texto_pagina, pergunta, tentativas=10):
+    url = os.getenv("OLLAMA_URL", "http://ollama:11434/api/chat")
+    modelo = os.getenv("OLLAMA_MODEL", "mistral")
+
     payload = {
         "model": modelo,
         "messages": [
@@ -31,19 +36,25 @@ def enviar_pagina_para_llm(texto_pagina, pergunta, modelo="mistral", url="http:/
         ]
     }
 
-    resposta_total = ""
-    response = requests.post(url, json=payload, stream=True)
+    for tentativa in range(1, tentativas + 1):
+        try:
+            response = requests.post(url, json=payload, stream=True, timeout=30)
+            if response.status_code == 200:
+                resposta_total = ""
+                for line in response.iter_lines(decode_unicode=True):
+                    if line:
+                        try:
+                            data = json.loads(line)
+                            if "message" in data and "content" in data["message"]:
+                                resposta_total += data["message"]["content"]
+                        except json.JSONDecodeError:
+                            resposta_total += f"\n⚠️ Erro a processar linha: {line}"
+                return resposta_total
+            else:
+                return f"❌ Erro: {response.status_code}\n{response.text}"
 
-    if response.status_code == 200:
-        for line in response.iter_lines(decode_unicode=True):
-            if line:
-                try:
-                    data = json.loads(line)
-                    if "message" in data and "content" in data["message"]:
-                        resposta_total += data["message"]["content"]
-                except json.JSONDecodeError:
-                    resposta_total += f"\n⚠️ Erro a processar linha: {line}"
-    else:
-        resposta_total = f"❌ Erro: {response.status_code}\n{response.text}"
+        except requests.exceptions.RequestException as e:
+            print(f"⏳ [Tentativa {tentativa}/{tentativas}] Ollama não disponível ainda. A aguardar 5s...")
+            time.sleep(5)
 
-    return resposta_total
+    return "❌ Erro: Falha ao conectar ao Ollama após várias tentativas."
