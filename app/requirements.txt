@@ -1,0 +1,5 @@
+pdfplumber
+requests
+scikit-learn
+sentence-transformers
+pandas
