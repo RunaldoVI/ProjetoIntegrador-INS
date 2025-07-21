@@ -17,7 +17,7 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root
       - DB_NAME=meubanco
-      - OLLAMA_URL=http://ollama:11434/api/chat  
+      - OLLAMA_URL=http://ollama:11434/api/chat
       - OLLAMA_MODEL=mistral
     networks:
       - projeto_net
