@@ -174,3 +174,6 @@ for i, texto_pagina in enumerate(paginas, start=1):
     else:
         print(f"❌ Erro: {response.status_code}")
         print(response.text)
+
+        input("\n✅ Execução concluída. Pressiona Enter para sair...")
+
