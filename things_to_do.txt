@@ -1,6 +1,6 @@
 #1-Inserir Na base de dados respostas e perguntas
 
-#2-Verificar se nova pergunta é uma versão da que ja existe ou uma nova 
+#2-Verificar se nova pergunta é uma versão da que ja existe ou uma nova
 
 #Inserir o INS Template a partir da base de dados
 
