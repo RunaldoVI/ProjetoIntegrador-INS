@@ -8,12 +8,11 @@
 
 #Criar questionarios a partir da base de dados
 
-#Poder usar docker para ligar a minha api a minha maquina
+#Poder usar docker para ligar a minha api a minha maquina (JÁ ESTÁ MAIS OU MENOS FEITO)
 
 #Extra poder adicionar uma interface gráfica. streamlits.
 
 #Blibioteca Python PDF - FITZ
-
 
 #2 estruturacao dos pdf´s
 

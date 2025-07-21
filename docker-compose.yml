@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: projeto_app
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+      - ollama
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=meubanco
+    networks:
+      - projeto_net
+
+  db:
+    image: mysql:8.0
+    container_name: projeto_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: meubanco
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - projeto_net
+
+  ollama:
+    image: ollama/ollama
+    container_name: projeto_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - projeto_net
+
+volumes:
+  mysql_data:
+  ollama_data:
+
+networks:
+  projeto_net:

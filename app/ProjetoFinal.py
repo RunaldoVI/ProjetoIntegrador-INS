@@ -2,7 +2,7 @@ from TextExtractorPDF import extrair_texto_para_txt
 from PromptLLM import enviar_pagina_para_llm, obter_pergunta
 
 # Caminho para o PDF
-caminho_pdf = "../documents/DPQ_J.pdf"
+caminho_pdf = "../pdfs-excels/DPQ_J.pdf"
 
 # 1. Extrair texto do PDF
 caminho_txt = extrair_texto_para_txt(caminho_pdf)
@@ -28,3 +28,5 @@ for i, texto_pagina in enumerate(paginas, start=1):
     resposta = enviar_pagina_para_llm(texto_pagina, pergunta)
     print(resposta)
     print("-" * 50)
+
+
