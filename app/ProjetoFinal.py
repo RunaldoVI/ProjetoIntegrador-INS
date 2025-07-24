@@ -3,7 +3,7 @@ from PromptLLM import enviar_pagina_para_llm, obter_pergunta
 import os
 
 # Caminho para o PDF
-caminho_pdf = os.path.join("pdfs-excels", "DPQ_J.pdf")
+caminho_pdf = "../pdfs-excels/DPQ_J.pdf"
 
 # 1. Extrair texto do PDF
 caminho_txt = extrair_texto_para_txt(caminho_pdf)
@@ -26,8 +26,9 @@ for i, texto_pagina in enumerate(paginas, start=1):
         continue
 
     print(f"\n🧠 Página {i}:")
+    if len(texto_pagina) > 3000:
+        print(f"⚠️ Página {i} cortada (excedia 3000 caracteres).")
+        texto_pagina = texto_pagina[:3000]
     resposta = enviar_pagina_para_llm(texto_pagina, pergunta)
     print(resposta)
     print("-" * 50)
-
-
