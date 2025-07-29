@@ -15,11 +15,6 @@ from app.Limpeza.PreProcessamento import (
     conciliar_estrutura
 )
 
-<<<<<<< HEAD
-=======
-# Caminho para o PDF
-caminho_pdf = "pdfs-excels/DPQ_J.pdf"
->>>>>>> main
 
 
 # === Pipeline Principal ===
