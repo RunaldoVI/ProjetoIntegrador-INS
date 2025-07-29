@@ -1,2 +1,0 @@
-FROM curlimages/curl:latest
-RUN apk add --no-cache bash grep
