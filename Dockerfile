@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN apt-get update && \
-    apt-get install -y curl && \
-    pip install --no-cache-dir -r requirements.txt && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Adiciona PYTHONPATH para que "app" seja reconhecido como módulo
+ENV PYTHONPATH=/app
+
+RUN apt-get update && apt-get install -y curl && \
+    pip install --no-cache-dir -r requirements.txt
 
 CMD ["python", "app/ProjetoFinal.py"]
