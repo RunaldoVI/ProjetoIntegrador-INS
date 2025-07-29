@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_DEBUG=error
+  projeto:
+    build: .
+    container_name: projeto-integrador
+    depends_on:
+      - ollama
+    command: >
+      sh -c "
+        echo '⏳ A aguardar que o Ollama esteja pronto...';
+        until curl -s http://ollama:11434/; do
+          sleep 2;
+        done;
+        echo '✅ Ollama ativo. A puxar modelo mistral...';
+        curl -s -X POST http://ollama:11434/api/pull -H 'Content-Type: application/json' -d '{\"name\": \"mistral\"}';
+        echo '🚀 A iniciar o projeto Python...';
+        python app/ProjetoFinal.py
+      "
+    volumes:
+      - .:/app
+    working_dir: /app
+
+volumes:
+  ollama-data:

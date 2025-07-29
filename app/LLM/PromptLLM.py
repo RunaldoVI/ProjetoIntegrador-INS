@@ -25,7 +25,7 @@ def obter_pergunta():
     )
 
 
-def enviar_pagina_para_llm(texto_pagina, pergunta, modelo="mistral", url="http://localhost:11434/api/chat"):
+def enviar_pagina_para_llm(texto_pagina, pergunta, modelo="mistral", url="http://ollama:11434/api/chat"):
     payload = {
         "model": modelo,
         "messages": [
