@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil do Utilizador</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Estilo personalizado -->
+  <link rel="stylesheet" href="css/profile.css" />
+
+  <!-- Tema -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            lightBg: "#f9fafb",
+            lightCard: "#ffffff",
+            lightHighlight: "#dbeafe",
+            lightAccent: "#3b82f6",
+            lightText: "#1f2937",
+            darkBg: "#1e1e2f",
+            darkCard: "#2b2c3e",
+            darkHighlight: "#3c3d5a",
+            darkAccent: "#7dd3fc",
+            darkText: "#d1d5db",
+            accent: "#3b82f6",
+            highlight: "#334155",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="bg-lightBg dark:bg-darkBg text-lightText dark:text-darkText font-sans p-4 transition-colors">
+  <section class="max-w-4xl mx-auto space-y-8 animate-fade-in">
+    <!-- Avatar + Nome -->
+    <div class="flex flex-col items-center gap-4">
+  <img
+    id="user-avatar"
+    src="assets/avatar.png"
+    alt="Avatar"
+    class="w-32 h-32 rounded-full border-4 border-lightAccent dark:border-darkAccent shadow-lg transition hover:scale-105 object-cover"
+  />
+  <h2 id="user-name" class="text-3xl font-bold">—</h2>
+  <p id="user-info" class="text-sm text-gray-500 dark:text-gray-400"></p>
+</div>
+
+
+    <!-- Cartão de Informações -->
+    <div class="bg-lightCard dark:bg-darkCard rounded-2xl shadow-lg p-6 space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-1">
+          <p class="text-sm text-gray-400">Nome</p>
+          <p id="profile-nome" class="font-medium text-lg">—</p>
+        </div>
+        <div class="space-y-1">
+          <p class="text-sm text-gray-400">Email</p>
+          <p id="profile-email" class="font-medium text-lg">—</p>
+        </div>
+        <div class="space-y-1">
+          <p class="text-sm text-gray-400">Função</p>
+          <p id="profile-funcao" class="font-medium text-lg">—</p>
+        </div>
+        <div class="space-y-1">
+          <p class="text-sm text-gray-400">Instituição</p>
+          <p id="profile-inst" class="font-medium text-lg">—</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Histórico de PDFs -->
+    <div class="bg-lightCard dark:bg-darkCard rounded-2xl shadow-lg p-6 space-y-4">
+      <h3 class="text-xl font-semibold flex items-center gap-2 text-accent">
+        <i class="fas fa-file-alt"></i> Histórico de PDFs Ingeridos
+      </h3>
+      <ul id="pdf-history" class="list-disc list-inside text-gray-600 dark:text-gray-400 text-sm space-y-1">
+        <li>Nenhum PDF ingerido ainda.</li>
+      </ul>
+    </div>
+
+    <!-- Botão de edição -->
+    <div class="text-center">
+      <button onclick="openEditModal()" class="inline-flex items-center px-6 py-2 rounded-full bg-lightAccent text-white hover:bg-blue-600 transition font-medium shadow">
+        <i class="fas fa-edit mr-2"></i> Editar Perfil
+      </button>
+    </div>
+  </section>
+
+  <!-- Modal de edição -->
+  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-xl w-full max-w-md space-y-4">
+      <h2 class="text-xl font-bold text-center">Editar Perfil</h2>
+
+      <label class="block text-sm font-medium">Nome</label>
+      <input id="editNome" type="text" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkBg text-gray-800 dark:text-white" />
+
+      <label class="block text-sm font-medium">Função</label>
+      <input id="editFuncao" type="text" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkBg text-gray-800 dark:text-white" />
+
+      <label class="block text-sm font-medium">Instituição</label>
+      <input id="editInstituicao" type="text" class="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkBg text-gray-800 dark:text-white" />
+
+      <div class="flex justify-end gap-2 pt-4">
+        <button onclick="closeEditModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm">Cancelar</button>
+        <button onclick="submitProfileEdit()" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/toast.js"></script>
+  <script src="js/theme.js"></script> 
+<script src="js/profile.js"></script>
+
+</body>
+</html>

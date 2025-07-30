@@ -1,0 +1,13 @@
+# Força quebra de linha LF (Unix-style) para todos os scripts .sh
+*.sh text eol=lf
+
+# Garante que ficheiros de código usem LF
+*.py text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.md text eol=lf
