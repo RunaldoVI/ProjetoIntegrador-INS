@@ -1,5 +1,44 @@
+//auth.js
 // Função de registo
 function register() {
+  const nome = document.getElementById("nome").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (!nome || !email || !password) {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  fetch("http://localhost:5000/api/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome,
+      email,
+      password,
+      funcao: "Estudante",
+      instituicao: "INS - Instituto de Ensino"
+    })
+  })
+    .then((res) => {
+      if (res.status === 409) throw new Error("Email já registado.");
+      if (!res.ok) throw new Error("Erro ao registar utilizador.");
+      return res.json();
+    })
+    .then(() => {
+      localStorage.setItem("user", JSON.stringify({ nome, email }));
+      alert("Conta criada com sucesso!");
+      window.location.href = "index.html";
+    })
+    .catch((err) => {
+      console.error("Erro no registo:", err);
+      alert(err.message || "Erro inesperado.");
+    });
+}
+
+// Função de login
+function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
@@ -8,56 +47,45 @@ function register() {
     return;
   }
 
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-
-  if (users[email]) {
-    alert("Este email já está registado.");
-    return;
-  }
-
-  users[email] = { password };
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("Registo feito com sucesso!");
-  window.location.href = "login.html";
+  fetch("http://localhost:5000/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Email ou palavra-passe incorreta.");
+      return res.json();
+    })
+    .then((data) => {
+      localStorage.setItem("user", JSON.stringify({ 
+        nome: data.nome, 
+        email: data.email,
+        funcao: data.funcao,
+        instituicao: data.instituicao
+      }));
+      window.location.href = "index.html";
+    })
+    .catch((err) => {
+      console.error("Erro no login:", err);
+      alert(err.message || "Erro ao autenticar.");
+    });
 }
 
-// Função de login
-function login() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-
-  if (users[email] && users[email].password === password) {
-    localStorage.setItem("loggedInUser", email);
-    window.location.href = "index.html";
-  } else {
-    alert("Email ou palavra-passe inválidos.");
-  }
-}
-
-// Verifica se está autenticado
-function checkAuth() {
-  const loggedIn = localStorage.getItem("loggedInUser");
-  if (!loggedIn) {
-    window.location.href = "login.html";
-  }
-}
 
 // Logout
 function logout() {
-  localStorage.removeItem("loggedInUser");
+  localStorage.removeItem("user");
   window.location.href = "login.html";
 }
 
-// Lógica ao carregar a página
+// Verificação de sessão ao carregar
 document.addEventListener("DOMContentLoaded", () => {
-  const loggedIn = localStorage.getItem("loggedInUser");
+  const user = JSON.parse(localStorage.getItem("user"));
   const input = document.getElementById("pdfInput");
   const authButtons = document.getElementById("authButtons");
   const logoutBtn = document.getElementById("logoutBtn");
 
-  if (loggedIn) {
+  if (user && user.email) {
     if (authButtons) authButtons.classList.add("hidden");
     if (logoutBtn) logoutBtn.classList.remove("hidden");
   } else {
@@ -65,6 +93,5 @@ document.addEventListener("DOMContentLoaded", () => {
     if (logoutBtn) logoutBtn.classList.add("hidden");
   }
 
-  // Mostrar sempre o input do PDF
   if (input) input.classList.remove("hidden");
 });

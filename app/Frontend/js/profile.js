@@ -1,57 +1,85 @@
-// Pega o ID da URL: profile.html?id=3
-const params = new URLSearchParams(window.location.search);
-const userId = params.get("id");
-
-if (!userId) {
-  document.getElementById("profile-container").innerText = "ID de usuário não informado.";
-} else {
-  fetch(`/api/users/${userId}/profile`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Usuário não encontrado.");
-      return res.json();
-    })
-    .then((data) => {
-      const container = document.getElementById("profile-container");
-      container.innerHTML = `
-        <div class="profile-card">
-          <img src="${data.avatarUrl || '/assets/default.png'}" alt="Avatar" width="150" />
-          <h2>${data.name}</h2>
-          <p>${data.bio || "Sem descrição."}</p>
-          <h3>Competências</h3>
-          <ul>
-            ${(data.skills || []).map((s) => `<li>${s}</li>`).join("")}
-          </ul>
-        </div>
-      `;
-    })
-    .catch((err) => {
-      document.getElementById("profile-container").innerText = "Erro ao carregar perfil.";
-      console.error(err);
-    });
-}
+//profile.js
 document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.id) {
+
+  if (!user || !user.email) {
     window.location.href = "login.html";
     return;
   }
 
-  fetch(`/api/users/${user.id}/profile`)
-    .then((res) => res.json())
-    .then((data) => {
-      document.getElementById("nome").textContent = data.name;
-      document.getElementById("email").textContent = data.email;
-      document.getElementById("bio").textContent = data.bio || "Estudante";
-      document.getElementById("instituicao").textContent = data.instituicao || "Instituição não definida";
+  // Preenche dados locais
+  document.getElementById("user-name").textContent = user.nome;
+  document.getElementById("user-info").textContent = `Utilizador registado com o email ${user.email}`;
+  document.getElementById("profile-nome").textContent = user.nome;
+  document.getElementById("profile-email").textContent = user.email;
+  document.getElementById("user-avatar").src = "assets/avatar.png";
 
-      const historico = document.getElementById("pdf-historico");
-      if (data.pdfs && data.pdfs.length > 0) {
-        historico.innerHTML = data.pdfs
-          .map((pdf) => `<li>${pdf.nome} (${pdf.data})</li>`)
-          .join("");
+  // Histórico inicial vazio
+  const historico = document.getElementById("pdf-history");
+  historico.innerHTML = "<li>Nenhum PDF ingerido ainda.</li>";
+
+  // Carrega dados reais do backend com email
+  fetch(`http://localhost:5000/api/user/profile?email=${encodeURIComponent(user.email)}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Erro ao carregar perfil.");
+      return res.json();
+    })
+    .then((dados) => {
+      document.getElementById("profile-funcao").textContent = dados.funcao || "Estudante";
+      document.getElementById("profile-inst").textContent = dados.instituicao || "Instituição";
+
+      const ul = document.getElementById("pdf-history");
+      ul.innerHTML = "";
+
+      if (dados.pdfs && dados.pdfs.length > 0) {
+        dados.pdfs.forEach((pdf) => {
+          const li = document.createElement("li");
+          li.innerHTML = `${pdf.nome} <span class="text-xs text-gray-400">(${pdf.data})</span>`;
+          ul.appendChild(li);
+        });
       } else {
-        historico.innerHTML = "<li>Nenhum PDF ingerido</li>";
+        ul.innerHTML = "<li>Nenhum PDF ingerido ainda.</li>";
       }
+    })
+    .catch((err) => {
+      console.warn("Erro ao carregar perfil:", err);
     });
 });
 
+// Abre o modal de edição com os dados atuais
+function openEditModal() {
+  document.getElementById("editModal").classList.remove("hidden");
+  document.getElementById("editNome").value = document.getElementById("profile-nome").textContent;
+  document.getElementById("editFuncao").value = document.getElementById("profile-funcao").textContent;
+  document.getElementById("editInstituicao").value = document.getElementById("profile-inst").textContent;
+}
+
+// Fecha o modal de edição
+function closeEditModal() {
+  document.getElementById("editModal").classList.add("hidden");
+}
+
+// Submete o novo perfil para o backend
+function submitProfileEdit() {
+  const nome = document.getElementById("editNome").value.trim();
+  const funcao = document.getElementById("editFuncao").value.trim();
+  const instituicao = document.getElementById("editInstituicao").value.trim();
+  const email = JSON.parse(localStorage.getItem("user")).email;
+
+  fetch("http://localhost:5000/api/user/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, nome, funcao, instituicao })
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Erro ao atualizar perfil.");
+      return res.json();
+    })
+    .then(() => {
+      localStorage.setItem("user", JSON.stringify({ nome, email }));
+      location.reload();
+    })
+    .catch((err) => {
+      alert(err.message || "Erro ao atualizar.");
+    });
+}

@@ -1,3 +1,4 @@
+<!--index.html-->
 <!DOCTYPE html>
 <html lang="pt">
   <head>
@@ -355,22 +356,26 @@
 
         // Se for "profile", carregar profile.html
         if (target === "profile") {
-          if (externalContentContainer && !externalContentContainer.dataset.loaded) {
-            try {
-              const res = await fetch("profile.html");
-              const html = await res.text();
-              externalContentContainer.innerHTML = html;
-              externalContentContainer.dataset.loaded = "true";
-            } catch (err) {
-              externalContentContainer.innerHTML = "<p class='text-red-500'>Erro ao carregar perfil.</p>";
-            }
+        if (externalContentContainer && !externalContentContainer.dataset.loaded) {
+          try {
+            const res = await fetch("profile.html");
+            const html = await res.text();
+            externalContentContainer.innerHTML = html;
+            externalContentContainer.dataset.loaded = "true";
+
+            // ⬇️ Carrega o JS do profile manualmente
+            const script = document.createElement("script");
+            script.src = "js/profile.js";
+            script.defer = true;
+            document.body.appendChild(script);
+
+          } catch (err) {
+            externalContentContainer.innerHTML = "<p class='text-red-500'>Erro ao carregar perfil.</p>";
           }
-          externalContentContainer.classList.remove("hidden");
-        } else {
-          // Mostra a seção correspondente
-          const visibleSection = document.getElementById(`section-${target}`);
-          if (visibleSection) visibleSection.classList.remove("hidden");
         }
+        externalContentContainer.classList.remove("hidden");
+      }
+
       });
     });
   }
