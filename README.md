@@ -77,28 +77,30 @@ Faça um fork do projeto
 
 Crie uma branch com sua feature:
 
-bash
+
 Copy
 Edit
 git checkout -b minha-feature
 Commit suas mudanças:
 
-bash
+
 Copy
 Edit
 git commit -m 'feat: adicionei nova funcionalidade'
 Envie o push para sua branch:
 
-bash
+
 Copy
 Edit
 git push origin minha-feature
 Abra um Pull Request
 
-🧾 Licença
+### Licença
+🧾 
 Este projeto está licenciado sob a MIT License. Veja o arquivo LICENSE para mais detalhes.
 
-📬 Contato
+### 1. Contato
+📬 
 Desenvolvedor: João Custódio
 E-mail: joaocustodio30@gmail.com
 LinkedIn: https://www.linkedin.com/in/jo%C3%A3o-cust%C3%B3dio30/
