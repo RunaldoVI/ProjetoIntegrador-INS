@@ -106,3 +106,5 @@ LinkedIn: https://www.linkedin.com/in/jo%C3%A3o-cust%C3%B3dio30/
 Desenvolvedor: Ronaldo Ribalonga
 E-mail: ronaldoribalonga@gmail.com
 LinkedIn: https://www.linkedin.com/in/ronaldo-ribalonga-190a03233/ 
+
+Desenvolvedor
