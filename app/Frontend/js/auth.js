@@ -1,4 +1,3 @@
-//auth.js
 // Função de registo
 function register() {
   const nome = document.getElementById("nome").value.trim();
@@ -47,7 +46,7 @@ function login() {
     return;
   }
 
-  fetch("http://localhost:5000/api/login", {
+  fetch("http://localhost:5000/api/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
@@ -70,7 +69,6 @@ function login() {
       alert(err.message || "Erro ao autenticar.");
     });
 }
-
 
 // Logout
 function logout() {

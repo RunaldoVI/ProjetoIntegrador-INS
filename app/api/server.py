@@ -20,8 +20,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def after_request(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS")
     return response
+
 
 # Utilitários
 def load_users():
@@ -94,8 +95,10 @@ def login_user():
         'pdfs': user.get('pdfs', [])
     })
 
-@app.route('/api/user/profile', methods=['PUT'])
+@app.route('/api/user/profile', methods=['PUT','OPTIONS'])
 def update_user_profile():
+    if request.method == 'OPTIONS':
+        return '',200
     data = request.get_json()
     email = data.get('email')
     nome = data.get('nome')

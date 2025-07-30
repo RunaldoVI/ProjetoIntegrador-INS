@@ -1,4 +1,4 @@
-//profile.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -66,11 +66,12 @@ function submitProfileEdit() {
   const instituicao = document.getElementById("editInstituicao").value.trim();
   const email = JSON.parse(localStorage.getItem("user")).email;
 
-  fetch("http://localhost:5000/api/user/profile", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, nome, funcao, instituicao })
-  })
+fetch("http://localhost:5000/api/user/profile", {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, nome, funcao, instituicao })
+})
+
     .then((res) => {
       if (!res.ok) throw new Error("Erro ao atualizar perfil.");
       return res.json();
