@@ -1,3 +1,13 @@
+#IMPORTANTE PARA FUNCIONALIDADES DO PROGRAMA PRINCIPAL 
+- Excels: 
+         Quando analisa o pdf retornar um excel prefeito do estilo INS ao utilizador na web para download
+
+- Registo/Login:
+        Conenctar a base de dados o Registo/Login de utilizadores
+
+- Output do LLM
+        Melhorar o output do LLM 
+
 #1-Inserir Na base de dados respostas e perguntas
 
 #2-Verificar se nova pergunta é uma versão da que ja existe ou uma nova
@@ -8,12 +18,15 @@
 
 #Criar questionarios a partir da base de dados
 
-#Poder usar docker para ligar a minha api a minha maquina (JÁ ESTÁ MAIS OU MENOS FEITO)
-
-#Extra poder adicionar uma interface gráfica. streamlits.
-
 #Blibioteca Python PDF - FITZ
 
 #2 estruturacao dos pdf´s
 
 conseguir estrurar bem qualquer pdf que inserirmos no codigo ProjetoFinal.py
+
+
+#Ver a disponibilidade das portas e ver se da para ser flexivel
+
+DockerCompose.yml
+WaitLLM.js
+PDFHandler.js
