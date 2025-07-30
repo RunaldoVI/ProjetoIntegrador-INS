@@ -94,6 +94,14 @@
       opacity: 0;
     }
   }
+    @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
 </style>
 
 
@@ -136,13 +144,31 @@
   </head>
 
   <body class="bg-lightBg text-lightText font-sans dark:bg-darkBg dark:text-darkText transition-colors duration-500">
+<div id="llm-loading-overlay" class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/50 text-white text-center px-4 transition-opacity duration-500">
+  <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-6 rounded-2xl shadow-2xl animate-fade-in">
+    <div class="flex flex-col items-center gap-4">
+      <svg class="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      <h2 class="text-xl font-bold">A iniciar o modelo LLM...</h2>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Por favor, aguarde alguns segundos.</p>
+
+      <!-- Barra de progresso DENTRO da caixa -->
+      <div class="w-full bg-gray-300 dark:bg-darkHighlight rounded-full h-3 mt-4">
+        <div id="llm-progress-bar" class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+      <p id="llm-progress-text" class="mt-2 text-sm text-gray-500 dark:text-gray-400">0%</p>
+    </div>
+  </div>
+</div>
     <!-- Header -->
     <header class="bg-lightCard dark:bg-darkCard px-6 py-4 flex justify-between items-center border-b border-lightHighlight dark:border-darkHighlight fixed w-full z-20">
      <div class="flex items-center gap-3">
   <img src="assets/icon.png" alt="Ícone PDF" class="w-8 h-8" />
   <h1 class="text-2xl font-semibold tracking-tight">PROJETO INTEGRADOR INS</h1>
 </div>
-
 
       <div class="flex items-center gap-4">
   <input
@@ -171,6 +197,7 @@
 </div>
 
     </header>
+
 
     <!-- Layout -->
     <div class="flex pt-20 h-screen overflow-hidden">
@@ -324,6 +351,8 @@
     <script src="js/pdfHandler.js"></script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/WaitLLM.js"></script>
+
 
     <script>
   document.addEventListener("DOMContentLoaded", () => {

@@ -3,3 +3,5 @@ pdfplumber
 mysql-connector-python
 PyMuPDF
 flask
+flask-cors
+docker

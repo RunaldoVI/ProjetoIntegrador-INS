@@ -62,7 +62,8 @@ services:
     volumes:
       - ./app:/app
       - ./pdfs-excels:/app/pdfs-excels
-
+      - ollama-data:/root/.ollama
+      - ./ollama-progress.log:/app/ollama-progress.log
   frontend:
     image: nginx:latest
     container_name: projeto-frontend
