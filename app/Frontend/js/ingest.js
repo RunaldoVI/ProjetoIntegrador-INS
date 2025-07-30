@@ -1,6 +1,6 @@
 // js/ingest.js
+document.addEventListener("DOMContentLoaded", () => {
 console.log("ingest.js carregado com sucesso!");
-
 let currentPdfFile = null;
 let analyzing = false;
 
@@ -160,4 +160,4 @@ function setupPdfUpload() {
 
   setupPdfUpload();
   resetUI();
-
+});

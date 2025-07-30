@@ -69,11 +69,13 @@
           <i class="fas fa-cogs"></i><span>Menu</span>
         </div>
         <nav class="space-y-4">
-          <button data-section="ingest" class="nav-link active"><i class="fas fa-upload mr-2"></i> Ingerir PDF</button>
-          <button data-section="history" class="nav-link"><i class="fas fa-folder-open mr-2"></i> PDFs Ingeridos</button>
-          <button data-section="profile" class="nav-link"><i class="fas fa-user-circle mr-2"></i> Perfil</button>
-          <button data-section="about" class="nav-link"><i class="fas fa-circle-info mr-2"></i> Sobre</button>
-        </nav>
+        <a href="#ingest" class="nav-link"><i class="fas fa-upload mr-2"></i> Ingerir PDF</a>
+        <a href="#history" class="nav-link"><i class="fas fa-folder-open mr-2"></i> PDFs Ingeridos</a>
+        <a href="#profile" class="nav-link"><i class="fas fa-user-circle mr-2"></i> Perfil</a>
+        <a href="#about" class="nav-link"><i class="fas fa-circle-info mr-2"></i> Sobre</a>
+      </nav>
+
+
 
         <!-- Tema -->
         <label class="flex items-center gap-3 mt-6 cursor-pointer">
@@ -100,46 +102,8 @@
   <script src="js/nav.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/WaitLLM.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/main.js"></script>
 
-
-  <script>
-    function setupNavigation() {
-      const navButtons = document.querySelectorAll(".nav-link");
-      const externalContent = document.getElementById("external-content");
-
-      navButtons.forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const target = btn.getAttribute("data-section");
-
-          navButtons.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-
-          if (externalContent) {
-            externalContent.innerHTML = "A carregar...";
-
-            try {
-              const res = await fetch(`sections/${target}.html`);
-              const html = await res.text();
-              externalContent.innerHTML = html;
-
-              const script = document.createElement("script");
-              script.src = `js/${target}.js`;
-              script.onload = () => console.log(`${target}.js carregado`);
-              script.onerror = () => console.error(`Erro ao carregar ${target}.js`);
-              document.body.appendChild(script);
-            } catch (err) {
-              externalContent.innerHTML = "<p class='text-red-500'>Erro ao carregar conteúdo.</p>";
-              console.error("Erro ao buscar conteúdo:", err);
-            }
-          }
-        });
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      setupNavigation();
-      document.querySelector('[data-section="ingest"]').click(); // carrega ingest.html por padrão
-    });
-  </script>
 </body>
 </html>
