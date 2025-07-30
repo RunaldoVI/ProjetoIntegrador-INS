@@ -20,3 +20,7 @@ function setupThemeToggle() {
     });
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupThemeToggle();
+});
