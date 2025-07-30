@@ -262,54 +262,6 @@
           <p class="text-gray-500 dark:text-gray-400">Esta seção mostrará uma lista de PDFs já carregados.</p>
         </section>
 
-        <!-- Seção 3: Perfil -->
-        <section id="section-profile" class="section hidden">
-  <h2 class="text-2xl font-bold mb-6">Perfil do Utilizador</h2>
-
-  <div class="bg-lightCard dark:bg-darkCard rounded-xl shadow p-6 space-y-6">
-    <!-- Informações do utilizador -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <p class="text-sm text-gray-400">Nome</p>
-        <p class="font-semibold text-lightText dark:text-darkText">João Custódio</p>
-      </div>
-      <div>
-        <p class="text-sm text-gray-400">Email</p>
-        <p class="font-semibold text-lightText dark:text-darkText">joao.custodio@exemplo.com</p>
-      </div>
-      <div>
-        <p class="text-sm text-gray-400">Função</p>
-        <p class="font-semibold text-lightText dark:text-darkText">Estudante</p>
-      </div>
-      <div>
-        <p class="text-sm text-gray-400">Instituição</p>
-        <p class="font-semibold text-lightText dark:text-darkText">INS - Instituto de Ensino</p>
-      </div>
-    </div>
-
-    <!-- Histórico de PDFs -->
-    <div>
-      <h3 class="text-lg font-semibold mb-2 text-accent">Histórico de PDFs Ingeridos</h3>
-      <ul class="list-disc list-inside text-gray-500 dark:text-gray-400 text-sm space-y-1">
-        <li>relatorio_final.pdf (23/07/2025)</li>
-        <li>tcc_documento.pdf (20/07/2025)</li>
-        <li>artigo_cientifico.pdf (15/07/2025)</li>
-      </ul>
-    </div>
-
-    <!-- Simulação de edição -->
-    <div>
-      <button
-        class="mt-4 px-4 py-2 bg-lightAccent text-white rounded-md hover:bg-blue-600 transition"
-        onclick="showToast('Função de edição ainda não implementada.', 'error')"
-      >
-        Editar Perfil
-      </button>
-    </div>
-  </div>
-</section>
-
-
         <!-- Seção 4: Sobre -->
         <section id="section-about" class="section hidden">
   <h2 class="text-2xl font-bold mb-4">Sobre o Projeto</h2>
@@ -337,6 +289,8 @@
     </p>
   </div>
 </section>
+<!-- Conteúdo do perfil será carregado aqui -->
+<div id="external-content" class="section hidden"></div>
 
       </main>
     </div>
@@ -354,6 +308,7 @@
     <script src="js/WaitLLM.js"></script>
 
 
+
     <script>
   document.addEventListener("DOMContentLoaded", () => {
     const dropzone = document.getElementById("dropzone");
@@ -366,6 +321,59 @@
     // Adicional (cursor de pointer ao passar por cima da dropzone)
     dropzone.style.cursor = "pointer";
   });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("pdfInput");
+
+    dropzone.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    dropzone.style.cursor = "pointer";
+
+    setupNavigation(); // Chamada para o sistema de navegação
+  });
+
+  function setupNavigation() {
+    const navButtons = document.querySelectorAll(".nav-link");
+    const sections = document.querySelectorAll(".section");
+    const externalContentContainer = document.getElementById("external-content");
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const target = btn.getAttribute("data-section");
+
+        // Estilo ativo
+        navButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // Esconde todas as seções e o conteúdo externo
+        sections.forEach((section) => section.classList.add("hidden"));
+        if (externalContentContainer) externalContentContainer.classList.add("hidden");
+
+        // Se for "profile", carregar profile.html
+        if (target === "profile") {
+          if (externalContentContainer && !externalContentContainer.dataset.loaded) {
+            try {
+              const res = await fetch("profile.html");
+              const html = await res.text();
+              externalContentContainer.innerHTML = html;
+              externalContentContainer.dataset.loaded = "true";
+            } catch (err) {
+              externalContentContainer.innerHTML = "<p class='text-red-500'>Erro ao carregar perfil.</p>";
+            }
+          }
+          externalContentContainer.classList.remove("hidden");
+        } else {
+          // Mostra a seção correspondente
+          const visibleSection = document.getElementById(`section-${target}`);
+          if (visibleSection) visibleSection.classList.remove("hidden");
+        }
+      });
+    });
+  }
 </script>
 
   </body>

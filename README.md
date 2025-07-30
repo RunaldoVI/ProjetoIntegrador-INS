@@ -107,4 +107,6 @@ Desenvolvedor: Ronaldo Ribalonga
 E-mail: ronaldoribalonga@gmail.com
 LinkedIn: https://www.linkedin.com/in/ronaldo-ribalonga-190a03233/ 
 
-Desenvolvedor
+Desenvolvedor: Rodrigo Vicente
+E-mail: rodrigo.vicente260204@gmail.com
+LinkdIn: https://www.linkedin.com/in/rodrigo-vicente-670a98270

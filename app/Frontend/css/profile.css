@@ -1,0 +1,47 @@
+/* Reset de links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Espaçamento entre linhas melhorado para listas */
+ul {
+  line-height: 1.6;
+}
+
+/* Estilo suave para títulos */
+h2, h3 {
+  letter-spacing: -0.5px;
+}
+
+/* Ícones dentro de títulos */
+h3 i {
+  color: #3b82f6;
+}
+
+/* Cores personalizadas (herdadas do Tailwind config) */
+.text-accent {
+  color: #3b82f6;
+}
+
+/* Botão redondo de edição */
+button.rounded-full {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
+button.rounded-full:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.4);
+}
+
+/* Responsividade */
+@media (max-width: 640px) {
+  section {
+    padding: 1rem;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
