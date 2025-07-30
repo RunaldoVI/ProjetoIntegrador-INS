@@ -5,143 +5,18 @@ import requests
 import subprocess
 import os
 import json
+from user import user_bp
 
 app = Flask(__name__)
 
 # CORS permissivo para desenvolvimento
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app)
+
+app.register_blueprint(user_bp)
 
 UPLOAD_FOLDER = '/app/pdfs-excels'
 USERS_FILE = '/app/users.json'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-# Resposta para preflight (OPTIONS)
-@app.after_request
-def after_request(response):
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS")
-    return response
-
-
-# Utilitários
-def load_users():
-    if not os.path.exists(USERS_FILE):
-        return []
-    with open(USERS_FILE, 'r') as f:
-        return json.load(f)
-
-def save_users(users):
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users, f, indent=2)
-
-# --- API DE AUTENTICAÇÃO ---
-
-@app.route('/api/register', methods=['POST', 'OPTIONS'])
-def register_user():
-    if request.method == 'OPTIONS':
-        return '', 200
-
-    data = request.json
-    nome = data.get('nome')
-    email = data.get('email')
-    password = data.get('password')
-    funcao = data.get('funcao', 'Estudante')
-    instituicao = data.get('instituicao', 'Instituição não definida')
-
-    if not nome or not email or not password:
-        return jsonify({'error': 'Dados incompletos'}), 400
-
-    users = load_users()
-    if any(u['email'] == email for u in users):
-        return jsonify({'error': 'Email já registado'}), 409
-
-    new_user = {
-        'nome': nome,
-        'email': email,
-        'password': password,
-        'funcao': funcao,
-        'instituicao': instituicao,
-        'pdfs': []
-    }
-
-    users.append(new_user)
-    save_users(users)
-    return jsonify({'status': 'Utilizador registado com sucesso'}), 201
-
-@app.route('/api/login', methods=['POST', 'OPTIONS'])
-def login_user():
-    if request.method == 'OPTIONS':
-        return '', 200
-
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return jsonify({'error': 'Credenciais incompletas'}), 400
-
-    users = load_users()
-    user = next((u for u in users if u['email'] == email), None)
-
-    if not user or user['password'] != password:
-        return jsonify({'error': 'Email ou palavra-passe incorreta'}), 401
-
-    return jsonify({
-        'nome': user['nome'],
-        'email': user['email'],
-        'funcao': user.get('funcao'),
-        'instituicao': user.get('instituicao'),
-        'pdfs': user.get('pdfs', [])
-    })
-
-@app.route('/api/user/profile', methods=['PUT','OPTIONS'])
-def update_user_profile():
-    if request.method == 'OPTIONS':
-        return '',200
-    data = request.get_json()
-    email = data.get('email')
-    nome = data.get('nome')
-    funcao = data.get('funcao')
-    instituicao = data.get('instituicao')
-
-    if not email:
-        return jsonify({'error': 'Email obrigatório'}), 400
-
-    users = load_users()
-    user = next((u for u in users if u['email'] == email), None)
-    if not user:
-        return jsonify({'error': 'Utilizador não encontrado'}), 404
-
-    user['nome'] = nome or user['nome']
-    user['funcao'] = funcao or user.get('funcao', '')
-    user['instituicao'] = instituicao or user.get('instituicao', '')
-
-    save_users(users)
-    return jsonify({'status': 'Perfil atualizado com sucesso'}), 200
-
-
-
-@app.route('/api/user/profile', methods=['GET'])
-def get_user_profile():
-    email = request.args.get('email')
-    if not email:
-        return jsonify({'error': 'Email não fornecido'}), 400
-
-    users = load_users()
-    user = next((u for u in users if u['email'] == email), None)
-    if not user:
-        return jsonify({'error': 'Utilizador não encontrado'}), 404
-
-    profile = {
-        'nome': user['nome'],
-        'email': user['email'],
-        'funcao': user.get('funcao', 'Estudante'),
-        'instituicao': user.get('instituicao', 'Instituição'),
-        'pdfs': user.get('pdfs', [])
-    }
-    return jsonify(profile)
-
 
 
 # --- UPLOAD DE PDF ---

@@ -5,3 +5,4 @@ PyMuPDF
 flask
 flask-cors
 docker
+bcrypt

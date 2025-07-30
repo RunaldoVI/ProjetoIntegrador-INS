@@ -68,8 +68,40 @@ CREATE TABLE `respostas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices para tabelas despejadas
+-- Estrutura da tabela `Utilizador`
 --
+
+CREATE TABLE `utilizador` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `funcao` varchar(50) NOT NULL,
+  `instituicao` varchar(100) NOT NULL,
+  `avatar` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estrutura da tabela `historico_pdfs`
+--
+
+CREATE TABLE `historico_pdfs` (
+  `id` int(11) NOT NULL,
+  `utilizador_id` int(11) NOT NULL,
+  `nome_pdf` varchar(255) NOT NULL,
+  `data_upload` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- --------------------------------------------------------
+
+--
+-- Índices para tabela `Utilizador`
+--
+
+ALTER TABLE `utilizador`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Índices para tabela `identificadores`
@@ -93,6 +125,14 @@ ALTER TABLE `pergunta_resposta`
   ADD KEY `resposta_id` (`resposta_id`);
 
 --
+-- Índices para tabela `historico_pdfs`
+--
+ALTER TABLE `historico_pdfs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `utilizador_id` (`utilizador_id`);
+
+
+--
 -- Índices para tabela `respostas`
 --
 ALTER TABLE `respostas`
@@ -102,6 +142,12 @@ ALTER TABLE `respostas`
 --
 -- AUTO_INCREMENT de tabelas despejadas
 --
+
+--
+-- AUTO_INCREMENT de tabela `utilizador`
+--
+ALTER TABLE `utilizador`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `identificadores`
@@ -119,6 +165,12 @@ ALTER TABLE `perguntas`
 -- AUTO_INCREMENT de tabela `respostas`
 --
 ALTER TABLE `respostas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT da tabela `historico_pdfs`
+--
+ALTER TABLE `historico_pdfs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -144,6 +196,12 @@ ALTER TABLE `pergunta_resposta`
 ALTER TABLE `respostas`
   ADD CONSTRAINT `respostas_ibfk_1` FOREIGN KEY (`identificador_id`) REFERENCES `identificadores` (`id`);
 COMMIT;
+
+--
+-- Restrições para a tabela `historico_pdfs`
+--
+ALTER TABLE `historico_pdfs`
+  ADD CONSTRAINT `historico_pdfs_ibfk_1` FOREIGN KEY (`utilizador_id`) REFERENCES `utilizador` (`id`) ON DELETE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
