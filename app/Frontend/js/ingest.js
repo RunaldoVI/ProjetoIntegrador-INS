@@ -1,11 +1,13 @@
+// js/ingest.js
+console.log("ingest.js carregado com sucesso!");
+
 let currentPdfFile = null;
 let analyzing = false;
 
 function resetUI() {
-  const progressBar = document.getElementById("progressBar");
-  const output = document.getElementById("output");
-  progressBar.style.width = "0%";
-  output.innerHTML = `<p class="text-gray-500 dark:text-gray-400">Nenhum PDF carregado.</p>`;
+  document.getElementById("progressBar").style.width = "0%";
+  document.getElementById("output").innerHTML =
+    `<p class="text-gray-500 dark:text-gray-400">Nenhum PDF carregado.</p>`;
   document.getElementById("pdfInput").value = "";
   document.getElementById("file-name").textContent = "";
   currentPdfFile = null;
@@ -28,22 +30,25 @@ function showPdfResult(file) {
   const output = document.getElementById("output");
 
   output.innerHTML = `
-    <div class="flex justify-between items-start">
-      <div>
-        <h2 class="text-2xl font-bold text-accent mb-3">PDF Carregado</h2>
-        <div class="space-y-2">
-          <p><strong>Nome:</strong> ${file.name}</p>
-          <p><strong>Tamanho:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
-          <p><strong>Status:</strong> Pronto para análise</p>
-          <button id="analisarBtn" class="mt-4 px-5 py-2 border border-accent bg-accent text-white font-semibold rounded-lg shadow-md hover:bg-lightHighlight dark:hover:bg-darkHighlight transition">Analisar PDF</button>
-        </div>
-      </div>
-          <button id="removePdf" class="super-button" title="Remover PDF">
-  <svg class="icon" viewBox="0 0 24 24">
-    <path d="M18 6L6 18M6 6l12 12" />
-  </svg>
-</button>
+    <div class="relative bg-white dark:bg-darkCard p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-600 space-y-3">
+      <button
+        id="removePdf"
+        class="absolute top-4 right-4 text-white bg-red-500 hover:bg-red-600 rounded-full p-2 shadow-md transition"
+        title="Remover ficheiro"
+      >
+        <i class="fas fa-times"></i>
+      </button>
 
+      <h3 class="text-lg font-semibold text-blue-600 dark:text-blue-400">📄 PDF Carregado</h3>
+      <p><strong>Nome:</strong> ${file.name}</p>
+      <p><strong>Tamanho:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+      <p><strong>Status:</strong> Pronto para análise</p>
+      <button
+        id="analisarBtn"
+        class="mt-4 px-5 py-2 border border-accent bg-accent text-white font-semibold rounded-lg shadow-md hover:bg-lightHighlight dark:hover:bg-darkHighlight transition"
+      >
+        🔍 Analisar PDF
+      </button>
     </div>
   `;
 
@@ -55,18 +60,17 @@ function showPdfResult(file) {
   });
 
   document.getElementById("removePdf")?.addEventListener("click", (e) => {
-  const btn = e.currentTarget;
+    const btn = e.currentTarget;
+    if (!btn.classList.contains("delete")) {
+      btn.classList.add("delete");
+      setTimeout(() => {
+        btn.classList.remove("delete");
+        resetUI();
+      }, 700); // tempo da animação
+    }
+  });
 
-  if (!btn.classList.contains("delete")) {
-    btn.classList.add("delete");
-
-    setTimeout(() => {
-      btn.classList.remove("delete");
-      resetUI();
-    }, 700); // tempo da animação
-  }
-});
-
+  showToast("PDF carregado com sucesso!", "success");
 }
 
 function analisarPdf(file) {
@@ -81,7 +85,11 @@ function analisarPdf(file) {
 
   const loader = document.createElement("div");
   loader.className = "mt-6 text-accent flex items-center gap-2";
-  loader.innerHTML = `<svg class="animate-spin h-5 w-5 text-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4"></path></svg> A analisar o PDF...`;
+  loader.innerHTML = `
+    <svg class="animate-spin h-5 w-5 text-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4"></path>
+    </svg> A analisar o PDF...`;
   output.appendChild(loader);
 
   const formData = new FormData();
@@ -114,33 +122,42 @@ function analisarPdf(file) {
     });
 }
 
-
 function handleFile(file) {
   if (!file || file.type !== "application/pdf") {
-    showToast("Por favor selecione um ficheiro PDF válido.");
+    showToast("Por favor selecione um ficheiro PDF válido.", "error");
     return;
   }
-  showPdfResult(file);
+  simulatePdfRead(file);
 }
 
 function setupPdfUpload() {
   const input = document.getElementById("pdfInput");
   const dropzone = document.getElementById("dropzone");
 
-  input.addEventListener("change", () => handleFile(input.files[0]));
+  input.addEventListener("change", () => {
+    if (input.files.length) handleFile(input.files[0]);
+  });
 
   dropzone.addEventListener("dragover", (e) => {
     e.preventDefault();
-    dropzone.classList.add("bg-highlight");
+    dropzone.classList.add("bg-lightHighlight", "dark:bg-darkHighlight");
   });
 
   dropzone.addEventListener("dragleave", () => {
-    dropzone.classList.remove("bg-highlight");
+    dropzone.classList.remove("bg-lightHighlight", "dark:bg-darkHighlight");
   });
 
   dropzone.addEventListener("drop", (e) => {
     e.preventDefault();
-    dropzone.classList.remove("bg-highlight");
-    handleFile(e.dataTransfer.files[0]);
+    dropzone.classList.remove("bg-lightHighlight", "dark:bg-darkHighlight");
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
+
+  // opcional: clique para abrir input
+  dropzone.addEventListener("click", () => input.click());
 }
+
+
+  setupPdfUpload();
+  resetUI();
+

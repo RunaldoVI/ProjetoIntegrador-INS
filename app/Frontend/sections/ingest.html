@@ -1,0 +1,48 @@
+<!-- sections/ingest.html -->
+<section id="section-ingest" class="section space-y-8">
+
+  <!-- Área de Upload com Estilo Melhorado -->
+  <div
+    id="dropzone"
+    class="relative border-2 border-dashed border-blue-400 rounded-2xl p-10 bg-white shadow-md text-center transition hover:shadow-lg hover:bg-blue-50 dark:bg-darkCard dark:border-blue-300 dark:hover:bg-darkHighlight"
+  >
+    <div class="flex flex-col items-center justify-center space-y-3">
+      <i class="fas fa-cloud-upload-alt text-5xl text-blue-500 animate-bounce"></i>
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
+        Arraste e solte o ficheiro PDF aqui
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        ou use o botão abaixo para selecionar
+      </p>
+
+      <!-- Botão estilizado para selecionar ficheiro -->
+      <label
+        for="pdfInput"
+        class="cursor-pointer mt-4 px-5 py-2 bg-blue-500 text-white rounded-full font-medium hover:bg-blue-600 transition"
+      >
+        Escolher Ficheiro
+      </label>
+
+      <!-- Campo real escondido -->
+      <input id="pdfInput" type="file" accept=".pdf" class="hidden" />
+      <p id="file-name" class="text-sm text-blue-600 dark:text-blue-300 mt-2"></p>
+    </div>
+  </div>
+
+  <!-- Barra de Progresso Bonita -->
+  <div class="w-full bg-blue-100 dark:bg-darkHighlight rounded-full h-3 overflow-hidden">
+    <div
+      id="progressBar"
+      class="h-full bg-blue-500 dark:bg-blue-400 transition-all duration-500 ease-in-out w-0"
+    ></div>
+  </div>
+
+  <!-- Área de Resposta -->
+  <div
+    id="output"
+    class="bg-white dark:bg-darkCard rounded-2xl p-6 shadow-inner border border-gray-200 dark:border-gray-700 min-h-[200px]"
+  >
+    <p class="text-gray-500 dark:text-gray-400">Nenhum PDF carregado.</p>
+  </div>
+
+</section>

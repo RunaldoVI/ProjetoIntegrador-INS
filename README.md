@@ -95,9 +95,11 @@ Edit
 git push origin minha-feature
 Abra um Pull Request
 
+### Licença
 🧾 Licença
 Este projeto está licenciado sob a MIT License. Veja o arquivo LICENSE para mais detalhes.
 
+### Contato
 📬 Contato
 Desenvolvedor: joao custodio
 E-mail: joaocustodio30@gmail.com
