@@ -1,12 +1,13 @@
 import os
+import sys
 import requests
 import json
 import pdfplumber
 import re
-from app.Extração.TextExtractorPDF import extrair_texto_para_txt
-from app.LLM.PromptLLM import enviar_pagina_para_llm, obter_pergunta
-from app.Extração.VisualExtractorPDF import extrair_blocos_visuais
-from app.Limpeza.PreProcessamento import (
+from Extração.TextExtractorPDF import extrair_texto_para_txt
+from LLM.PromptLLM import enviar_pagina_para_llm, obter_pergunta
+from Extração.VisualExtractorPDF import extrair_blocos_visuais
+from Limpeza.PreProcessamento import (
     identificar_secao_mais_comum,
     extrair_blocos_limpos,
     separar_pergunta_respostas,
@@ -14,11 +15,16 @@ from app.Limpeza.PreProcessamento import (
     motivo_resposta_incompleta,
     conciliar_estrutura
 )
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Database")))
+from DataBaseConnection import importar_json_para_bd
 
 
 
-# === Pipeline Principal ===
-caminho_pdf = os.path.abspath(os.path.join(os.path.dirname(__file__),"..", "pdfs-excels", "DPQ_J.pdf"))
+if len(sys.argv) > 1:
+    caminho_pdf = sys.argv[1]
+else:
+    print("❌ Caminho para o PDF não fornecido.")
+    sys.exit(1)
 caminho_txt = extrair_texto_para_txt(caminho_pdf)
 print(f"\n✅ Texto extraído para {caminho_txt}")
 
@@ -90,7 +96,9 @@ for i, texto_pagina in enumerate(paginas, start=1):
         print(json.dumps(resposta_final, indent=2, ensure_ascii=False))
         print("=" * 70)
 
-# Salvar JSON com todos os blocos finais
 with open("output_blocos_conciliados.json", "w", encoding="utf-8") as f:
     json.dump(blocos_finais, f, indent=2, ensure_ascii=False)
 print("\n📁 Output final guardado em 'output_blocos_conciliados.json'")
+
+# ✅ Aqui sim! Só agora a importação
+importar_json_para_bd("output_blocos_conciliados.json")

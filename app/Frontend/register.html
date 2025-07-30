@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registo</title>
+  <link rel="stylesheet" href="css/register.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="assets/icon.png" type="image/png" />
+
+</head>
+<body>
+  <div class="background-gradient"></div>
+
+  <div class="form-container animate-fade-in">
+    <form class="form-card" onsubmit="event.preventDefault(); register();">
+      <h2 class="form-title">Criar Conta</h2>
+
+      <div class="input-group">
+        <input type="email" id="email" required />
+        <label for="email">Email</label>
+        <span class="icon">@</span>
+      </div>
+
+      <div class="input-group">
+        <input type="password" id="password" required />
+        <label for="password">Palavra-passe</label>
+        <span class="icon">🔒</span>
+      </div>
+
+      <button type="submit" class="btn-primary">
+        <span class="btn-text">Registar</span>
+        <span class="spinner"></span>
+        <span class="ripple"></span>
+      </button>
+
+      <p class="form-footer">Já tens conta? <a href="login.html">Entra aqui</a></p>
+    </form>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

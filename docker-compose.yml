@@ -10,25 +10,69 @@ services:
       - ollama-data:/root/.ollama
     environment:
       - OLLAMA_DEBUG=error
+
+  mysql:
+    image: mysql:8.0
+    container_name: database-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: projetofinal_ins
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+
   projeto:
-    build: .
+    build:
+      context: .
     container_name: projeto-integrador
     depends_on:
       - ollama
-    command: >
-      sh -c "
-        echo '⏳ A aguardar que o Ollama esteja pronto...';
-        until curl -s http://ollama:11434/; do
-          sleep 2;
-        done;
-        echo '✅ Ollama ativo. A puxar modelo mistral...';
-        curl -s -X POST http://ollama:11434/api/pull -H 'Content-Type: application/json' -d '{\"name\": \"mistral\"}';
-        echo '🚀 A iniciar o projeto Python...';
-        python app/ProjetoFinal.py
-      "
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: projetofinal_ins
     volumes:
       - .:/app
     working_dir: /app
+    command: ["sh", "/app/startup.sh"]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: API
+    ports:
+      - "5000:5000"
+    restart: always
+    depends_on:
+      - projeto
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: projetofinal_ins
+    volumes:
+      - ./app:/app
+      - ./pdfs-excels:/app/pdfs-excels
+
+  frontend:
+    image: nginx:latest
+    container_name: projeto-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app/Frontend:/usr/share/nginx/html
+    depends_on:
+      - api
 
 volumes:
   ollama-data:
+  mysql_data:

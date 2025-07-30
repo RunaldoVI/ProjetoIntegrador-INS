@@ -10,4 +10,9 @@ ENV PYTHONPATH=/app
 RUN apt-get update && apt-get install -y curl && \
     pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "app/ProjetoFinal.py"]
+# Copia o script de arranque
+COPY startup.sh startup.sh
+RUN chmod +x startup.sh
+
+# Usa o script como comando de arranque
+CMD ["sh", "startup.sh"]

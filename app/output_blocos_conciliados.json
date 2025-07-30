@@ -137,7 +137,7 @@
   {
     "Identificador": "DPQ.060",
     "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
-    "Pergunta": "feeling bad about yourself – or that you are a failure or have let yourself or your family down?",
+    "Pergunta": "",
     "Respostas": [
       {
         "opção": "Not at all",
@@ -164,7 +164,7 @@
   {
     "Identificador": "DPQ.070",
     "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
-    "Pergunta": "trouble concentrating on things, such as reading the newspaper or watching TV?",
+    "Pergunta": "trouble concentrating on things, such as reading the newspaper or watching TV? 2",
     "Respostas": [
       {
         "opção": "Not at all",
@@ -221,23 +221,23 @@
     "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problem: Thoughts that you would be better off dead or of hurting yourself in some way?",
     "Respostas": [
       {
-        "opção": "Not at all",
+        "opção": " not at all",
         "valor": "0"
       },
       {
-        "opção": "Several days",
+        "opção": " several days",
         "valor": "1"
       },
       {
-        "opção": "More than half the days",
+        "opção": " more than half the days",
         "valor": "2"
       },
       {
-        "opção": "Nearly every day",
+        "opção": " nearly every day",
         "valor": "3"
       },
       {
-        "opção": "Don’t know",
+        "opção": " don't know",
         "valor": "9"
       }
     ]

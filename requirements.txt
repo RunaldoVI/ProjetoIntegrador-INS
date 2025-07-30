@@ -2,3 +2,4 @@ requests
 pdfplumber
 mysql-connector-python
 PyMuPDF
+flask

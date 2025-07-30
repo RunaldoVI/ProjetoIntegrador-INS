@@ -1,13 +1,14 @@
 import mysql.connector
 import json
-
+import os
 # 1. Ligação à base de dados
 def conectar_bd():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="projetofinal_ins"
+        host=os.getenv("DB_HOST", "localhost"),
+        port=int(os.getenv("DB_PORT", 3306)),
+        user=os.getenv("DB_USER", "root"),
+        password=os.getenv("DB_PASSWORD", ""),
+        database=os.getenv("DB_NAME", "projetofinal_ins")
     )
 
 # 2. Função para inserir dados do JSON na base de dados
@@ -19,10 +20,10 @@ def importar_json_para_bd(caminho_json):
         dados = json.load(f)
 
     for entrada in dados:
-        identificador = entrada["identificador"]
-        secao = entrada.get("secao", "Nenhuma")
-        pergunta = entrada["pergunta"]
-        respostas = entrada["respostas"]
+        identificador = entrada.get("identificador") or entrada.get("Identificador", "Não definido")
+        secao = entrada.get("secao") or entrada.get("Secção", "Nenhuma")
+        pergunta = entrada.get("pergunta") or entrada.get("Pergunta")
+        respostas = entrada.get("respostas") or entrada.get("Respostas", [])
 
         # Inserir identificador (ou obter id se já existir)
         cursor.execute("SELECT id FROM identificadores WHERE codigo = %s", (identificador,))
@@ -38,8 +39,8 @@ def importar_json_para_bd(caminho_json):
         pergunta_id = cursor.lastrowid
 
         for resp in respostas:
-            texto = resp["texto"]
-            valor = resp["valor"]
+            texto = resp.get("texto") or resp.get("opção")
+            valor = resp.get("valor", "")
 
             # Verifica se resposta já existe
             cursor.execute("SELECT id FROM respostas WHERE texto = %s AND identificador_id = %s", (texto, identificador_id))

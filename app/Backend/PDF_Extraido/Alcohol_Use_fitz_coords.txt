@@ -1,0 +1,229 @@
+===== Página 1 =====
+
+[64, 27, 534, 69] - 9/26/16 
+ 
+Questionnaire: MEC
+[296, 751, 325, 764] - ALQ-1
+[64, 72, 556, 216] - ALCOHOL USE – ALQ 
+Target Group:  SPs 18+ (CAPI) 
+ 
+ 
+ALQ.111 
+The next questions are about drinking alcoholic beverages. Included are liquor (such as whiskey or gin), beer, 
+wine, wine coolers, and any other type of alcoholic beverage. 
+ 
+ 
+In {your/SP’s} entire life, {have you/has he/has she} had at least 1 drink of any kind of alcohol, not counting 
+small tastes or sips? By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half ounces of liquor. 
+ 
+ 
+HAND CARD ALQ1
+[64, 216, 531, 288] - YES ...............................................................  1 
+NO .................................................................  2 (END OF SECTION) 
+REFUSED .....................................................  7 
+DON'T KNOW ...............................................  9
+[64, 288, 509, 360] - ALQ.121 
+During the past 12 months, about how often did {you/SP} drink any type of alcoholic beverage? 
+ 
+ 
+PROBE: How many days per week, per month, or per year did {you/SP} drink? 
+ 
+ 
+HAND CARD ALQ2
+[64, 360, 441, 540] - EVERY DAY ..................................................  1 
+NEARLY EVERY DAY ...................................  2 
+3 TO 4 TIMES A WEEK .................................  3 
+2 TIMES A WEEK ..........................................  4 
+ONCE A WEEK .............................................  5 
+2 TO 3 TIMES A MONTH ..............................  6 
+ONCE A MONTH ...........................................  7 
+7 TO 11 TIMES IN THE LAST YEAR ............  8 
+3 TO 6 TIMES IN THE LAST YEAR ..............  9 
+1 TO 2 TIMES IN THE LAST YEAR ..............  10 
+NEVER IN THE LAST YEAR .........................  0 
+REFUSED .....................................................  77 
+DON’T KNOW ...............................................  99
+[299, 541, 329, 553] - BOX 1
+[64, 553, 402, 627] - CHECK ITEM ALQ.125: 
+IF SP DIDN'T DRINK (CODED '0') IN ALQ.121, GO TO ALQ.151. 
+OTHERWISE, CONTINUE WITH ALQ.130.
+[514, 11, 577, 24] - NHANES 2017
+
+===== Página 2 =====
+
+[64, 72, 556, 252] - ALQ.130 
+During the past 12 months, on those days that {you/SP} drank alcoholic beverages, on the average, how 
+many drinks did {you/he/she} have? (By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half 
+ounces of liquor.) 
+ 
+ 
+HAND CARD ALQ1 
+ 
+ 
+IF LESS THAN 1 DRINK, ENTER '1'. 
+ 
+IF 95 DRINKS OR MORE, ENTER '95'. 
+ 
+ 
+CAPI INSTRUCTION: 
+ 
+SOFT EDIT: IF RESPONSE >=20, THEN DISPLAY “YOU SAID ON THE DAYS THAT YOU DRINK YOU 
+HAVE ON AVERAGE {DISPLAY QUANTITY} DRINKS, IS THAT CORRECT?” 
+ 
+ 
+HARD EDIT: Range – 1-95
+[64, 252, 441, 336] - |___|___|___| 
+ENTER # OF DRINKS 
+ 
+REFUSED ..................................................  777 
+DON'T KNOW ............................................  999
+[64, 336, 558, 564] - ALQ.142 
+During the past 12 months, about how often did {you/SP} have {DISPLAY NUMBER} or more drinks of any 
+alcoholic beverage? 
+ 
+ 
+PROBE: How many days per week, per month, or per year did {you/SP} have {DISPLAY NUMBER} or more 
+drinks in a single day? 
+ 
+ 
+HAND CARD ALQ2 
+ 
+ 
+INTERVIEWER INSTRUCTION: IF SP ANSWERS NONE, PLEASE CODE ‘0’, NEVER IN THE LAST YEAR. 
+ 
+ 
+CAPI INSTRUCTION: 
+ 
+IF SP = MALE, DISPLAY = 5 
+ 
+IF SP = FEMALE, DISPLAY = 4 
+ 
+ 
+HARD EDIT: ALQ.142 CANNOT HAVE A LOWER CODED VALUE THAN ALQ.121, UNLESS ALQ.142 IS 
+CODED ‘0’. 
+ 
+ERROR MESSAGE: “SP HAS REPORTED DRINKING MORE TIMES IN THIS QUESTION THAN WAS 
+PREVIOUSLY REPORTED IN ALQ.121.”
+[64, 564, 490, 732] - EVERY DAY ..................................................  1 
+NEARLY EVERY DAY ...................................  2 
+3 TO 4 TIMES A WEEK .................................  3 
+2 TIMES A WEEK ..........................................  4 
+ONCE A WEEK .............................................  5 
+2 TO 3 TIMES A MONTH ..............................  6 
+ONCE A MONTH ...........................................  7 
+7 TO 11 TIMES IN THE LAST YEAR ............  8 
+3 TO 6 TIMES IN THE LAST YEAR ..............  9 
+1 TO 2 TIMES IN THE LAST YEAR ..............  10 
+NEVER IN THE LAST YEAR .........................  0 (ALQ.151) 
+REFUSED .....................................................  77 
+DON’T KNOW ...............................................  99
+
+===== Página 3 =====
+
+[64, 72, 556, 252] - ALQ.270 
+During the past 12 months, about how often did {you/SP} have {DISPLAY NUMBER} or more drinks in a 
+period of two hours or less? 
+ 
+ 
+HAND CARD ALQ2 
+ 
+ 
+CAPI INSTRUCTION: 
+ 
+IF SP = MALE, DISPLAY = 5 
+ 
+IF SP = FEMALE, DISPLAY = 4 
+ 
+ 
+HARD EDIT: ALQ.270 CANNOT HAVE A LOWER CODED VALUE THAN ALQ.121, UNLESS ALQ.270 IS 
+CODED ‘0’. 
+ 
+ERROR MESSAGE: “SP HAS REPORTED DRINKING MORE TIMES IN THIS QUESTION THAN WAS 
+PREVIOUSLY REPORTED IN ALQ.121.”
+[64, 252, 441, 432] - EVERY DAY ..................................................  1 
+NEARLY EVERY DAY ...................................  2 
+3 TO 4 TIMES A WEEK .................................  3 
+2 TIMES A WEEK ..........................................  4 
+ONCE A WEEK .............................................  5 
+2 TO 3 TIMES A MONTH ..............................  6 
+ONCE A MONTH ...........................................  7 
+7 TO 11 TIMES IN THE LAST YEAR ............  8 
+3 TO 6 TIMES IN THE LAST YEAR ..............  9 
+1 TO 2 TIMES IN THE LAST YEAR ..............  10 
+NEVER IN THE LAST YEAR .........................  0 
+REFUSED .....................................................  77 
+DON’T KNOW ...............................................  99
+[64, 432, 556, 540] - ALQ.280 
+During the past 12 months, about how often did {you/SP} have 8 or more drinks in a single day? 
+ 
+ 
+HAND CARD ALQ2 
+ 
+ 
+HARD EDIT: ALQ.280 CANNOT HAVE A LOWER CODED VALUE THAN ALQ.121, UNLESS ALQ.280 IS 
+CODED ‘0’. 
+ 
+ERROR MESSAGE: “SP HAS REPORTED DRINKING MORE TIMES IN THIS QUESTION THAN WAS 
+PREVIOUSLY REPORTED IN ALQ.121.”
+[64, 540, 490, 720] - EVERY DAY ..................................................  1 
+NEARLY EVERY DAY ...................................  2 
+3 TO 4 TIMES A WEEK .................................  3 
+2 TIMES A WEEK ..........................................  4 
+ONCE A WEEK .............................................  5 
+2 TO 3 TIMES A MONTH ..............................  6 
+ONCE A MONTH ...........................................  7 
+7 TO 11 TIMES IN THE LAST YEAR ............  8 
+3 TO 6 TIMES IN THE LAST YEAR ..............  9 
+1 TO 2 TIMES IN THE LAST YEAR ..............  10 
+NEVER IN THE LAST YEAR .........................  0 (ALQ.151) 
+REFUSED .....................................................  77 
+DON’T KNOW ...............................................  99
+
+===== Página 4 =====
+
+[64, 72, 556, 180] - ALQ.290 
+During the past 12 months, about how often did {you/SP} have 12 or more drinks in a single day? 
+ 
+ 
+HAND CARD ALQ2 
+ 
+ 
+HARD EDIT: ALQ.290 CANNOT HAVE A LOWER CODED VALUE THAN ALQ.121, UNLESS ALQ.290 IS 
+CODED ‘0’. 
+ 
+ERROR MESSAGE: “SP HAS REPORTED DRINKING MORE TIMES IN THIS QUESTION THAN WAS 
+PREVIOUSLY REPORTED IN ALQ.121.”
+[64, 180, 556, 444] - EVERY DAY ..................................................  1 
+NEARLY EVERY DAY ...................................  2 
+3 TO 4 TIMES A WEEK .................................  3 
+2 TIMES A WEEK ..........................................  4 
+ONCE A WEEK .............................................  5 
+2 TO 3 TIMES A MONTH ..............................  6 
+ONCE A MONTH ...........................................  7 
+7 TO 11 TIMES IN THE LAST YEAR ............  8 
+3 TO 6 TIMES IN THE LAST YEAR ..............  9 
+1 TO 2 TIMES IN THE LAST YEAR ..............  10 
+NEVER IN THE LAST YEAR .........................  0 
+REFUSED .....................................................  77 
+DON’T KNOW ...............................................  99 
+ 
+ 
+ALQ.151 
+Was there ever a time or times in {your/SP's} life when {you/he/she} drank {DISPLAY NUMBER} or more 
+drinks of any kind of alcoholic beverage almost every day? 
+ 
+ 
+CAPI INSTRUCTION: 
+ 
+IF SP = MALE, DISPLAY = 5 
+ 
+IF SP = FEMALE, DISPLAY = 4
+[244, 444, 441, 492] - YES ...............................................................  1 
+NO .................................................................  2 
+REFUSED .....................................................  7 
+DON'T KNOW ...............................................  9
+
+===== Página 5 =====
+
+[53, 728, 311, 756] - 5
+
