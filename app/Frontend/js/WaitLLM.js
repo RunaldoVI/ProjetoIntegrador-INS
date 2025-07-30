@@ -1,6 +1,6 @@
 async function verificarLLM() {
   try {
-    const res = await fetch("http://localhost:5000/llm-status");
+    const res = await fetch("http://localhost:5001/llm-status");
     const data = await res.json();
     const overlay = document.getElementById("llm-loading-overlay");
 
@@ -31,8 +31,8 @@ async function monitorLLMProgress() {
   while (!ready) {
     try {
       const [statusRes, progressRes] = await Promise.all([
-        fetch("http://localhost:5000/llm-status"),
-        fetch("http://localhost:5000/llm-progress")
+        fetch("http://localhost:5001/llm-status"),
+        fetch("http://localhost:5001/llm-progress")
       ]);
 
       const status = await statusRes.json();

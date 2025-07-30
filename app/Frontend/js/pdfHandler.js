@@ -87,7 +87,7 @@ function analisarPdf(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  fetch("http://localhost:5000/upload", {
+  fetch("http://localhost:5001/upload", {
     method: "POST",
     body: formData,
   })
