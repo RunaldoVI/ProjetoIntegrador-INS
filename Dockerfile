@@ -4,15 +4,15 @@ WORKDIR /app
 
 COPY . .
 
-# Adiciona PYTHONPATH para que "app" seja reconhecido como módulo
 ENV PYTHONPATH=/app
 
-RUN apt-get update && apt-get install -y curl && \
+RUN apt-get update && \
+    apt-get install -y bash curl dos2unix && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copia o script de arranque
-COPY startup.sh startup.sh
-RUN chmod +x startup.sh
 
-# Usa o script como comando de arranque
-CMD ["sh", "startup.sh"]
+# Garante que a versão de startup.sh com LF seja copiada
+COPY startup.sh startup.sh
+RUN dos2unix startup.sh && chmod +x startup.sh
+
+CMD ["bash", "startup.sh"]

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 rm -rf /app/ollama-progress.log
 touch /app/ollama-progress.log
