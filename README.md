@@ -99,7 +99,7 @@ Abra um Pull Request
 Este projeto está licenciado sob a MIT License. Veja o arquivo LICENSE para mais detalhes.
 
 📬 Contato
-Desenvolvedor: joao custodio
+Desenvolvedor: João Custódio
 E-mail: joaocustodio30@gmail.com
 LinkedIn: https://www.linkedin.com/in/jo%C3%A3o-cust%C3%B3dio30/
 
