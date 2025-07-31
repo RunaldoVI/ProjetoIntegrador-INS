@@ -20,7 +20,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 # --- UPLOAD DE PDF ---
-
 @app.route('/upload', methods=['POST', 'OPTIONS'])
 def upload_pdf():
     if request.method == 'OPTIONS':
@@ -37,11 +36,24 @@ def upload_pdf():
     file.save(filepath)
 
     try:
-        subprocess.run(["python", "/app/Backend/ProjetoFinal.py", filepath], check=True)
+        modo_bruto = request.form.get("modo", "automatico")
+        modo = modo_bruto.replace("--modo", "").strip()
+
+        subprocess.run(["python", "/app/Backend/ProjetoFinal.py", filepath, modo], check=True)
+
+        if modo == "preview":
+            preview_path = "preview_output.json"
+            if os.path.exists(preview_path):
+                with open(preview_path, "r", encoding="utf-8") as f:
+                    preview_data = json.load(f)
+                return jsonify(preview_data), 200
+            else:
+                return jsonify({'error': 'Preview não encontrado'}), 500
+
         return jsonify({'status': 'Processamento concluído com sucesso'}), 200
+
     except subprocess.CalledProcessError as e:
         return jsonify({'error': f'Erro ao processar PDF: {str(e)}'}), 500
-
 # --- MONITORAMENTO DO LLM ---
 
 @app.route('/llm-status', methods=['GET'])

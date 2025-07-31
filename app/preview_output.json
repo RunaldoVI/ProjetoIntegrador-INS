@@ -1,0 +1,27 @@
+{
+  "Identificador": "DPQ.010",
+  "Secção": "Nenhuma",
+  "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problems: little interest or pleasure in doing things? Would you say . . .",
+  "Respostas": [
+    {
+      "opção": "Not at all",
+      "valor": "0"
+    },
+    {
+      "opção": "Several days",
+      "valor": "1"
+    },
+    {
+      "opção": "More than half the days, or",
+      "valor": "2"
+    },
+    {
+      "opção": "Nearly every day",
+      "valor": "3"
+    },
+    {
+      "opção": "Don’t know",
+      "valor": "9"
+    }
+  ]
+}

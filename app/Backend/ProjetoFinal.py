@@ -5,6 +5,7 @@ import json
 import pdfplumber
 import subprocess
 import re
+
 from Extração.TextExtractorPDF import extrair_texto_para_txt
 from LLM.PromptLLM import enviar_pagina_para_llm, obter_pergunta
 from Extração.VisualExtractorPDF import extrair_blocos_visuais
@@ -17,16 +18,23 @@ from Limpeza.PreProcessamento import (
     motivo_resposta_incompleta,
     conciliar_estrutura
 )
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Database")))
 from DataBaseConnection import importar_json_para_bd
 
-
-
-if len(sys.argv) > 1:
-    caminho_pdf = sys.argv[1]
-else:
-    print("❌ Caminho para o PDF não fornecido.")
+### ⬇️ 1. Argumentos
+if len(sys.argv) < 3:
+    print("❌ Uso: python script.py caminho_para_pdf --modo preview|automatico")
     sys.exit(1)
+
+caminho_pdf = sys.argv[1]
+modo = sys.argv[2].lower()
+
+if modo not in ["--modo", "preview", "automatico"]:
+    print("❌ Modo inválido. Use '--modo preview' ou '--modo automatico'")
+    sys.exit(1)
+
+# === Etapas iniciais
 caminho_txt = extrair_texto_para_txt(caminho_pdf)
 print(f"\n✅ Texto extraído para {caminho_txt}")
 
@@ -42,6 +50,45 @@ pergunta = obter_pergunta()
 
 blocos_finais = []
 
+### 🔍 MODO PREVIEW (só analisa 1ª página e pergunta)
+if sys.argv[2] == "preview":
+    i = 1
+    texto_pagina = paginas[0]
+    blocos = extrair_blocos_limpos(texto_pagina)
+
+    if not blocos:
+        print("❌ Primeira página não tem blocos válidos.")
+        sys.exit(0)
+
+    for j, bloco in enumerate(blocos, start=1):
+        if len(bloco) < 20:
+            continue
+
+        estrutura = separar_pergunta_respostas(bloco, secao_geral)
+        print(f"\n🧠 Pré-visualização - Página {i}, Bloco {j}:")
+        print(json.dumps(estrutura, indent=2, ensure_ascii=False))
+
+        resposta_llm = enviar_pagina_para_llm(bloco, pergunta)
+
+        try:
+            match = re.search(r"\{.*\}", resposta_llm, re.DOTALL)
+            resposta_llm = json.loads(match.group(0)) if match else {}
+        except:
+            resposta_llm = {}
+
+        resposta_final = conciliar_estrutura(estrutura, limpar_estrutura_json(resposta_llm))
+
+        print(f"\n🧠 Resposta do LLM:")
+        print(json.dumps(resposta_final, indent=2, ensure_ascii=False))
+
+        with open("preview_output.json", "w", encoding="utf-8") as f:
+            json.dump(resposta_final, f, indent=2, ensure_ascii=False)
+        
+        print(json.dumps({"status": "preview", "mensagem": "Pré-visualização concluída."}))
+        sys.exit(0)
+        break  # apenas primeiro bloco
+
+### 🚀 MODO AUTOMÁTICO (processa tudo como já fazias)
 for i, texto_pagina in enumerate(paginas, start=1):
     blocos = extrair_blocos_limpos(texto_pagina)
     if not blocos:
@@ -98,12 +145,11 @@ for i, texto_pagina in enumerate(paginas, start=1):
         print(json.dumps(resposta_final, indent=2, ensure_ascii=False))
         print("=" * 70)
 
+# Exportar JSON final
 with open("output_blocos_conciliados.json", "w", encoding="utf-8") as f:
     json.dump(blocos_finais, f, indent=2, ensure_ascii=False)
 print("\n📁 Output final guardado em 'output_blocos_conciliados.json'")
 
-# ✅ Aqui sim! Só agora a importação
+# BD + Excel
 importar_json_para_bd("output_blocos_conciliados.json")
-
-# Excel Writer
 executar()

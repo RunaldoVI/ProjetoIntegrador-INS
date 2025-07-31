@@ -1,6 +1,7 @@
 function loadIngest() {
   console.log("ingest.js carregado com sucesso!");
 
+  let modoAtual = "automatico";
   let currentPdfFile = null;
   let analyzing = false;
 
@@ -99,38 +100,65 @@ function loadIngest() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("modo", modoAtual);
 
     fetch("http://localhost:5000/upload", {
       method: "POST",
       body: formData,
     })
       .then(res => res.json())
-      .then(data => {
-        loader.remove();
+.then(data => {
+  loader.remove();
 
-        const resultadoDiv = document.createElement("div");
-        resultadoDiv.className = "mt-4 p-4 bg-highlight rounded";
-        resultadoDiv.innerHTML = `
-          <h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>
-          <p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>
-        `;
-        output.appendChild(resultadoDiv);
+  const resultadoDiv = document.createElement("div");
+  resultadoDiv.className = "mt-4 p-4 bg-highlight rounded";
+  resultadoDiv.innerHTML = `<h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>`;
 
-        // Botão de download
-        const downloadContainer = document.createElement("div");
-        downloadContainer.className = "mt-4 flex justify-center";
+  if (modoAtual === "preview" && data.Pergunta) {
+    resultadoDiv.innerHTML += `
+      <p class="text-white"><strong>🧠 Identificador:</strong> ${data.Identificador || "(nenhum)"}</p>
+      <p class="text-white"><strong>📌 Secção:</strong> ${data.Secção || "(Nenhuma)"}</p>
+      <p class="text-white"><strong>❓ Pergunta:</strong> ${data.Pergunta}</p>
+      <p class="text-white"><strong>✅ Respostas:</strong></p>
+      <ul class="list-disc pl-6 text-sm text-white">
+        ${(data.Respostas || []).map(r => `<li>${r}</li>`).join("")}
+      </ul>
+    `;
 
-        const downloadBtn = document.createElement("a");
-        downloadBtn.href = "http://localhost:5000/download-excel";
-        downloadBtn.download = true;
-        downloadBtn.className = "inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition";
-        downloadBtn.textContent = "⬇️ Descarregar Excel Gerado";
+    output.appendChild(resultadoDiv);
 
-        downloadContainer.appendChild(downloadBtn);
-        output.appendChild(downloadContainer);
+    const continuarBtn = document.createElement("button");
+    continuarBtn.textContent = "✅ Continuar com processamento automático";
+    continuarBtn.className = "mt-6 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition";
+    continuarBtn.addEventListener("click", () => {
+      continuarBtn.disabled = true;
+      continuarBtn.textContent = "A continuar...";
+      modoAtual = "automatico";
+      document.getElementById("modoToggle").textContent = "🔄 Modo: Automático";
+      analisarPdf(currentPdfFile);
+    });
 
-        showToast("Análise concluída com sucesso!", "success");
-      })
+    output.appendChild(continuarBtn);
+
+  } else {
+    resultadoDiv.innerHTML += `<p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>`;
+    output.appendChild(resultadoDiv);
+
+    const downloadContainer = document.createElement("div");
+    downloadContainer.className = "mt-4 flex justify-center";
+
+    const downloadBtn = document.createElement("a");
+    downloadBtn.href = "http://localhost:5000/download-excel";
+    downloadBtn.download = true;
+    downloadBtn.className = "inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition";
+    downloadBtn.textContent = "⬇️ Descarregar Excel Gerado";
+
+    downloadContainer.appendChild(downloadBtn);
+    output.appendChild(downloadContainer);
+  }
+
+  showToast("Análise concluída com sucesso!", "success");
+})
       .catch(err => {
         loader.remove();
         showToast("Erro ao analisar o PDF.", "error");
@@ -213,6 +241,15 @@ function loadIngest() {
       showPdfResult(file);
     }
   }
+
+
+
+  document.getElementById("modoToggle")?.addEventListener("click", () => {
+  modoAtual = (modoAtual === "automatico") ? "preview" : "automatico";
+  document.getElementById("modoToggle").textContent = `🔄 Modo: ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
+});
+
+
 }
 
 window.loadIngest = loadIngest;
