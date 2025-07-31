@@ -53,4 +53,14 @@ async function monitorLLMProgress() {
   document.body.style.overflow = "";
 }
 
-window.addEventListener("load", verificarLLM);
+// ⏳ Iniciar logo que o DOM estiver pronto
+document.addEventListener("DOMContentLoaded", () => {
+  verificarLLM();
+});
+
+// 🔄 Também quando o utilizador volta à aba
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    verificarLLM();
+  }
+});

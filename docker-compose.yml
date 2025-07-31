@@ -40,6 +40,7 @@ services:
       DB_NAME: projetofinal_ins
     volumes:
       - .:/app
+      - ./pdfs-excels:/app/pdfs-excels   # ✅ ADICIONA ESTA LINHA
     working_dir: /app
     command: ["sh", "/app/startup.sh"]
 

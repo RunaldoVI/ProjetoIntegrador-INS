@@ -3,6 +3,7 @@ import sys
 import requests
 import json
 import pdfplumber
+import subprocess
 import re
 from Extração.TextExtractorPDF import extrair_texto_para_txt
 from LLM.PromptLLM import enviar_pagina_para_llm, obter_pergunta
@@ -102,3 +103,6 @@ print("\n📁 Output final guardado em 'output_blocos_conciliados.json'")
 
 # ✅ Aqui sim! Só agora a importação
 importar_json_para_bd("output_blocos_conciliados.json")
+
+print("📊 A gerar Excel com base nos blocos conciliados...")
+subprocess.run(["python", "/app/Backend/ExcelWriter/ExcelWriter.py"])
