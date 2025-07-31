@@ -67,7 +67,7 @@ cd ProjetoIntegrador-INS
 
 docker compose up --build
 
-ao fazer isto vai ter tudo disponivel para correr o programa na sua máquina
+Ao correr o prompt no terminal vai ter tudo o que for preciso para correr o programa na sua máquina
 
 ### Contriubuições
 
