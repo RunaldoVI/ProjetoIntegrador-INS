@@ -101,7 +101,9 @@ CREATE TABLE `historico_pdfs` (
 
 ALTER TABLE `utilizador`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  MODIFY avatar VARCHAR(255) NOT NULL DEFAULT 'default.png';
+
 
 --
 -- Índices para tabela `identificadores`

@@ -25,6 +25,7 @@ def register_user():
     password = data.get('password')
     funcao = data.get('funcao', 'Estudante')
     instituicao = data.get('instituicao', 'Instituição não definida')
+    avatar = data.get('avatar', 'default.png')  # ADICIONADO
 
     if not nome or not email or not password:
         return jsonify({'error': 'Dados incompletos'}), 400
@@ -32,19 +33,17 @@ def register_user():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Verificar se o email já está registado
     cursor.execute("SELECT id FROM utilizador WHERE email = %s", (email,))
     if cursor.fetchone():
         return jsonify({'error': 'Email já registado'}), 409
 
-    # Hashear a password com bcrypt
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    # Inserir novo utilizador com password segura
     cursor.execute(
-        "INSERT INTO utilizador (nome, email, password, funcao, instituicao) VALUES (%s, %s, %s, %s, %s)",
-        (nome, email, hashed_pw.decode('utf-8'), funcao, instituicao)
+        "INSERT INTO utilizador (nome, email, password, funcao, instituicao, avatar) VALUES (%s, %s, %s, %s, %s, %s)",
+        (nome, email, hashed_pw.decode('utf-8'), funcao, instituicao, avatar)
     )
+
     conn.commit()
     cursor.close()
     conn.close()

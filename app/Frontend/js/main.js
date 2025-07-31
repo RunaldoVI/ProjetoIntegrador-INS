@@ -1,32 +1,22 @@
-// js/main.js
-document.addEventListener("DOMContentLoaded", () => {
-  window.addEventListener("hashchange", handleRouteChange);
-  handleRouteChange(); // Executa na primeira vez
-});
-
 const routes = {
-  "#ingest": {
-    html: "sections/ingest.html",
-    js: "js/ingest.js"
-  },
-  "#history": {
-    html: "sections/history.html",
-    js: "js/history.js"
-  },
-  "#profile": {
-    html: "sections/profile.html",
-    js: "js/profile.js"
-  },
-  "#about": {
-    html: "sections/about.html",
-    js: "js/about.js"
-  }
+  "#ingest": { html: "sections/ingest.html", js: "js/ingest.js" },
+  "#history": { html: "sections/history.html", js: "js/history.js" },
+  "#profile": { html: "sections/profile.html", js: "js/profile.js" },
+  "#about": { html: "sections/about.html", js: "js/about.js" },
 };
 
+function updateActiveNav(route) {
+  document.querySelectorAll(".nav-link").forEach(link => {
+    link.classList.remove("text-accent", "font-bold");
+    if (link.getAttribute("href") === route) {
+      link.classList.add("text-accent", "font-bold");
+    }
+  });
+}
 async function handleRouteChange() {
   const hash = window.location.hash || "#ingest";
   const route = routes[hash] ?? routes["#ingest"];
-
+  updateActiveNav(hash);
   const container = document.getElementById("external-content");
   if (!container) return;
 
@@ -41,7 +31,12 @@ async function handleRouteChange() {
     script.defer = true;
     document.body.appendChild(script);
   } catch (err) {
-    container.innerHTML = `<div class="bg-red-100 text-red-800 p-4 rounded shadow">Erro ao carregar a seção: ${hash.replace("#", "")}</div>`;
-    console.error("Erro ao carregar seção:", err);
+    container.innerHTML = `<div class="text-red-600 p-4">Erro ao carregar a seção: ${hash}</div>`;
   }
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  window.addEventListener("hashchange", handleRouteChange);
+  handleRouteChange();
+});

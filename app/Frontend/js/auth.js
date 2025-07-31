@@ -14,6 +14,7 @@ async function register() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
 
+  // Campos obrigatórios
   if (!nome || !email || !password) {
     showAlert("Por favor, preencha todos os campos.");
     return;
@@ -33,7 +34,8 @@ async function register() {
         email,
         password,
         funcao: "Estudante",
-        instituicao: "INS - Instituto de Ensino"
+        instituicao: "INS - Instituto de Ensino",
+        avatar: "default.png" // <- obrigatório para corresponder à tua tabela
       })
     });
 
@@ -46,11 +48,12 @@ async function register() {
       nome,
       email,
       funcao: "Estudante",
-      instituicao: "INS - Instituto de Ensino"
+      instituicao: "INS - Instituto de Ensino",
+      avatar: "default.png"
     }));
 
     showAlert("Conta criada com sucesso!");
-    window.location.href = "index.html";
+    window.location.href = "../index.html#ingest";
   } catch (err) {
     console.error("Erro no registo:", err);
     showAlert(err.message || "Erro inesperado no registo.");
@@ -85,7 +88,7 @@ async function login() {
       instituicao: data.instituicao
     }));
 
-    window.location.href = "index.html";
+    window.location.href = "../index.html#ingest";
   } catch (err) {
     console.error("Erro no login:", err);
     showAlert(err.message || "Erro ao autenticar.");
@@ -95,7 +98,7 @@ async function login() {
 // Logout
 function logout() {
   localStorage.removeItem("user");
-  window.location.href = "login.html";
+  window.location.href = "../sections/login.html";
 }
 
 // Verificação de sessão ao carregar
