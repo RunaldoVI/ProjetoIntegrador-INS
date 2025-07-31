@@ -13,6 +13,7 @@ function updateActiveNav(route) {
     }
   });
 }
+
 async function handleRouteChange() {
   const hash = window.location.hash || "#ingest";
   const route = routes[hash] ?? routes["#ingest"];
@@ -29,12 +30,20 @@ async function handleRouteChange() {
     const script = document.createElement("script");
     script.src = route.js;
     script.defer = true;
+
+    // Chama a função certa: loadIngest, loadProfile, etc.
+    script.onload = () => {
+      const funcName = `load${hash.slice(1).charAt(0).toUpperCase()}${hash.slice(2)}`;
+      if (typeof window[funcName] === "function") {
+        window[funcName]();
+      }
+    };
+
     document.body.appendChild(script);
   } catch (err) {
     container.innerHTML = `<div class="text-red-600 p-4">Erro ao carregar a seção: ${hash}</div>`;
   }
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("hashchange", handleRouteChange);

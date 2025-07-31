@@ -6,3 +6,5 @@ flask
 flask-cors
 docker
 bcrypt
+pandas
+openpyxl

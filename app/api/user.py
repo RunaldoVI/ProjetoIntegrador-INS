@@ -76,11 +76,12 @@ def login_user():
         return jsonify({'error': 'Email ou palavra-passe incorreta'}), 401
 
     return jsonify({
-        'nome': user['nome'],
-        'email': user['email'],
-        'funcao': user.get('funcao', 'Estudante'),
-        'instituicao': user.get('instituicao', 'Instituição não definida'),
-        'pdfs': []
+       'nome': user['nome'],
+       'email': user['email'],
+       'funcao': user.get('funcao', 'Estudante'),
+       'instituicao': user.get('instituicao', 'Instituição não definida'),
+       'avatar': user.get('avatar', 'default.png'),
+       'pdfs': []
     })
 
 @user_bp.route('/api/user/profile', methods=['GET', 'PUT', 'OPTIONS'])
@@ -97,7 +98,8 @@ def user_profile():
         if not email:
             return jsonify({'error': 'Email não fornecido'}), 400
 
-        cursor.execute("SELECT nome, email, funcao, instituicao FROM utilizador WHERE email = %s", (email,))
+        cursor.execute("SELECT nome, email, funcao, instituicao, avatar FROM utilizador WHERE email = %s", (email,))
+
         user = cursor.fetchone()
 
         cursor.close()

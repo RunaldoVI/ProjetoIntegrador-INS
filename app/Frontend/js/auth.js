@@ -81,12 +81,13 @@ async function login() {
 
     const data = await res.json();
 
-    localStorage.setItem("user", JSON.stringify({
-      nome: data.nome,
-      email: data.email,
-      funcao: data.funcao,
-      instituicao: data.instituicao
-    }));
+localStorage.setItem("user", JSON.stringify({
+  nome: data.nome,
+  email: data.email,
+  funcao: data.funcao,
+  instituicao: data.instituicao,
+  avatar: data.avatar || "default.png"
+}));
 
     window.location.href = "../index.html#ingest";
   } catch (err) {
