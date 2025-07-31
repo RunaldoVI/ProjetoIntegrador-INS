@@ -1,5 +1,5 @@
 #server.py
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import requests
 import subprocess
@@ -78,6 +78,21 @@ def llm_progress():
 
     except Exception as e:
         return jsonify({"progress": 0, "error": str(e)})
+
+
+@app.route('/download-excel', methods=['GET'])
+def download_excel():
+    excel_path = os.path.join(UPLOAD_FOLDER, "INS-NHANES-DPQ_J.xlsx")
+    
+    if os.path.exists(excel_path):
+        return send_file(
+            excel_path,
+            as_attachment=True,
+            download_name="INS-NHANES-DPQ_J.xlsx",  # nome visível no download
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+    else:
+        return jsonify({'error': 'Ficheiro Excel não encontrado'}), 404
 
 # --- EXECUTAR A APP ---
 

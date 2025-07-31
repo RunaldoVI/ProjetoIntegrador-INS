@@ -15,6 +15,13 @@ function loadIngest() {
       `<p class="text-gray-500 dark:text-gray-400">Nenhum PDF carregado.</p>`;
     document.getElementById("pdfInput").value = "";
     document.getElementById("file-name").textContent = "";
+
+    // Remover botão de download se existir
+    const oldDownload = document.querySelector("#output a[href$='download-excel']");
+    if (oldDownload?.parentElement) {
+      oldDownload.parentElement.remove();
+    }
+
     currentPdfFile = null;
     analyzing = false;
   }
@@ -35,7 +42,7 @@ function loadIngest() {
     const output = document.getElementById("output");
 
     output.innerHTML = `
-      <div class="relative bg-white dark:bg-darkCard p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-600 space-y-3">
+      <div class="relative bg-white dark:bg-darkCard p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-600 space-y-4">
         <button id="removePdf" class="absolute top-4 right-4 text-white bg-red-500 hover:bg-red-600 rounded-full p-2 shadow-md transition" title="Remover ficheiro">
           <i class="fas fa-times"></i>
         </button>
@@ -44,9 +51,12 @@ function loadIngest() {
         <p><strong>Nome:</strong> ${file.name}</p>
         <p><strong>Tamanho:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
         <p><strong>Status:</strong> Pronto para análise</p>
-        <button id="analisarBtn" class="mt-4 px-5 py-2 border border-accent bg-accent text-white font-semibold rounded-lg shadow-md hover:bg-lightHighlight dark:hover:bg-darkHighlight transition">
-          🔍 Analisar PDF
-        </button>
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <button id="analisarBtn" class="px-5 py-2 border border-accent bg-accent text-white font-semibold rounded-lg shadow-md hover:bg-lightHighlight dark:hover:bg-darkHighlight transition">
+            🔍 Analisar PDF
+          </button>
+        </div>
       </div>
     `;
 
@@ -97,11 +107,28 @@ function loadIngest() {
       .then(res => res.json())
       .then(data => {
         loader.remove();
-        output.innerHTML += `
-          <div class="mt-4 p-4 bg-highlight rounded">
-            <h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>
-            <p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>
-          </div>`;
+
+        const resultadoDiv = document.createElement("div");
+        resultadoDiv.className = "mt-4 p-4 bg-highlight rounded";
+        resultadoDiv.innerHTML = `
+          <h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>
+          <p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>
+        `;
+        output.appendChild(resultadoDiv);
+
+        // Botão de download
+        const downloadContainer = document.createElement("div");
+        downloadContainer.className = "mt-4 flex justify-center";
+
+        const downloadBtn = document.createElement("a");
+        downloadBtn.href = "http://localhost:5000/download-excel";
+        downloadBtn.download = true;
+        downloadBtn.className = "inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition";
+        downloadBtn.textContent = "⬇️ Descarregar Excel Gerado";
+
+        downloadContainer.appendChild(downloadBtn);
+        output.appendChild(downloadContainer);
+
         showToast("Análise concluída com sucesso!", "success");
       })
       .catch(err => {
@@ -163,7 +190,6 @@ function loadIngest() {
   setupPdfUpload();
   resetUI();
 
-  // Recupera PDF se existir
   if (sessionStorage.getItem("pdfLoaded") === "true") {
     const base64 = sessionStorage.getItem("pdfBase64");
     const name = sessionStorage.getItem("pdfName");
@@ -183,7 +209,7 @@ function loadIngest() {
 
       const blob = new Blob(byteArrays, { type: "application/pdf" });
       const file = new File([blob], name, { type: "application/pdf" });
-      currentPdfFile = file; // <- para manter para o botão analisar
+      currentPdfFile = file;
       showPdfResult(file);
     }
   }

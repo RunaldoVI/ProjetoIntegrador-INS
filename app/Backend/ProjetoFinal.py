@@ -8,6 +8,7 @@ import re
 from Extração.TextExtractorPDF import extrair_texto_para_txt
 from LLM.PromptLLM import enviar_pagina_para_llm, obter_pergunta
 from Extração.VisualExtractorPDF import extrair_blocos_visuais
+from ExcelWriter.ExcelWriter import executar
 from Limpeza.PreProcessamento import (
     identificar_secao_mais_comum,
     extrair_blocos_limpos,
@@ -104,5 +105,5 @@ print("\n📁 Output final guardado em 'output_blocos_conciliados.json'")
 # ✅ Aqui sim! Só agora a importação
 importar_json_para_bd("output_blocos_conciliados.json")
 
-print("📊 A gerar Excel com base nos blocos conciliados...")
-subprocess.run(["python", "/app/Backend/ExcelWriter/ExcelWriter.py"])
+# Excel Writer
+executar()

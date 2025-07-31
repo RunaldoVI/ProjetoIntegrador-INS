@@ -1,6 +1,12 @@
 import pandas as pd
 from langdetect import detect
 
+def detectar_idioma(texto):
+    try:
+        return detect(texto.strip()) if texto.strip() else "und"
+    except:
+        return "und"
+
 def escrever_codebooks(blocos, writer):
     dados = []
 
@@ -16,7 +22,7 @@ def escrever_codebooks(blocos, writer):
             "rdf:type": "vstoi:Codebook",
             "rdfs:label": f"PHQ-9: {pergunta}",
             "vstoi:hasContent": "",
-            "vstoi:hasLanguage": detect(pergunta),
+            "vstoi:hasLanguage": detectar_idioma(pergunta),
             "vstoi:hasVersion": "1",
             "rdfs:comment": "",
             "hasco:hasImage": "",
@@ -34,7 +40,7 @@ def escrever_codebooks(blocos, writer):
                 "rdf:type": "vstoi:Codebook",
                 "rdfs:label": f"{numero} - {texto}",
                 "vstoi:hasContent": "",
-                "vstoi:hasLanguage": detect(texto),
+                "vstoi:hasLanguage": detectar_idioma(texto),
                 "vstoi:hasVersion": "1",
                 "rdfs:comment": "",
                 "hasco:hasImage": "",
