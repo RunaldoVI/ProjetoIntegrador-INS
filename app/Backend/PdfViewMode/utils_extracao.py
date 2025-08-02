@@ -10,15 +10,15 @@ from Limpeza.PreProcessamento import (
 
 def processar_bloco(bloco, pergunta, secao_geral, preview_identificador=None):
     if len(bloco) < 20:
-        return None
+        return None, None
 
     estrutura = separar_pergunta_respostas(bloco, secao_geral)
     if estrutura is None:
-        return None
-
-    if estrutura.get("Pergunta", "").strip() == preview_identificador:
-        print("⏭️  Ignorado (mesma pergunta do preview)")
-        return None
+        return None, None
+    
+    if estrutura.get("Identificador", "").strip() == preview_identificador:
+        print(f"⏭️  Ignorado (mesmo identificador do preview: {preview_identificador})")
+        return None, None
 
     resposta_llm = enviar_pagina_para_llm(bloco, pergunta)
 
@@ -31,7 +31,6 @@ def processar_bloco(bloco, pergunta, secao_geral, preview_identificador=None):
     resposta_limpa = limpar_estrutura_json(resposta_llm)
     resposta_final = conciliar_estrutura(estrutura, resposta_limpa)
 
-    # Correções finais
     for k in list(resposta_final.keys()):
         if re.match(r"[A-Z]{2,5}\.\d{3}", k) and isinstance(resposta_final[k], dict):
             resposta_final.update(resposta_final.pop(k))
@@ -43,4 +42,4 @@ def processar_bloco(bloco, pergunta, secao_geral, preview_identificador=None):
     if resposta_final.get("Secção") and resposta_final.get("Pergunta", "").startswith(resposta_final["Secção"]):
         resposta_final["Pergunta"] = resposta_final["Pergunta"].replace(resposta_final["Secção"], "").strip(": ").strip()
 
-    return resposta_final
+    return estrutura, resposta_final

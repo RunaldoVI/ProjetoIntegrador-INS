@@ -1,7 +1,7 @@
 function loadIngest() {
   console.log("ingest.js carregado com sucesso!");
 
-  let modoAtual = "automatico";
+  let modoAtual = localStorage.getItem("modo") || "automatico";
   let currentPdfFile = null;
   let analyzing = false;
 
@@ -79,7 +79,7 @@ function loadIngest() {
     showToast("PDF carregado com sucesso!", "success");
   }
 
-  function analisarPdf(file) {
+  function analisarPdf(file, modoForcado = null) {
     analyzing = true;
     const output = document.getElementById("output");
     const button = document.getElementById("analisarBtn");
@@ -100,7 +100,12 @@ function loadIngest() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("modo", modoAtual);
+    formData.append("modo", modoForcado || modoAtual);
+    const instrucaoExtra = sessionStorage.getItem("instrucoesPersonalizadas");
+if (instrucaoExtra) {
+  formData.append("instrucoes", instrucaoExtra);
+  sessionStorage.removeItem("instrucoesPersonalizadas");
+}
 
     fetch("http://localhost:5000/upload", {
       method: "POST",
@@ -109,10 +114,21 @@ function loadIngest() {
       .then(res => res.json())
 .then(data => {
   loader.remove();
+  const previewsAntigos = document.querySelectorAll("#output .bg-highlight");
+  document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach(el => el.remove());
+  previewsAntigos.forEach(p => p.remove());
 
   const resultadoDiv = document.createElement("div");
   resultadoDiv.className = "mt-4 p-4 bg-highlight rounded";
   resultadoDiv.innerHTML = `<h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>`;
+  const instrucaoExtra = sessionStorage.getItem("instrucoesPersonalizadas");
+if (instrucaoExtra) {
+  resultadoDiv.innerHTML += `
+    <div class="mb-4 text-sm text-blue-200 bg-blue-900 px-4 py-2 rounded shadow-sm">
+      📝 Este resultado inclui as instruções personalizadas que adicionaste ao LLM.
+    </div>
+  `;
+}
 
   if (modoAtual === "preview" && data.Pergunta) {
     resultadoDiv.innerHTML += `
@@ -130,14 +146,27 @@ function loadIngest() {
     `;
 
     output.appendChild(resultadoDiv);
+    
 
-    const continuarBtn = document.createElement("button");
-    continuarBtn.textContent = "✅ Continuar com processamento automático";
-    continuarBtn.className = "mt-6 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition";
-continuarBtn.addEventListener("click", () => {
+  const continuarBtn = document.createElement("button");
+continuarBtn.textContent = "✅ Continuar com processamento automático";
+continuarBtn.className = "mt-6 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition continuar-btn";
+  continuarBtn.addEventListener("click", () => {
+   const naoGostoExistente =   document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach(el => el.remove());
+  if (naoGostoExistente) naoGostoExistente.remove();
   continuarBtn.disabled = true;
   continuarBtn.textContent = "A continuar...";
+
+  // 🔁 Corrigir aqui:
   modoAtual = "automatico";
+  const modoToggleBtn = document.getElementById("modoToggle");
+const modoText = document.getElementById("modoText");
+
+if (modoText && modoToggleBtn) {
+  modoToggleBtn.checked = (modoAtual === "automatico");
+  modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
+}
+
   document.getElementById("modoToggle").textContent = "🔄 Modo: Automático";
 
   const base64 = sessionStorage.getItem("pdfBase64");
@@ -146,7 +175,9 @@ continuarBtn.addEventListener("click", () => {
 
   if (base64 && name && size) {
     const previewExistente = document.querySelector("#output .bg-highlight");
-    if (previewExistente) previewExistente.insertAdjacentHTML("beforeend", `<p class="text-sm text-white italic">🔁 A continuar processamento completo...</p>`);
+    if (previewExistente) {
+      previewExistente.insertAdjacentHTML("beforeend", `<p class="text-sm text-white italic">🔁 A continuar processamento completo...</p>`);
+    }
 
     const byteCharacters = atob(base64);
     const byteArrays = [];
@@ -161,15 +192,95 @@ continuarBtn.addEventListener("click", () => {
 
     const blob = new Blob(byteArrays, { type: "application/pdf" });
     const file = new File([blob], name, { type: "application/pdf" });
-    currentPdfFile = file;
 
-    analisarPdf(currentPdfFile);
+    // ✅ Agora sim: forçar modo automático
+    analisarPdf(file, "automatico");
   } else {
     showToast("Erro: ficheiro PDF não encontrado.", "error");
   }
 });
 
     output.appendChild(continuarBtn);
+
+const naoGostoBtn = document.createElement("button");
+naoGostoBtn.textContent = "❌ Não gosto da resposta";
+naoGostoBtn.className = "mt-2 ml-2 px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition naogosto-btn";
+output.appendChild(naoGostoBtn);
+
+// Criar modal se ainda não existir
+if (!document.getElementById("feedbackModal")) {
+  const modal = document.createElement("div");
+  modal.id = "feedbackModal";
+  modal.className = "fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden backdrop-blur-sm";
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-darkCard rounded-xl p-6 w-full max-w-xl shadow-lg relative">
+      <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-red-600">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+      <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Adicionar instruções personalizadas para o LLM</h3>
+      <textarea id="modalTextarea" rows="6" class="w-full p-3 border border-gray-300 rounded dark:bg-darkHighlight dark:text-white"></textarea>
+      <button id="saveSuggestionBtn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">💾 Usar estas instruções</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // Fechar modal ao clicar no X
+  modal.querySelector("#closeModalBtn").addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  // Fechar ao clicar fora do conteúdo
+  modal.addEventListener("click", e => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+
+  // Guardar sugestão
+modal.querySelector("#saveSuggestionBtn").addEventListener("click", () => {
+const texto = modal.querySelector("#modalTextarea").value.trim();
+if (texto.length > 0) {
+  sessionStorage.setItem("instrucoesPersonalizadas", texto);
+  showToast("Instruções registadas com sucesso. A reprocessar em modo preview...", "success");
+  modal.classList.add("hidden");
+
+  // ⚡ Forçar novo processamento em modo preview
+  const base64 = sessionStorage.getItem("pdfBase64");
+  const name = sessionStorage.getItem("pdfName");
+  const size = parseFloat(sessionStorage.getItem("pdfSize"));
+
+  if (base64 && name && size) {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+
+    const blob = new Blob(byteArrays, { type: "application/pdf" });
+    const file = new File([blob], name, { type: "application/pdf" });
+
+    // 👇 Forçar reprocessamento com preview e instruções atualizadas
+    analisarPdf(file, "preview");
+  } else {
+    showToast("Erro ao reprocessar: ficheiro não encontrado.", "error");
+  }
+} else {
+  showToast("Por favor escreva algo primeiro.", "warning");
+}
+});
+}
+
+// Mostrar o modal
+naoGostoBtn.addEventListener("click", () => {
+  const modal = document.getElementById("feedbackModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.querySelector("#modalTextarea").value = "";
+  }
+});
 
   } else {
     resultadoDiv.innerHTML += `<p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>`;
@@ -273,14 +384,21 @@ continuarBtn.addEventListener("click", () => {
     }
   }
 
+ const modoToggle = document.getElementById("modoToggle");
+  const modoText = document.getElementById("modoText");
 
+  if (modoToggle && modoText) {
+    // Inicializar estado do botão e texto
+    modoToggle.checked = (modoAtual === "automatico");
+    modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
 
-  document.getElementById("modoToggle")?.addEventListener("click", () => {
-  modoAtual = (modoAtual === "automatico") ? "preview" : "automatico";
-  document.getElementById("modoToggle").textContent = `🔄 Modo: ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
-});
-
-
+    // Reagir à alteração
+    modoToggle.addEventListener("change", () => {
+      modoAtual = modoToggle.checked ? "automatico" : "preview";
+      modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
+      localStorage.setItem("modo", modoAtual);
+    });
+  }
 }
 
 window.loadIngest = loadIngest;

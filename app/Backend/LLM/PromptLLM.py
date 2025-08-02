@@ -3,8 +3,8 @@ import json
 import os
 import time
 
-def obter_pergunta():
-    return (
+def obter_pergunta(instrucoes_adicionais=None):
+    base = (
         "Consegues fazer uma lista organizada com os identificadores, as perguntas e as suas opções de resposta "
         "que aparecem neste questionário?\n\n"
         "❗ Instruções importantes:\n"
@@ -23,6 +23,10 @@ def obter_pergunta():
         "  - ...\n\n"
         "Consegues colocar tudo num formato JSON estruturado?\n"
     )
+    if instrucoes_adicionais:
+        base += "\n\n📌 Instruções adicionais do utilizador:\n" + instrucoes_adicionais.strip()
+    return base
+
 
 
 def enviar_pagina_para_llm(texto_pagina, pergunta, modelo="mistral", url="http://ollama:11434/api/chat"):

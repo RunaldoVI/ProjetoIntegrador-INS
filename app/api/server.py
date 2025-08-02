@@ -38,8 +38,12 @@ def upload_pdf():
     try:
         modo_bruto = request.form.get("modo", "automatico")
         modo = modo_bruto.replace("--modo", "").strip()
+        instrucoes_extra = request.form.get("instrucoes", "").strip()
 
-        subprocess.run(["python", "/app/Backend/ProjetoFinal.py", filepath, modo], check=True)
+        subprocess.run(
+            ["python", "/app/Backend/ProjetoFinal.py", filepath, modo, instrucoes_extra],
+             check=True
+            )
 
         if modo == "preview":
             preview_path = "preview_output.json"

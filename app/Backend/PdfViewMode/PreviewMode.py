@@ -12,62 +12,65 @@ from Extração.VisualExtractorPDF import extrair_blocos_visuais
 from Limpeza.PreProcessamento import (
     identificar_secao_mais_comum,
     extrair_blocos_limpos,
-    separar_pergunta_respostas,
-    limpar_estrutura_json,
-    conciliar_estrutura
+    separar_pergunta_respostas
 )
 from DataBaseConnection import importar_json_para_bd
+from PdfViewMode.utils_extracao import processar_bloco
 
+def executar_preview(caminho_pdf, instrucoes=""):
+    caminho_txt = extrair_texto_para_txt(caminho_pdf)
+    extrair_blocos_visuais(caminho_pdf)
 
-if len(sys.argv) < 2:
-    print("❌ Uso: python modo_preview.py caminho_para_pdf")
-    sys.exit(1)
+    with open(caminho_txt, "r", encoding="utf-8") as f:
+        conteudo = f.read()
 
-caminho_pdf = sys.argv[1]
-caminho_txt = extrair_texto_para_txt(caminho_pdf)
-extrair_blocos_visuais(caminho_pdf)
+    paginas = [p.strip() for p in conteudo.split("===== Página") if p.strip()]
+    secao_geral = identificar_secao_mais_comum(paginas)
+    
+    # 🧠 Define a pergunta com instruções personalizadas
+    pergunta = obter_pergunta()
+    if instrucoes:
+        pergunta += f"\n\n📌 Instruções extra do utilizador:\n{instrucoes}"
 
-with open(caminho_txt, "r", encoding="utf-8") as f:
-    conteudo = f.read()
+    if not paginas:
+        print("❌ Nenhuma página encontrada no PDF.")
+        return
 
-paginas = [p.strip() for p in conteudo.split("===== Página") if p.strip()]
-secao_geral = identificar_secao_mais_comum(paginas)
-pergunta = obter_pergunta()
+    texto_pagina = paginas[0]
+    blocos = extrair_blocos_limpos(texto_pagina)
 
-if not paginas:
-    print("❌ Nenhuma página encontrada no PDF.")
-    sys.exit(0)
+    if not blocos:
+        print("❌ Primeira página não tem blocos válidos.")
+        return
 
-texto_pagina = paginas[0]
-blocos = extrair_blocos_limpos(texto_pagina)
+    for j, bloco in enumerate(blocos, start=1):
+        if len(bloco) < 20:
+            continue
+    
+        print("\n📨 Prompt enviado para o LLM:\n", pergunta)
 
-if not blocos:
-    print("❌ Primeira página não tem blocos válidos.")
-    sys.exit(0)
+        estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral)
 
-for j, bloco in enumerate(blocos, start=1):
-    if len(bloco) < 20:
-        continue
+        if not estrutura or not resposta_final:
+            continue
 
-    estrutura = separar_pergunta_respostas(bloco, secao_geral)
-    print(f"\n🧠 Pré-visualização - Bloco {j}:")
-    print(json.dumps(estrutura, indent=2, ensure_ascii=False))
+        print(f"\n🧠 Pré-visualização - Bloco {j}:")
+        print(json.dumps(estrutura, indent=2, ensure_ascii=False))
+        print(f"\n🧠 Resposta do LLM:")
+        print(json.dumps(resposta_final, indent=2, ensure_ascii=False))
 
-    resposta_llm = enviar_pagina_para_llm(bloco, pergunta)
+        with open("preview_output.json", "w", encoding="utf-8") as f:
+            json.dump(resposta_final, f, indent=2, ensure_ascii=False)
 
-    try:
-        match = re.search(r"\{.*\}", resposta_llm, re.DOTALL)
-        resposta_llm = json.loads(match.group(0)) if match else {}
-    except:
-        resposta_llm = {}
+        print(json.dumps({"status": "preview", "mensagem": "Pré-visualização concluída."}))
+        break
 
-    resposta_final = conciliar_estrutura(estrutura, limpar_estrutura_json(resposta_llm))
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("❌ Uso: python PreviewMode.py caminho_para_pdf [instrucoes]")
+        sys.exit(1)
 
-    print(f"\n🧠 Resposta do LLM:")
-    print(json.dumps(resposta_final, indent=2, ensure_ascii=False))
-
-    with open("preview_output.json", "w", encoding="utf-8") as f:
-        json.dump(resposta_final, f, indent=2, ensure_ascii=False)
-
-    print(json.dumps({"status": "preview", "mensagem": "Pré-visualização concluída."}))
-    break  # apenas o primeiro bloco
+    caminho_pdf = sys.argv[1]
+    instrucoes = sys.argv[2] if len(sys.argv) > 2 else ""
+    print("🧪 Instruções recebidas via argumento:", instrucoes)
+    executar_preview(caminho_pdf, instrucoes)

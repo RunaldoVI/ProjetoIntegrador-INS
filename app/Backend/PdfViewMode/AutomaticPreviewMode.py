@@ -2,24 +2,23 @@ import sys
 import os
 import json
 import re
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Database")))
+
 from Extração.TextExtractorPDF import extrair_texto_para_txt
-from LLM.PromptLLM import enviar_pagina_para_llm, obter_pergunta
 from Extração.VisualExtractorPDF import extrair_blocos_visuais
+from LLM.PromptLLM import obter_pergunta
 from ExcelWriter.ExcelWriter import executar
+from DataBaseConnection import importar_json_para_bd
+from PdfViewMode.utils_extracao import processar_bloco
 from Limpeza.PreProcessamento import (
     identificar_secao_mais_comum,
     extrair_blocos_limpos,
-    separar_pergunta_respostas,
-    limpar_estrutura_json,
-    motivo_resposta_incompleta,
-    conciliar_estrutura
 )
-from DataBaseConnection import importar_json_para_bd
 
 if len(sys.argv) < 2:
-    print("❌ Uso: python modo_automatico.py caminho_para_pdf")
+    print("❌ Uso: python AutomaticPreviewMode.py caminho_para_pdf")
     sys.exit(1)
 
 caminho_pdf = sys.argv[1]
@@ -34,67 +33,49 @@ secao_geral = identificar_secao_mais_comum(paginas)
 pergunta = obter_pergunta()
 
 blocos_finais = []
-
+identificadores_vistos = set()
 preview_path = "preview_output.json"
 preview_pergunta = None
 
-# 🔁 Reaproveitar preview se existir
 if os.path.exists(preview_path):
     with open(preview_path, "r", encoding="utf-8") as f:
         bloco_preview = json.load(f)
         blocos_finais.append(bloco_preview)
         preview_pergunta = bloco_preview.get("Pergunta", "").strip()
+        preview_identificador = bloco_preview.get("Identificador", "").strip()
+        identificadores_vistos.add(preview_identificador)
     print("✅ Preview carregado e reaproveitado.")
 else:
     print("⚠️ Nenhum preview encontrado.")
 
-# 🟨 Processar o resto da primeira página (exceto o preview)
+def guardar_rejeitado(i, j, bloco):
+    with open("rejeitados_debug.json", "a", encoding="utf-8") as f:
+        json.dump({"pagina": i, "bloco": j, "texto": bloco}, f, ensure_ascii=False)
+        f.write(",\n")
+
+# Página 1
 primeira_pagina = paginas[0]
 restantes_paginas = paginas[1:]
-
 blocos = extrair_blocos_limpos(primeira_pagina)
+
 for j, bloco in enumerate(blocos, start=1):
     if len(bloco) < 20:
         continue
-
-    estrutura = separar_pergunta_respostas(bloco, secao_geral)
-    if estrutura is None:
+    estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral, preview_pergunta)
+    if not resposta_final:
+        print(f"⚠️ Bloco {j} rejeitado ou inválido (página 1).")
+        guardar_rejeitado(1, j, bloco)
         continue
 
-    if estrutura.get("Identificador") == bloco_preview.get("Identificador"):
-        print(f"⏭️  Bloco {j} ignorado (mesmo identificador do preview: {estrutura.get('Identificador')})")
+    identificador = resposta_final.get("Identificador", "").strip()
+    if identificador in identificadores_vistos:
+        print(f"⚠️ Bloco {j} ignorado (identificador duplicado: {identificador})")
         continue
 
-    print(f"\n🧠 Página 1, Bloco {j} (após preview):")
-    print(json.dumps(estrutura, indent=2, ensure_ascii=False))
-    print("-" * 50)
-
-    resposta_llm = enviar_pagina_para_llm(bloco, pergunta)
-    print("🔄 Resposta original do LLM:")
-    print(resposta_llm)
-    try:
-        match = re.search(r"\{.*\}", resposta_llm, re.DOTALL)
-        resposta_llm = json.loads(match.group(0)) if match else {}
-    except:
-        resposta_llm = {}
-
-    resposta_limpa = limpar_estrutura_json(resposta_llm)
-    resposta_final = conciliar_estrutura(estrutura, resposta_limpa)
-
-    for k in list(resposta_final.keys()):
-        if re.match(r"[A-Z]{2,5}\.\d{3}", k) and isinstance(resposta_final[k], dict):
-            resposta_final.update(resposta_final.pop(k))
-            resposta_final["Identificador"] = k
-
-    if resposta_final.get("Secção", "Nenhuma") == "Nenhuma":
-        resposta_final["Secção"] = estrutura["Secção"]
-
-    if resposta_final.get("Secção") and resposta_final.get("Pergunta", "").startswith(resposta_final["Secção"]):
-        resposta_final["Pergunta"] = resposta_final["Pergunta"].replace(resposta_final["Secção"], "").strip(": ").strip()
-
+    identificadores_vistos.add(identificador)
     blocos_finais.append(resposta_final)
 
-# 📄 Agora continua normalmente com as restantes páginas
+# Demais páginas
 for i, texto_pagina in enumerate(restantes_paginas, start=2):
     blocos = extrair_blocos_limpos(texto_pagina)
     if not blocos:
@@ -104,42 +85,20 @@ for i, texto_pagina in enumerate(restantes_paginas, start=2):
     for j, bloco in enumerate(blocos, start=1):
         if len(bloco) < 20:
             continue
-
-        estrutura = separar_pergunta_respostas(bloco, secao_geral)
-        if estrutura is None:
+        print(f"\n🧠 Página {i}, Bloco {j}:")
+        estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral, preview_pergunta)
+        if not resposta_final:
+            print(f"⚠️ Bloco {j} rejeitado ou inválido (página {i}).")
+            guardar_rejeitado(i, j, bloco)
             continue
 
-        print(f"\n🧠 Página {i}, Bloco {j}:")
-        print(json.dumps(estrutura, indent=2, ensure_ascii=False))
-        print("-" * 50)
+        identificador = resposta_final.get("Identificador", "").strip()
+        if identificador in identificadores_vistos:
+            print(f"⚠️ Bloco {j} ignorado (identificador duplicado: {identificador})")
+            continue
 
-        resposta_llm = enviar_pagina_para_llm(bloco, pergunta)
-
-        try:
-            match = re.search(r"\{.*\}", resposta_llm, re.DOTALL)
-            resposta_llm = json.loads(match.group(0)) if match else {}
-        except:
-            resposta_llm = {}
-
-        resposta_limpa = limpar_estrutura_json(resposta_llm)
-        resposta_final = conciliar_estrutura(estrutura, resposta_limpa)
-
-        for k in list(resposta_final.keys()):
-            if re.match(r"[A-Z]{2,5}\.\d{3}", k) and isinstance(resposta_final[k], dict):
-                resposta_final.update(resposta_final.pop(k))
-                resposta_final["Identificador"] = k
-
-        if resposta_final.get("Secção", "Nenhuma") == "Nenhuma":
-            resposta_final["Secção"] = estrutura["Secção"]
-
-        if resposta_final.get("Secção") and resposta_final.get("Pergunta", "").startswith(resposta_final["Secção"]):
-            resposta_final["Pergunta"] = resposta_final["Pergunta"].replace(resposta_final["Secção"], "").strip(": ").strip()
-
+        identificadores_vistos.add(identificador)
         blocos_finais.append(resposta_final)
-
-        print(f"\n🧠 Página {i}, Bloco {j} (depois do LLM):")
-        print(json.dumps(resposta_final, indent=2, ensure_ascii=False))
-        print("=" * 70)
 
 with open("output_blocos_conciliados.json", "w", encoding="utf-8") as f:
     json.dump(blocos_finais, f, indent=2, ensure_ascii=False)
