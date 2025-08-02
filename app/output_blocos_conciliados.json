@@ -32,23 +32,23 @@
     "Pergunta": "feeling down, depressed, or hopeless?",
     "Respostas": [
       {
-        "opção": " not at all",
+        "opção": "Not at all",
         "valor": "0"
       },
       {
-        "opção": " several days",
+        "opção": "Several days",
         "valor": "1"
       },
       {
-        "opção": " more than half the days",
+        "opção": "More than half the days",
         "valor": "2"
       },
       {
-        "opção": " nearly every day",
+        "opção": "Nearly every day",
         "valor": "3"
       },
       {
-        "opção": " don’t know",
+        "opção": "Don’t know",
         "valor": "9"
       }
     ]
@@ -56,7 +56,7 @@
   {
     "Identificador": "DPQ.030",
     "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
-    "Pergunta": "trouble falling or staying asleep, or sleeping too much?",
+    "Pergunta": "trouble falling or staying asleep, or sleeping too much? 1",
     "Respostas": [
       {
         "opção": "Not at all",
@@ -113,23 +113,23 @@
     "Pergunta": "poor appetite or overeating?",
     "Respostas": [
       {
-        "opção": " not at all",
+        "opção": "Not at all",
         "valor": "0"
       },
       {
-        "opção": " several days",
+        "opção": "Several days",
         "valor": "1"
       },
       {
-        "opção": " more than half the days",
+        "opção": "More than half the days",
         "valor": "2"
       },
       {
-        "opção": " nearly every day",
+        "opção": "Nearly every day",
         "valor": "3"
       },
       {
-        "opção": " don’t know",
+        "opção": "Don’t know",
         "valor": "9"
       }
     ]
@@ -137,7 +137,7 @@
   {
     "Identificador": "DPQ.060",
     "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
-    "Pergunta": "",
+    "Pergunta": "feeling bad about yourself – or that you are a failure or have let yourself or your family down?",
     "Respostas": [
       {
         "opção": "Not at all",
@@ -218,26 +218,26 @@
   {
     "Identificador": "DPQ.090",
     "Secção": "Nenhuma",
-    "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problem:",
+    "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problem: Thoughts that you would be better off dead or of hurting yourself in some way?  IF RESPONSE TO ANY OF QUESTIONS DPQ.010 – DPQ.090 = 1, 2, OR 3, GO TO",
     "Respostas": [
       {
-        "opção": " not at all",
+        "opção": "Not at all",
         "valor": "0"
       },
       {
-        "opção": " several days",
+        "opção": "Several days",
         "valor": "1"
       },
       {
-        "opção": " more than half the days",
+        "opção": "More than half the days",
         "valor": "2"
       },
       {
-        "opção": " nearly every day",
+        "opção": "Nearly every day",
         "valor": "3"
       },
       {
-        "opção": " don’t know",
+        "opção": "Don’t know",
         "valor": "9"
       }
     ]

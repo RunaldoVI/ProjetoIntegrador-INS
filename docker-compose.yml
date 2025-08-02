@@ -10,6 +10,11 @@ services:
       - ollama-data:/root/.ollama
     environment:
       - OLLAMA_DEBUG=error
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
 
   mysql:
     image: mysql:8.0
