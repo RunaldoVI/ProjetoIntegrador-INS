@@ -121,8 +121,12 @@ function loadIngest() {
       <p class="text-white"><strong>❓ Pergunta:</strong> ${data.Pergunta}</p>
       <p class="text-white"><strong>✅ Respostas:</strong></p>
       <ul class="list-disc pl-6 text-sm text-white">
-        ${(data.Respostas || []).map(r => `<li>${r}</li>`).join("")}
+        ${(data.Respostas || []).map(r => {
+          const texto = typeof r === "string" ? r : (r.label || r.texto || JSON.stringify(r));
+          return `<li>${texto}</li>`;
+        }).join("")}
       </ul>
+
     `;
 
     output.appendChild(resultadoDiv);
@@ -130,13 +134,40 @@ function loadIngest() {
     const continuarBtn = document.createElement("button");
     continuarBtn.textContent = "✅ Continuar com processamento automático";
     continuarBtn.className = "mt-6 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition";
-    continuarBtn.addEventListener("click", () => {
-      continuarBtn.disabled = true;
-      continuarBtn.textContent = "A continuar...";
-      modoAtual = "automatico";
-      document.getElementById("modoToggle").textContent = "🔄 Modo: Automático";
-      analisarPdf(currentPdfFile);
-    });
+continuarBtn.addEventListener("click", () => {
+  continuarBtn.disabled = true;
+  continuarBtn.textContent = "A continuar...";
+  modoAtual = "automatico";
+  document.getElementById("modoToggle").textContent = "🔄 Modo: Automático";
+
+  const base64 = sessionStorage.getItem("pdfBase64");
+  const name = sessionStorage.getItem("pdfName");
+  const size = parseFloat(sessionStorage.getItem("pdfSize"));
+
+  if (base64 && name && size) {
+    const previewExistente = document.querySelector("#output .bg-highlight");
+    if (previewExistente) previewExistente.insertAdjacentHTML("beforeend", `<p class="text-sm text-white italic">🔁 A continuar processamento completo...</p>`);
+
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+
+    const blob = new Blob(byteArrays, { type: "application/pdf" });
+    const file = new File([blob], name, { type: "application/pdf" });
+    currentPdfFile = file;
+
+    analisarPdf(currentPdfFile);
+  } else {
+    showToast("Erro: ficheiro PDF não encontrado.", "error");
+  }
+});
 
     output.appendChild(continuarBtn);
 
