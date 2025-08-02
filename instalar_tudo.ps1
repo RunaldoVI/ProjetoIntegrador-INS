@@ -127,22 +127,6 @@ sudo systemctl restart docker || true
     Write-Host '⚠️ GPU não disponível — a correr com CPU.'
 }
 
-# Gerar ficheiro .env com suporte a GPU (ou não)
-$envFilePath = ".env"
-if ($gpuFunctional) {
-    Write-Host "📝 A gerar ficheiro `.env` com suporte a GPU..."
-    Set-Content -Path $envFilePath -Value @"
-GPU_DRIVER=nvidia
-GPU_COUNT=all
-"@
-} else {
-    Write-Host "📝 A gerar ficheiro `.env` para correr com CPU..."
-    Set-Content -Path $envFilePath -Value @"
-GPU_DRIVER=none
-GPU_COUNT=0
-"@
-}
-
 # Final
 Write-Host ''
 Write-Host '✅ Instalação concluída!'
