@@ -1,5 +1,16 @@
 [
   {
+    "Identificador": "ALQ.111",
+    "Secção": "Nenhuma",
+    "Pergunta": "In {your/SP’s} entire life, {have you/has he/has she} had at least 1 drink of any kind of alcohol, not counting small tastes or sips? By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half ounces of liquor.",
+    "Respostas": [
+      {
+        "opção": "Yes",
+        "valor": "1"
+      }
+    ]
+  },
+  {
     "Identificador": "DPQ.010",
     "Secção": "Nenhuma",
     "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problems: little interest or pleasure in doing things? Would you say . . .",
@@ -56,7 +67,7 @@
   {
     "Identificador": "DPQ.030",
     "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
-    "Pergunta": "trouble falling or staying asleep, or sleeping too much? 1",
+    "Pergunta": "trouble falling or staying asleep, or sleeping too much?",
     "Respostas": [
       {
         "opção": "Not at all",
@@ -194,23 +205,23 @@
     "Pergunta": "moving or speaking so slowly that other people could have noticed? Or the opposite – being so fidgety or restless that you have been moving around a lot more than usual?",
     "Respostas": [
       {
-        "opção": "Not at all",
+        "opção": " not at all",
         "valor": "0"
       },
       {
-        "opção": "Several days",
+        "opção": " several days",
         "valor": "1"
       },
       {
-        "opção": "More than half the days",
+        "opção": " more than half the days",
         "valor": "2"
       },
       {
-        "opção": "Nearly every day",
+        "opção": " nearly every day",
         "valor": "3"
       },
       {
-        "opção": "Don’t know",
+        "opção": " don't know",
         "valor": "9"
       }
     ]

@@ -1,27 +1,11 @@
 {
-  "Identificador": "DPQ.010",
+  "Identificador": "ALQ.111",
   "Secção": "Nenhuma",
-  "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problems: little interest or pleasure in doing things? Would you say . . .",
+  "Pergunta": "In {your/SP’s} entire life, {have you/has he/has she} had at least 1 drink of any kind of alcohol, not counting small tastes or sips? By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half ounces of liquor.",
   "Respostas": [
     {
-      "opção": "Not at all",
-      "valor": "0"
-    },
-    {
-      "opção": "Several days",
+      "opção": "Yes",
       "valor": "1"
-    },
-    {
-      "opção": "More than half the days, or",
-      "valor": "2"
-    },
-    {
-      "opção": "Nearly every day",
-      "valor": "3"
-    },
-    {
-      "opção": "Don’t know",
-      "valor": "9"
     }
   ]
 }

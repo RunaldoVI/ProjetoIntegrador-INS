@@ -140,4 +140,3 @@ if ($gpuFunctional) {
     Write-Host "⚡ A correr docker-compose sem GPU (CPU apenas)..."
     docker compose up --build
 }
-

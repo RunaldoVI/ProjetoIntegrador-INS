@@ -214,3 +214,6 @@ app/rejeitados_debug.json
 app/output_blocos_conciliados.json
 app/Backend/PDF_Extraido/DPQ_J_fitz_coords.txt
 app/Backend/PDF_Extraido/DPQ_J_extraido.txt
+app/output_blocos_conciliados.json
+app/preview_output.json
+app/rejeitados_debug.json

@@ -5,9 +5,11 @@ services:
     image: ollama/ollama
     container_name: ollama
     ports:
-      - "11434:11434"
+      - "${OLLAMA_PORT:-11434}:11434"
     volumes:
       - ollama-data:/root/.ollama
+    env_file:
+      - .env
     environment:
       - OLLAMA_DEBUG=error
 
@@ -15,16 +17,18 @@ services:
     image: mysql:8.0
     container_name: database-mysql
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: projetofinal_ins
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
     ports:
-      - "3307:3306"
+      - "${DB_PORT_EXTERNA:-3307}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
 
   projeto:
     build:
@@ -33,16 +37,13 @@ services:
     depends_on:
       - ollama
       - mysql
-    environment:
-      DB_HOST: mysql
-      DB_USER: user
-      DB_PASSWORD: password
-      DB_NAME: projetofinal_ins
     volumes:
       - .:/app
-      - ./pdfs-excels:/app/pdfs-excels   # ✅ ADICIONA ESTA LINHA
+      - ./pdfs-excels:/app/pdfs-excels
     working_dir: /app
     command: ["sh", "/app/startup.sh"]
+    env_file:
+      - .env
 
   api:
     build:
@@ -50,30 +51,29 @@ services:
       dockerfile: Dockerfile.api
     container_name: API
     ports:
-      - "5000:5000"
+      - "${API_PORT:-5000}:5000"
     restart: always
     depends_on:
       - projeto
-    environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USER: user
-      DB_PASSWORD: password
-      DB_NAME: projetofinal_ins
     volumes:
       - ./app:/app
       - ./pdfs-excels:/app/pdfs-excels
       - ollama-data:/root/.ollama
       - ./ollama-progress.log:/app/ollama-progress.log
+    env_file:
+      - .env
+
   frontend:
     image: nginx:latest
     container_name: projeto-frontend
     ports:
-      - "8080:80"
+      - "${FRONTEND_PORT:-8080}:80"
     volumes:
       - ./app/Frontend:/usr/share/nginx/html
     depends_on:
       - api
+    env_file:
+      - .env
 
 volumes:
   ollama-data:
