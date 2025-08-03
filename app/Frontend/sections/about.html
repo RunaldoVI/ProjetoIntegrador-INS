@@ -1,60 +1,128 @@
-<!-- about.html -->
-<section id="section-about" class="section">
-  <h2 class="text-2xl font-bold mb-4">Sobre o Projeto</h2>
-  <div class="space-y-4 text-gray-500 dark:text-gray-400 text-justify leading-relaxed">
-    <p>
-      O <strong>Projeto Integrador INS</strong> é uma iniciativa acadêmica desenvolvida no contexto de um trabalho interdisciplinar, com o objetivo de aplicar conhecimentos teóricos em um sistema funcional e útil.
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projeto Integrador INS</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Estilo personalizado -->
+  <link rel="stylesheet" href="css/about.css" />
+</head>
+<body class="bg-white dark:bg-gray-900">
+
+<section id="section-about" class="section px-4 py-12">
+  <h2 class="text-4xl font-bold text-center mb-10 text-gray-800 dark:text-gray-100">Sobre o Projeto</h2>
+
+  <div class="max-w-5xl mx-auto space-y-10 text-gray-700 dark:text-gray-300 text-justify leading-relaxed">
+
+    <p class="text-lg">
+      O <strong>Projeto Integrador INS</strong> é uma iniciativa acadêmica interdisciplinar que visa transformar conhecimentos teóricos em soluções práticas. A plataforma foi desenvolvida para realizar a ingestão, análise e visualização de arquivos PDF de forma intuitiva, eficiente e acessível.
     </p>
-    <p>
-      Este sistema foi projetado para permitir a <strong>ingerência, visualização e análise de arquivos PDF</strong> enviados pelos utilizadores.
-    </p>
-    <ul class="list-disc list-inside mt-2">
-      <li>Upload e processamento de arquivos PDF</li>
-      <li>Interface clara com tema claro/escuro</li>
-      <li>Histórico de documentos ingeridos</li>
-      <li>Simulação de análise com retorno visual</li> 
-      <li>Entrega de Documentos estruturados em formato excel</li>
-    </ul>
-    <p>
-      Este projeto representa o esforço colaborativo de estudantes na resolução de um desafio prático.
-    </p>
+
+    <!-- MISSÃO & VISÃO COM FLIP -->
+    <div class="grid sm:grid-cols-2 gap-8">
+      <!-- Missão -->
+      <div class="perspective group">
+        <div class="flip-card">
+          <div class="flip-face flip-front">
+            <h3 class="text-2xl font-semibold">🎯 Missão</h3>
+          </div>
+          <div class="flip-face flip-back">
+            Aplicar conhecimentos acadêmicos para desenvolver uma solução funcional que otimize o manuseio e a análise de documentos digitais.
+          </div>
+        </div>
+      </div>
+
+      <!-- Visão -->
+      <div class="perspective group">
+        <div class="flip-card">
+          <div class="flip-face flip-front">
+            <h3 class="text-2xl font-semibold">🌟 Visão</h3>
+          </div>
+          <div class="flip-face flip-back">
+            Ser um projeto referência em integração de competências técnicas em ambientes educacionais, com impacto positivo e aplicabilidade real.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funcionalidades -->
+    <div>
+      <h3 class="text-2xl font-semibold mb-3 text-gray-800 dark:text-white">⚙️ Funcionalidades</h3>
+      <ul class="list-disc list-inside space-y-1 pl-4">
+        <li>📥 Upload e processamento inteligente de arquivos PDF</li>
+        <li>🌓 Interface moderna com suporte a tema claro e escuro</li>
+        <li>🕓 Histórico de documentos ingeridos</li>
+        <li>🧠 Simulação de análise semântica com retorno visual</li>
+        <li>📊 Exportação de resultados estruturados (formato Excel)</li>
+        <li>🔐 Acesso autenticado com área de perfil</li>
+      </ul>
+    </div>
+
+    <!-- Tecnologias -->
+    <div>
+      <h3 class="text-2xl font-semibold mb-3 text-gray-800 dark:text-white">💻 Tecnologias Utilizadas</h3>
+      <p>O sistema foi desenvolvido com foco em desempenho, escalabilidade e experiência do utilizador, utilizando:</p>
+      <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
+        <li><strong>React</strong> e <strong>Tailwind CSS</strong> (Frontend)</li>
+        <li><strong>Node.js</strong> e <strong>Express</strong> (API)</li>
+        <li><strong>MySQL</strong> (Base de dados relacional)</li>
+        <li><strong>Ollama</strong> + <strong>LLM Mistral</strong> (Processamento semântico)</li>
+        <li><strong>Docker</strong> e <strong>Docker Compose</strong> (Orquestração de containers)</li>
+      </ul>
+    </div>
   </div>
 
-<div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <!-- Equipa -->
+  <h3 class="text-3xl font-bold text-center mt-20 mb-10 text-gray-800 dark:text-white">👥 Nossa Equipe</h3>
 
-  <!-- Cartão Vicente -->
-  <div class="relative group overflow-hidden rounded-lg shadow-lg">
-  <img src="../assets/foto_vicente.png" alt="Descrição 1" class="w-full h-64 object-cover transition duration-300 group-hover:blur-sm">
-  <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-2">
-    <span class="text-white text-xl font-bold">Rodrigo Vicente</span>
-    <span class="text-gray-200 text-sm mt-1">Desenvolvedor de Front End</span>
-  </div>
-</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
-  <!-- Cartão João -->
-  <div class="relative group overflow-hidden rounded-lg shadow-lg">
-  <img src="../assets/foto_joao.png" alt="Descrição 1" class="w-full h-64 object-cover transition duration-300 group-hover:blur-sm">
-  <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-2">
-    <span class="text-white text-xl font-bold">João Custódio</span>
-    <span class="text-gray-200 text-sm mt-1">Desenvolvedor de Front End</span>
-  </div>
-</div>
+    <!-- Rodrigo Vicente -->
+    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+      <img src="../assets/foto_vicente.png" alt="Foto de Rodrigo Vicente" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+        <h4 class="text-white text-xl font-bold">Rodrigo Vicente</h4>
+        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Front-End</p>
+        <p class="text-gray-100 text-xs mt-2">Responsável pela interface, responsividade e experiência do usuário.</p>
+      </div>
+    </div>
 
-  <!-- Cartão Tomás -->
-  <div class="relative group overflow-hidden rounded-lg shadow-lg">
-  <img src="../assets/foto_tomas.png" alt="Descrição 1" class="w-full h-64 object-cover transition duration-300 group-hover:blur-sm">
-  <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-2">
-    <span class="text-white text-xl font-bold">Tomás Ribalonga</span>
-    <span class="text-gray-200 text-sm mt-1">Desenvolvedor Full Stack</span>
-  </div>
-</div>
+    <!-- João Custódio -->
+    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+      <img src="../assets/foto_joao.png" alt="Foto de João Custódio" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+        <h4 class="text-white text-xl font-bold">João Custódio</h4>
+        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Front-End</p>
+        <p class="text-gray-100 text-xs mt-2">Implementou funcionalidades visuais e suporte a acessibilidade e temas.</p>
+      </div>
+    </div>
 
-  <!-- Cartão Bernardo -->
-  <div class="relative group overflow-hidden rounded-lg shadow-lg">
-  <img src="../assets/foto_bernardo.png" alt="Descrição 1" class="w-full h-64 object-cover transition duration-300 group-hover:blur-sm">
-  <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-2">
-    <span class="text-white text-xl font-bold">Bernardo Granadas</span>
-    <span class="text-gray-200 text-sm mt-1">Desenvolvedor de Back End</span>
+    <!-- Tomás Ribalonga -->
+    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+      <img src="../assets/foto_tomas.png" alt="Foto de Tomás Ribalonga" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+        <h4 class="text-white text-xl font-bold">Tomás Ribalonga</h4>
+        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Full Stack</p>
+        <p class="text-gray-100 text-xs mt-2">Coordenou a arquitetura do sistema e a integração entre front e back-end.</p>
+      </div>
+    </div>
+
+    <!-- Bernardo Granadas -->
+    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+      <img src="../assets/foto_bernardo.png" alt="Foto de Bernardo Granadas" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+        <h4 class="text-white text-xl font-bold">Bernardo Granadas</h4>
+        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Back-End</p>
+        <p class="text-gray-100 text-xs mt-2">Implementou o servidor, processador de PDFs e exportação de dados.</p>
+      </div>
+    </div>
+
   </div>
-</div>
 </section>
+
+</body>
+</html>
