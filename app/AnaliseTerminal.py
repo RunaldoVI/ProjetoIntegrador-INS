@@ -13,12 +13,8 @@ from Backend.Extração.VisualExtractorPDF import extrair_blocos_visuais
 from Backend.Limpeza.PreProcessamento import (
     identificar_secao_mais_comum,
     extrair_blocos_limpos,
-    separar_pergunta_respostas,
     processar_blocos_com_seccoes
 )
-
-
-
 
 if len(sys.argv) < 2:
     print("❌ Uso: python AnaliseTerminal.py caminho_para_pdf")
@@ -30,7 +26,7 @@ caminho_pdf = sys.argv[1]
 caminho_txt = extrair_texto_para_txt(caminho_pdf)
 print(f"\n📝 Texto extraído para: {caminho_txt}")
 
-# Extrair texto visual com PyMuPDF (fitz) — texto apenas, sem coordenadas
+# Extrair blocos visuais
 _ = extrair_blocos_visuais(caminho_pdf)
 print("📐 Blocos visuais extraídos (sem coordenadas)")
 
@@ -45,18 +41,13 @@ paginas_texto = [p.split("\n", 1)[1] if "\n" in p else p for p in paginas if p.s
 # Identificar secção comum
 secao_geral = identificar_secao_mais_comum(paginas_texto)
 
-
 # Processar blocos com propagação de secção por página
 for i, pagina in enumerate(paginas_texto, start=1):
     blocos_dict = extrair_blocos_limpos(pagina)
     print(f"\n📄 Página {i} - {len(blocos_dict)} blocos encontrados")
 
-for i, pagina in enumerate(paginas_texto, start=1):
-    blocos_dict = extrair_blocos_limpos(pagina)
-    print(f"\n📄 Página {i} - {len(blocos_dict)} blocos encontrados")
-
     resultados = processar_blocos_com_seccoes(blocos_dict, secao_mais_comum=secao_geral)
-    
+
     for resultado in resultados:
         print(f"\n🆔 {resultado['Identificador']}")
         print(f"📚 Secção: {resultado['Secção']}")
