@@ -24,17 +24,17 @@ def classificar_bloco_tipo(bloco):
 
 def limpar_instrucao_tecnica(texto):
     padroes = [
-        r"Please press the “Back” button.*?(try again\.?)",
+        r"Please press the \u201cBack\u201d button.*?(try again\.?)",
         r"ENTER (AGE|UNIT|A NUMBER|QUANTITY)",
-        r"\. ?220G.*?DUQ\.220Q",  # remove instruções internas
-        r"\. ?[A-Z]+\-[0-9]+",  # codificações tipo DUQ-220
+        r"\. ?220G.*?DUQ\.220Q",
+        r"\. ?[A-Z]+\-[0-9]+",
         r"HARD EDIT.*?",
         r"CAPI INSTRUCTIONS?:.*?",
         r"INSTRUCTIONS TO SP:.*?",
         r"CHECK ITEM.*?",
         r"\. ?ELSE CONTINUE\.",
-        r"\s{2,}",  # espaços a mais
-        r"[”“]"  # aspas esquisitas
+        r"\s{2,}",
+        r"[”“]"
     ]
     for padrao in padroes:
         texto = re.sub(padrao, "", texto, flags=re.IGNORECASE)
@@ -100,14 +100,31 @@ def separar_pergunta_respostas(bloco, secao_geral):
 
     pergunta = limpar_instrucao_tecnica(pergunta)
 
-    # NOVO: cortar a pergunta após o primeiro ponto de interrogação
-    if "?" in pergunta:
-        pergunta = pergunta.split("?")[0].strip() + "?"
+    # 🧠 Truncamento e remoção de ruído após ?
+    pergunta_split = re.split(r"\?\s*", pergunta)
+    if len(pergunta_split) == 1:
+        pergunta = pergunta_split[0].strip()
+    else:
+        perguntas_validas = []
+        for part in pergunta_split:
+            part = part.strip()
+            if not part or part in [".", ":"]:
+                continue
+            if re.search(r"\b(go to|otherwise|continue|select|press|enter|clear|try again|duq|dpq)[\b\s\d\-_.]*", part, re.IGNORECASE):
+                break
+            if re.fullmatch(r"\d+", part):
+                continue
+            perguntas_validas.append(part + "?")
+        pergunta = " ".join(perguntas_validas).strip()
+
+    if not pergunta or re.fullmatch(r"[^\w]+", pergunta):
+        return None
 
     secao_final = secao_local if secao_local else (secao_geral.strip("[]") if secao_geral and pergunta.startswith(secao_geral) else "Nenhuma")
     if secao_geral and pergunta.startswith(secao_geral):
         pergunta = pergunta.replace(secao_geral, "").strip()
 
+    # Reconstrução de respostas
     respostas_reconstruidas = []
     buffer = ""
     for r in respostas:
@@ -152,6 +169,7 @@ def separar_pergunta_respostas(bloco, secao_geral):
 def processar_blocos_com_seccoes(blocos_dict, secao_mais_comum=None):
     resultado = []
     secao_atual = secao_mais_comum
+    vistos = {}
 
     for bloco in blocos_dict:
         tipo = bloco["tipo"]
@@ -175,6 +193,16 @@ def processar_blocos_com_seccoes(blocos_dict, secao_mais_comum=None):
 
             entrada = separar_pergunta_respostas(texto, secao_atual)
             if entrada:
-                resultado.append(entrada)
+                id_ = entrada["Identificador"]
+                # 👇 Lógica para evitar duplicados com menos respostas
+                if id_ in vistos:
+                    anterior = vistos[id_]
+                    if len(entrada["Respostas"]) > len(anterior["Respostas"]):
+                        print(f"\n⚠️ Substituído duplicado com ID {id_} por versão mais completa")
+                        vistos[id_] = entrada
+                    else:
+                        print(f"\n⚠️ Ignorado duplicado com ID {id_}")
+                else:
+                    vistos[id_] = entrada
 
-    return resultado
+    return list(vistos.values())
