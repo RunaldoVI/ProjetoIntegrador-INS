@@ -1,6 +1,11 @@
 import mysql.connector
 import json
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Backend', 'SemanticComparison')))
+from SemanticQuestionComparison import limpar_texto, atribuir_identificador
+from sentence_transformers import SentenceTransformer
+
 # 1. Ligação à base de dados
 def conectar_bd():
     return mysql.connector.connect(
@@ -11,50 +16,51 @@ def conectar_bd():
         database=os.getenv("DB_NAME", "projetofinal_ins")
     )
 
-# 2. Função para inserir dados do JSON na base de dados
 def importar_json_para_bd(caminho_json):
     conn = conectar_bd()
     cursor = conn.cursor()
+
+    # Carregar perguntas existentes
+    cursor.execute("SELECT texto, identificador FROM perguntas")
+    dados_bd = cursor.fetchall()
+    perguntas_bd = [limpar_texto(p[0]) for p in dados_bd]
+    identificadores_bd = [p[1] for p in dados_bd]
+
+    # Próximo identificador
+    cursor.execute("SELECT MAX(identificador) FROM perguntas")
+    res = cursor.fetchone()
+    proximo_id = res[0] + 1 if res and res[0] is not None else 1
+
+    modelo = SentenceTransformer("BAAI/bge-large-en-v1.5")
+    embeddings_bd = modelo.encode(perguntas_bd, convert_to_tensor=True) if perguntas_bd else None
 
     with open(caminho_json, "r", encoding="utf-8") as f:
         dados = json.load(f)
 
     for entrada in dados:
-        identificador = entrada.get("identificador") or entrada.get("Identificador", "Não definido")
-        secao = entrada.get("secao") or entrada.get("Secção", "Nenhuma")
-        pergunta = entrada.get("pergunta") or entrada.get("Pergunta")
+        pergunta = limpar_texto(entrada.get("pergunta") or entrada.get("Pergunta", ""))
         respostas = entrada.get("respostas") or entrada.get("Respostas", [])
 
-        # Inserir identificador (ou obter id se já existir)
-        cursor.execute("SELECT id FROM identificadores WHERE codigo = %s", (identificador,))
-        resultado = cursor.fetchone()
-        if resultado:
-            identificador_id = resultado[0]
-        else:
-            cursor.execute("INSERT INTO identificadores (codigo) VALUES (%s)", (identificador,))
-            identificador_id = cursor.lastrowid
+        if not pergunta:
+            continue
 
-        # Inserir pergunta
-        cursor.execute("INSERT INTO perguntas (texto, identificador_id) VALUES (%s, %s)", (pergunta, identificador_id))
-        pergunta_id = cursor.lastrowid
+        identificador, proximo_id, embeddings_bd = atribuir_identificador(
+            pergunta, perguntas_bd, identificadores_bd,
+            modelo, embeddings_bd, proximo_id
+        )
+
+        print(f"✅ Inserida pergunta: '{pergunta}' com identificador {identificador}")
+        cursor.execute("INSERT INTO perguntas (texto, identificador) VALUES (%s, %s)", (pergunta, identificador))
 
         for resp in respostas:
-            texto = resp.get("texto") or resp.get("opção")
-            valor = resp.get("valor", "")
+            texto_resp = resp.get("texto") or resp.get("opção")
+            if texto_resp:
+                cursor.execute("INSERT INTO respostas (texto, identificador) VALUES (%s, %s)", (texto_resp.strip(), identificador))
 
-            # Verifica se resposta já existe
-            cursor.execute("SELECT id FROM respostas WHERE texto = %s AND identificador_id = %s", (texto, identificador_id))
-            resposta_resultado = cursor.fetchone()
-            if resposta_resultado:
-                resposta_id = resposta_resultado[0]
-            else:
-                cursor.execute("INSERT INTO respostas (texto, identificador_id) VALUES (%s, %s)", (texto, identificador_id))
-                resposta_id = cursor.lastrowid
-
-            # Associar pergunta <-> resposta
-            cursor.execute("INSERT IGNORE INTO pergunta_resposta (pergunta_id, resposta_id) VALUES (%s, %s)", (pergunta_id, resposta_id))
+        perguntas_bd.append(pergunta)
+        identificadores_bd.append(identificador)
 
     conn.commit()
     cursor.close()
     conn.close()
-    print("✅ Dados importados com sucesso para a base de dados.")
+    print("✅ Inserção com comparação semântica feita com sucesso.")

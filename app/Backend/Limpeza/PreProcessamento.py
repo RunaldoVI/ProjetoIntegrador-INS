@@ -22,7 +22,7 @@ def extrair_blocos_limpos(texto_pagina):
     identificador_regex = re.compile(r"^[A-Z]{2,5}\.\d{3}")
 
     def linha_util(l):
-        return not re.match(r"^(BOX|CAPI|CHECK ITEM|INSTRUCTION|SOFT EDIT|HARD EDIT|ERROR MESSAGE|HAND ?CARD|REFUSED|DON'T KNOW|OTHERWISE|GO TO|IF RESPONSE)", l, re.IGNORECASE)
+        return not re.match(r"^(BOX|CAPI|CHECK ITEM|INSTRUCTION|SOFT EDIT|HARD EDIT|ERROR MESSAGE|HAND ?CARD|OTHERWISE|GO TO|IF RESPONSE)", l, re.IGNORECASE)
 
     for linha in linhas:
         linha = linha.strip()

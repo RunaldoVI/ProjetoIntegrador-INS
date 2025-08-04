@@ -104,5 +104,10 @@ with open("output_blocos_conciliados.json", "w", encoding="utf-8") as f:
     json.dump(blocos_finais, f, indent=2, ensure_ascii=False)
 print("\n📁 Output final guardado em 'output_blocos_conciliados.json'")
 
+
 importar_json_para_bd("output_blocos_conciliados.json")
 executar()
+
+
+
+

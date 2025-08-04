@@ -1,16 +1,5 @@
 [
   {
-    "Identificador": "ALQ.111",
-    "Secção": "Nenhuma",
-    "Pergunta": "In {your/SP’s} entire life, {have you/has he/has she} had at least 1 drink of any kind of alcohol, not counting small tastes or sips? By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half ounces of liquor.",
-    "Respostas": [
-      {
-        "opção": "Yes",
-        "valor": "1"
-      }
-    ]
-  },
-  {
     "Identificador": "DPQ.010",
     "Secção": "Nenhuma",
     "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problems: little interest or pleasure in doing things? Would you say . . .",
@@ -30,6 +19,10 @@
       {
         "opção": "Nearly every day",
         "valor": "3"
+      },
+      {
+        "opção": "Refused",
+        "valor": "7"
       },
       {
         "opção": "Don’t know",
@@ -59,6 +52,10 @@
         "valor": "3"
       },
       {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
         "opção": "Don’t know",
         "valor": "9"
       }
@@ -84,6 +81,10 @@
       {
         "opção": "Nearly every day",
         "valor": "3"
+      },
+      {
+        "opção": "Refused",
+        "valor": "7"
       },
       {
         "opção": "Don’t know",
@@ -113,6 +114,10 @@
         "valor": "3"
       },
       {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
         "opção": "Don’t know",
         "valor": "9"
       }
@@ -138,6 +143,10 @@
       {
         "opção": "Nearly every day",
         "valor": "3"
+      },
+      {
+        "opção": "Refused",
+        "valor": "7"
       },
       {
         "opção": "Don’t know",
@@ -167,6 +176,10 @@
         "valor": "3"
       },
       {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
         "opção": "Don’t know",
         "valor": "9"
       }
@@ -194,6 +207,10 @@
         "valor": "3"
       },
       {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
         "opção": "Don’t know",
         "valor": "9"
       }
@@ -203,33 +220,6 @@
     "Identificador": "DPQ.080",
     "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
     "Pergunta": "moving or speaking so slowly that other people could have noticed? Or the opposite – being so fidgety or restless that you have been moving around a lot more than usual?",
-    "Respostas": [
-      {
-        "opção": " not at all",
-        "valor": "0"
-      },
-      {
-        "opção": " several days",
-        "valor": "1"
-      },
-      {
-        "opção": " more than half the days",
-        "valor": "2"
-      },
-      {
-        "opção": " nearly every day",
-        "valor": "3"
-      },
-      {
-        "opção": " don't know",
-        "valor": "9"
-      }
-    ]
-  },
-  {
-    "Identificador": "DPQ.090",
-    "Secção": "Nenhuma",
-    "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problem: Thoughts that you would be better off dead or of hurting yourself in some way?  IF RESPONSE TO ANY OF QUESTIONS DPQ.010 – DPQ.090 = 1, 2, OR 3, GO TO",
     "Respostas": [
       {
         "opção": "Not at all",
@@ -248,7 +238,42 @@
         "valor": "3"
       },
       {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
         "opção": "Don’t know",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.090",
+    "Secção": "Nenhuma",
+    "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problem:",
+    "Respostas": [
+      {
+        "opção": " not at all",
+        "valor": "0"
+      },
+      {
+        "opção": " several days",
+        "valor": "1"
+      },
+      {
+        "opção": " more than half the days",
+        "valor": "2"
+      },
+      {
+        "opção": " nearly every day",
+        "valor": "3"
+      },
+      {
+        "opção": " refused",
+        "valor": "7"
+      },
+      {
+        "opção": " don’t know",
         "valor": "9"
       }
     ]
@@ -273,6 +298,10 @@
       {
         "opção": "Extremely difficult",
         "valor": "3"
+      },
+      {
+        "opção": "Refused",
+        "valor": "7"
       },
       {
         "opção": "Don’t know",

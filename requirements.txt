@@ -9,3 +9,4 @@ bcrypt
 pandas
 openpyxl
 langdetect
+sentence-transformers

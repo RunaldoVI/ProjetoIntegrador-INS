@@ -1,5 +1,5 @@
-#IMPORTANTE PARA FUNCIONALIDADES DO PROGRAMA PRINCIPAL 
-- Excels: 
+#IMPORTANTE PARA FUNCIONALIDADES DO PROGRAMA PRINCIPAL
+- Excels:
          Quando analisa o pdf retornar um excel prefeito do estilo INS ao utilizador na web para download
 
 - Output do LLM
@@ -23,10 +23,3 @@
 #2 estruturacao dos pdf´s
 
 conseguir estrurar bem qualquer pdf que inserirmos no codigo ProjetoFinal.py
-
-
-#Ver a disponibilidade das portas e ver se da para ser flexivel
-
-DockerCompose.yml
-WaitLLM.js
-PDFHandler.js

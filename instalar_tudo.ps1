@@ -119,9 +119,6 @@ sudo systemctl restart docker || true
         $encoded = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($bashScript))
         wsl -d Ubuntu-22.04 -- bash -c "echo $encoded | base64 -d | bash"
 
-        Write-Host '🔁 A reiniciar WSL...'
-        wsl --shutdown
-        Start-Sleep -Seconds 5
     }
 } else {
     Write-Host '⚠️ GPU não disponível — a correr com CPU.'
