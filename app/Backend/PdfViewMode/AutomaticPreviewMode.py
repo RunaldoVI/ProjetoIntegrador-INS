@@ -59,7 +59,7 @@ restantes_paginas = paginas[1:]
 blocos = extrair_blocos_limpos(primeira_pagina)
 
 for j, bloco in enumerate(blocos, start=1):
-    if len(bloco) < 20:
+    if len(bloco) < 10:
         continue
     estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral, preview_pergunta)
     if not resposta_final:
@@ -83,7 +83,7 @@ for i, texto_pagina in enumerate(restantes_paginas, start=2):
         continue
 
     for j, bloco in enumerate(blocos, start=1):
-        if len(bloco) < 20:
+        if len(bloco) < 10:
             continue
         print(f"\n🧠 Página {i}, Bloco {j}:")
         estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral, preview_pergunta)

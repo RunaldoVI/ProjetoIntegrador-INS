@@ -6,6 +6,7 @@ import requests
 import torch
 from sentence_transformers import SentenceTransformer, util
 
+
 # ⚙️ Conexão à base de dados
 def conectar_bd():
     return mysql.connector.connect(
@@ -68,7 +69,6 @@ def perguntar_ao_llm(p1, p2, modelo="mistral", url="http://ollama:11434/api/chat
 
 # ✅ Nova função reutilizável para atribuir identificador
 def atribuir_identificador(pergunta, perguntas_bd, identificadores_bd, modelo, embeddings_bd, proximo_id):
-    from sentence_transformers import util
     pergunta_limpa = limpar_texto(pergunta)
 
     if not perguntas_bd:
@@ -79,6 +79,10 @@ def atribuir_identificador(pergunta, perguntas_bd, identificadores_bd, modelo, e
     score_max = float(similaridades.max())
     idx = int(similaridades.argmax())
     pergunta_bd = perguntas_bd[idx]
+    print(f"\n🔍 Comparação:")
+    print(f"🆕 Nova pergunta: {pergunta}")
+    print(f"📁 Mais semelhante: {pergunta_bd}")
+    print(f"📊 Similaridade: {score_max:.2f}%\n")
 
     if score_max >= 0.80:
         return identificadores_bd[idx], proximo_id, torch.vstack([embeddings_bd, emb_nova])
@@ -87,6 +91,7 @@ def atribuir_identificador(pergunta, perguntas_bd, identificadores_bd, modelo, e
     else:
         resposta = perguntar_ao_llm(pergunta, pergunta_bd)
         if resposta and "sim" in resposta:
+            print(f"Resposta do LLM: {resposta}")
             return identificadores_bd[idx], proximo_id, torch.vstack([embeddings_bd, emb_nova])
         else:
             return proximo_id, proximo_id + 1, torch.vstack([embeddings_bd, emb_nova])
