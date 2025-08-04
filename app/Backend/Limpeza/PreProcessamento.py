@@ -64,7 +64,6 @@ def separar_pergunta_respostas(bloco, secao_geral):
         elif resp_regex.match(linha):
             respostas.append(linha)
 
-    # Limpar instruções residuais da pergunta
     pergunta = re.sub(r"(\u2022|\uf0b7|\uf0fc|\uf0a7|\u25aa|\u25cf|\u25cb|)", "", pergunta)
     pergunta = re.sub(r"(IF RESPONSE TO.*?|GO TO .*?|BOX \d+|CHECK ITEM.*?)$", "", pergunta, flags=re.IGNORECASE).strip()
 
@@ -88,7 +87,8 @@ def separar_pergunta_respostas(bloco, secao_geral):
         if re.search(r"\bRefused\b.*\b7\b", texto_original, re.IGNORECASE):
             respostas_formatadas.insert(-1, {"opção": "Refused", "valor": "7"})
 
-    if not respostas_formatadas and re.search(r"(GO TO NEXT SECTION|CHECK ITEM|BOX|INSTRUCTION)", pergunta, re.IGNORECASE):
+    # Nova verificação para ignorar blocos mal formados
+    if (not respostas_formatadas and len(pergunta.split()) <= 4) or re.fullmatch(r"^(OTHERWISE|CHECK ITEM|BOX).*", pergunta, re.IGNORECASE):
         return None
 
     return {
