@@ -23,32 +23,21 @@ def classificar_bloco_tipo(bloco):
     return "Pergunta"
 
 def limpar_instrucao_tecnica(texto):
-    # Remover campos visuais tipo ___| 
-    texto = re.sub(r"\|_+\|", "", texto)
-
-    # Instruções específicas do NHANES
-    texto = re.sub(r"___\|?\s*ENTER\s+(AGE|NUMBER|UNIT|A NUMBER|VALUE).*?(\.|\”|\"|,|and)?", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"(Clear[,\.]?|“Clear,” and|Please\s*,?\s*”?\s*and)", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"press the [“\"]?back[”\"]? button.*?clear.*?", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"try again[\.”\"\']?", "", texto, flags=re.IGNORECASE)
-
-    # Instruções genéricas
-    texto = re.sub(r"please (enter|select)[^\.]{0,80}(\.|”|\"|$)", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"your response (must|cannot).*?(\.|$)", "", texto, flags=re.IGNORECASE)
-
-    # Instruções condicionais
-    texto = re.sub(r"IF\s+SP\s+.*?(?=\.|”|\"|\Z)", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"CONTINUE WITH DUQ\.\d{3}", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"GO TO DUQ\.\d{3}", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"\bDUQ[-–_.]?\d{1,4}\b", "", texto)
-
-    # Outros
-    texto = re.sub(r"(INSTRUCTIONS TO SP.*?)(?=\.|”|\"|\Z)", "", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"\bG/Q/U\b", "", texto)
-    texto = re.sub(r"(\u2022|\uf0b7|\uf0fc|\uf0a7|\u25aa|\u25cf|\u25cb|)", "", texto)
-    texto = re.sub(r"\s{2,}", " ", texto)
-    texto = re.sub(r"[”,\"']+\s*$", "", texto)
-
+    padroes = [
+        r"Please press the “Back” button.*?(try again\.?)",
+        r"ENTER (AGE|UNIT|A NUMBER|QUANTITY)",
+        r"\. ?220G.*?DUQ\.220Q",  # remove instruções internas
+        r"\. ?[A-Z]+\-[0-9]+",  # codificações tipo DUQ-220
+        r"HARD EDIT.*?",
+        r"CAPI INSTRUCTIONS?:.*?",
+        r"INSTRUCTIONS TO SP:.*?",
+        r"CHECK ITEM.*?",
+        r"\. ?ELSE CONTINUE\.",
+        r"\s{2,}",  # espaços a mais
+        r"[”“]"  # aspas esquisitas
+    ]
+    for padrao in padroes:
+        texto = re.sub(padrao, "", texto, flags=re.IGNORECASE)
     return texto.strip()
 
 def extrair_blocos_limpos(texto_pagina):
@@ -110,6 +99,10 @@ def separar_pergunta_respostas(bloco, secao_geral):
             respostas.append(linha)
 
     pergunta = limpar_instrucao_tecnica(pergunta)
+
+    # NOVO: cortar a pergunta após o primeiro ponto de interrogação
+    if "?" in pergunta:
+        pergunta = pergunta.split("?")[0].strip() + "?"
 
     secao_final = secao_local if secao_local else (secao_geral.strip("[]") if secao_geral and pergunta.startswith(secao_geral) else "Nenhuma")
     if secao_geral and pergunta.startswith(secao_geral):
@@ -173,7 +166,6 @@ def processar_blocos_com_seccoes(blocos_dict, secao_mais_comum=None):
             linhas = texto.splitlines()
             corpo = " ".join(linhas[1:]).lower()
 
-            # Heurística: introduções que deviam ser secção
             if not any("(" in l for l in linhas[1:]) and len(corpo.split()) <= 15:
                 if re.match(r"^(the following questions|these questions|this section)", corpo.strip(), re.IGNORECASE):
                     nova_secao = re.sub(r"^.*?:?\s*", "", corpo.strip("_. ").capitalize())
