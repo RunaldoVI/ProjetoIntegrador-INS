@@ -1,5 +1,5 @@
-import pdfplumber
 import os
+import pdfplumber
 
 def extrair_texto_para_txt(caminho_pdf, pasta_saida=None):
     if pasta_saida is None:
@@ -17,3 +17,14 @@ def extrair_texto_para_txt(caminho_pdf, pasta_saida=None):
                 f_out.write(texto + "\n\n")
 
     return caminho_txt
+
+def ler_paginas_do_txt(caminho_txt):
+    with open(caminho_txt, "r", encoding="utf-8") as f:
+        conteudo = f.read()
+
+    partes = conteudo.split("===== Página")
+    paginas = []
+    for parte in partes[1:]:
+        _, texto = parte.split("=====\n\n", 1)
+        paginas.append(texto.strip())
+    return paginas
