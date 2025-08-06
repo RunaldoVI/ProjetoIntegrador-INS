@@ -3,6 +3,8 @@ import os
 import json
 import re
 
+print("=== AutomaticPreviewMode.py carregado: versão final com limpeza de ruído ===")
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Database")))
 
@@ -16,6 +18,37 @@ from Limpeza.PreProcessamento import (
     identificar_secao_mais_comum,
     extrair_blocos_limpos,
 )
+
+def preparar_texto_para_llm(raw: str) -> str:
+    """
+    Limpa o texto dos blocos antes de enviar ao LLM:
+    - Remove linhas com instruções técnicas.
+    - Remove linhas que são só números ou códigos.
+    - Remove prefixos [entre colchetes].
+    """
+    linhas = raw.splitlines()
+
+    padroes_remover = [
+        r"^\s*HAND CARD", r"^\s*CAPI INSTRUCTION", r"^\s*SOFT EDIT",
+        r"^\s*HARD EDIT", r"^\s*INTERVIEWER INSTRUCTION", r"^\s*CHECK ITEM",
+        r"^\s*BOX", r"^\s*ENTER #", r"^\s*DISPLAY QUANTITY", r"^\s*DISPLAY NUMBER",
+        r"^\s*ALQ-\d+", r".*PREVIOUSLY REPORTED.*", r".*CODED\s+‘?0’?.*",
+        r"^\s*IF SP .*", r"^\s*ERROR MESSAGE.*", r"^\s*RANGE .*", r"^\s*YES IF .*",
+        r"^\s*SOFT CHECK.*", r"^\s*\|___\|___\|___\|", r"^\s*--+$"
+    ]
+
+    linhas_filtradas = []
+    for linha in linhas:
+        if any(re.search(pat, linha, flags=re.IGNORECASE) for pat in padroes_remover):
+            continue
+        if re.fullmatch(r"\s*\d+\s*", linha):
+            continue
+        linhas_filtradas.append(linha.strip())
+
+    texto = "\n".join(linhas_filtradas)
+    texto = re.sub(r"^\s*\[.*?\]\s*", "", texto)
+
+    return texto
 
 if len(sys.argv) < 2:
     print("❌ Uso: python AutomaticPreviewMode.py caminho_para_pdf")
@@ -59,23 +92,26 @@ restantes_paginas = paginas[1:]
 blocos = extrair_blocos_limpos(primeira_pagina)
 
 for j, bloco in enumerate(blocos, start=1):
-    if bloco["tipo"] != "Pergunta":
-        continue
-    if len(bloco["texto"].strip()) < 10:
+    if bloco["tipo"] != "Pergunta" or len(bloco["texto"].strip()) < 10:
         continue
 
-    estrutura, resposta_final = processar_bloco(bloco["texto"], pergunta, secao_geral, preview_pergunta)
+    texto = preparar_texto_para_llm(bloco["texto"])
+    print(f"[DEBUG] Página 1, Bloco {j} - texto a enviar ao LLM:")
+    print(texto)
+    print("-" * 40)
+
+    estrutura, resposta_final = processar_bloco(texto, pergunta, secao_geral, preview_pergunta)
     if not resposta_final:
-        print(f"⚠️ Bloco {j} rejeitado ou inválido (página 1).")
+        print(f"⚠️ Bloco {j} rejeitado ou inválido (página 1)")
         guardar_rejeitado(1, j, bloco)
         continue
 
-    identificador = resposta_final.get("Identificador", "").strip()
-    if identificador in identificadores_vistos:
-        print(f"⚠️ Bloco {j} ignorado (identificador duplicado: {identificador})")
+    ident = resposta_final["Identificador"].strip()
+    if ident in identificadores_vistos:
+        print(f"⚠️ Bloco {j} ignorado (duplicado: {ident})")
         continue
 
-    identificadores_vistos.add(identificador)
+    identificadores_vistos.add(ident)
     blocos_finais.append(resposta_final)
 
 # Demais páginas
@@ -86,34 +122,35 @@ for i, texto_pagina in enumerate(restantes_paginas, start=2):
         continue
 
     for j, bloco in enumerate(blocos, start=1):
-        if bloco["tipo"] != "Pergunta":
-            continue
-        if len(bloco["texto"].strip()) < 10:
+        if bloco["tipo"] != "Pergunta" or len(bloco["texto"].strip()) < 10:
             continue
 
-        print(f"\n🧠 Página {i}, Bloco {j}:")
-        estrutura, resposta_final = processar_bloco(bloco["texto"], pergunta, secao_geral, preview_pergunta)
+        texto = preparar_texto_para_llm(bloco["texto"])
+        print(f"\n🧠 Página {i}, Bloco {j} - texto a enviar ao LLM:")
+        print(texto)
+        print("-" * 40)
+
+        estrutura, resposta_final = processar_bloco(texto, pergunta, secao_geral, preview_pergunta)
         if not resposta_final:
-            print(f"⚠️ Bloco {j} rejeitado ou inválido (página {i}).")
+            print(f"⚠️ Bloco {j} rejeitado ou inválido (página {i})")
             guardar_rejeitado(i, j, bloco)
             continue
 
-        identificador = resposta_final.get("Identificador", "").strip()
-        if identificador in identificadores_vistos:
-            print(f"⚠️ Bloco {j} ignorado (identificador duplicado: {identificador})")
+        ident = resposta_final["Identificador"].strip()
+        if ident in identificadores_vistos:
+            print(f"⚠️ Bloco {j} ignorado (duplicado: {ident})")
             continue
 
-        identificadores_vistos.add(identificador)
+        identificadores_vistos.add(ident)
         blocos_finais.append(resposta_final)
 
-with open("output_blocos_conciliados.json", "w", encoding="utf-8") as f:
+# Gravar output final
+output_path = os.path.join(os.getcwd(), "output_blocos_conciliados.json")
+print(f"\n[DEBUG] Gravando {len(blocos_finais)} blocos em: {output_path}")
+with open(output_path, "w", encoding="utf-8") as f:
     json.dump(blocos_finais, f, indent=2, ensure_ascii=False)
-print("\n📁 Output final guardado em 'output_blocos_conciliados.json'")
+print("📁 Output final guardado.")
 
-
+# IMPORTAÇÃO PARA BD E EXCEL
 importar_json_para_bd("output_blocos_conciliados.json")
 executar()
-
-
-
-
