@@ -20,14 +20,7 @@ from Limpeza.PreProcessamento import (
 )
 
 def preparar_texto_para_llm(raw: str) -> str:
-    """
-    Limpa o texto dos blocos antes de enviar ao LLM:
-    - Remove linhas com instruções técnicas.
-    - Remove linhas que são só números ou códigos.
-    - Remove prefixos [entre colchetes].
-    """
     linhas = raw.splitlines()
-
     padroes_remover = [
         r"^\s*HAND CARD", r"^\s*CAPI INSTRUCTION", r"^\s*SOFT EDIT",
         r"^\s*HARD EDIT", r"^\s*INTERVIEWER INSTRUCTION", r"^\s*CHECK ITEM",
@@ -36,7 +29,6 @@ def preparar_texto_para_llm(raw: str) -> str:
         r"^\s*IF SP .*", r"^\s*ERROR MESSAGE.*", r"^\s*RANGE .*", r"^\s*YES IF .*",
         r"^\s*SOFT CHECK.*", r"^\s*\|___\|___\|___\|", r"^\s*--+$"
     ]
-
     linhas_filtradas = []
     for linha in linhas:
         if any(re.search(pat, linha, flags=re.IGNORECASE) for pat in padroes_remover):
@@ -47,8 +39,13 @@ def preparar_texto_para_llm(raw: str) -> str:
 
     texto = "\n".join(linhas_filtradas)
     texto = re.sub(r"^\s*\[.*?\]\s*", "", texto)
-
     return texto
+
+def bloco_valido(texto: str) -> bool:
+    """Ignora blocos com 1-2 linhas sem interrogação (provável ruído técnico)."""
+    if len(texto.splitlines()) <= 2 and not re.search(r"\?\s*$", texto, re.MULTILINE):
+        return False
+    return True
 
 if len(sys.argv) < 2:
     print("❌ Uso: python AutomaticPreviewMode.py caminho_para_pdf")
@@ -95,7 +92,13 @@ for j, bloco in enumerate(blocos, start=1):
     if bloco["tipo"] != "Pergunta" or len(bloco["texto"].strip()) < 10:
         continue
 
-    texto = preparar_texto_para_llm(bloco["texto"])
+    texto_original = bloco["texto"]
+    texto = preparar_texto_para_llm(texto_original)
+
+    if not bloco_valido(texto):
+        print(f"⚠️ Bloco {j} ignorado (conteúdo de navegação) na página 1")
+        continue
+
     print(f"[DEBUG] Página 1, Bloco {j} - texto a enviar ao LLM:")
     print(texto)
     print("-" * 40)
@@ -125,7 +128,13 @@ for i, texto_pagina in enumerate(restantes_paginas, start=2):
         if bloco["tipo"] != "Pergunta" or len(bloco["texto"].strip()) < 10:
             continue
 
-        texto = preparar_texto_para_llm(bloco["texto"])
+        texto_original = bloco["texto"]
+        texto = preparar_texto_para_llm(texto_original)
+
+        if not bloco_valido(texto):
+            print(f"⚠️ Bloco {j} ignorado (conteúdo de navegação) na página {i}")
+            continue
+
         print(f"\n🧠 Página {i}, Bloco {j} - texto a enviar ao LLM:")
         print(texto)
         print("-" * 40)
@@ -144,13 +153,11 @@ for i, texto_pagina in enumerate(restantes_paginas, start=2):
         identificadores_vistos.add(ident)
         blocos_finais.append(resposta_final)
 
-# Gravar output final
 output_path = os.path.join(os.getcwd(), "output_blocos_conciliados.json")
 print(f"\n[DEBUG] Gravando {len(blocos_finais)} blocos em: {output_path}")
 with open(output_path, "w", encoding="utf-8") as f:
     json.dump(blocos_finais, f, indent=2, ensure_ascii=False)
 print("📁 Output final guardado.")
 
-# IMPORTAÇÃO PARA BD E EXCEL
 importar_json_para_bd("output_blocos_conciliados.json")
 executar()
