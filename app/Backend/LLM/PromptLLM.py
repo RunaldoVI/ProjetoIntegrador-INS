@@ -37,7 +37,7 @@ def obter_pergunta(instrucoes_adicionais=None):
     return prompt
 
 
-def enviar_pagina_para_llm(texto_pagina, prompt, modelo="qwen:7b", url="http://localhost:11434/api/chat"):
+def enviar_pagina_para_llm(texto_pagina, prompt, modelo="mistral", url="http://localhost:11434/api/chat"):
     """
     Envia um texto para o modelo LLM via Ollama (ou servidor compatível).
     """

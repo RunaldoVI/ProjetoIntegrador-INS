@@ -12,7 +12,7 @@ echo '✅ Ollama ativo. A puxar modelo mistral...'
 
 curl -s -X POST http://ollama:11434/api/pull \
   -H 'Content-Type: application/json' \
-  -d '{"name": "qwen:7b"}' \
+  -d '{"name": "mistral"}' \
   | tee /app/ollama-progress.log
 
 echo '✅ Ambiente pronto. Aguardando uploads de PDF via API...'

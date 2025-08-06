@@ -44,12 +44,14 @@ def executar_preview(caminho_pdf, instrucoes=""):
         return
 
     for j, bloco in enumerate(blocos, start=1):
-        if len(bloco) < 20:
+        if bloco["tipo"] != "Pergunta":
             continue
-    
+        if len(bloco["texto"].strip()) < 20:
+            continue
+
         print("\n📨 Prompt enviado para o LLM:\n", pergunta)
 
-        estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral)
+        estrutura, resposta_final = processar_bloco(bloco["texto"], pergunta, secao_geral)
 
         if not estrutura or not resposta_final:
             continue
@@ -64,7 +66,7 @@ def executar_preview(caminho_pdf, instrucoes=""):
 
         print(json.dumps({"status": "preview", "mensagem": "Pré-visualização concluída."}))
         break
-
+        
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("❌ Uso: python PreviewMode.py caminho_para_pdf [instrucoes]")

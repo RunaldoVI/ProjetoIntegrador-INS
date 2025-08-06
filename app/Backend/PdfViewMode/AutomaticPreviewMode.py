@@ -50,7 +50,7 @@ else:
 
 def guardar_rejeitado(i, j, bloco):
     with open("rejeitados_debug.json", "a", encoding="utf-8") as f:
-        json.dump({"pagina": i, "bloco": j, "texto": bloco}, f, ensure_ascii=False)
+        json.dump({"pagina": i, "bloco": j, "texto": bloco["texto"]}, f, ensure_ascii=False)
         f.write(",\n")
 
 # Página 1
@@ -59,9 +59,12 @@ restantes_paginas = paginas[1:]
 blocos = extrair_blocos_limpos(primeira_pagina)
 
 for j, bloco in enumerate(blocos, start=1):
-    if len(bloco) < 10:
+    if bloco["tipo"] != "Pergunta":
         continue
-    estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral, preview_pergunta)
+    if len(bloco["texto"].strip()) < 10:
+        continue
+
+    estrutura, resposta_final = processar_bloco(bloco["texto"], pergunta, secao_geral, preview_pergunta)
     if not resposta_final:
         print(f"⚠️ Bloco {j} rejeitado ou inválido (página 1).")
         guardar_rejeitado(1, j, bloco)
@@ -83,10 +86,13 @@ for i, texto_pagina in enumerate(restantes_paginas, start=2):
         continue
 
     for j, bloco in enumerate(blocos, start=1):
-        if len(bloco) < 10:
+        if bloco["tipo"] != "Pergunta":
             continue
+        if len(bloco["texto"].strip()) < 10:
+            continue
+
         print(f"\n🧠 Página {i}, Bloco {j}:")
-        estrutura, resposta_final = processar_bloco(bloco, pergunta, secao_geral, preview_pergunta)
+        estrutura, resposta_final = processar_bloco(bloco["texto"], pergunta, secao_geral, preview_pergunta)
         if not resposta_final:
             print(f"⚠️ Bloco {j} rejeitado ou inválido (página {i}).")
             guardar_rejeitado(i, j, bloco)

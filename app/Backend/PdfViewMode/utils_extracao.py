@@ -2,44 +2,39 @@
 import json
 import re
 from LLM.PromptLLM import enviar_pagina_para_llm
-from Limpeza.PreProcessamento import (
-    separar_pergunta_respostas,
-    limpar_estrutura_json,
-    conciliar_estrutura
-)
+from Limpeza.PreProcessamento import separar_pergunta_respostas
 
 def processar_bloco(bloco, pergunta, secao_geral, preview_identificador=None):
-    if len(bloco) < 20:
+    if len(bloco.strip()) < 20:
         return None, None
 
     estrutura = separar_pergunta_respostas(bloco, secao_geral)
+
     if estrutura is None:
+        print("❌ Pré-processamento falhou. Opcional: enviar para o LLM.")
         return None, None
-    
+
     if estrutura.get("Identificador", "").strip() == preview_identificador:
         print(f"⏭️  Ignorado (mesmo identificador do preview: {preview_identificador})")
         return None, None
 
-    resposta_llm = enviar_pagina_para_llm(bloco, pergunta)
+    # Se quiseres ainda usar o LLM como fallback para enriquecer:
+    resposta_llm_raw = enviar_pagina_para_llm(bloco, pergunta)
 
     try:
-        match = re.search(r"\{.*\}", resposta_llm, re.DOTALL)
+        match = re.search(r"\{.*\}", resposta_llm_raw, re.DOTALL)
         resposta_llm = json.loads(match.group(0)) if match else {}
     except:
         resposta_llm = {}
 
-    resposta_limpa = limpar_estrutura_json(resposta_llm)
-    resposta_final = conciliar_estrutura(estrutura, resposta_limpa)
+    # Novo: usar só os dados do LLM se estiverem completos e válidos
+    if (
+        isinstance(resposta_llm, dict)
+        and resposta_llm.get("Pergunta")
+        and resposta_llm.get("Respostas")
+    ):
+        print("🤖 A usar resposta do LLM (válida)")
+        return estrutura, resposta_llm
 
-    for k in list(resposta_final.keys()):
-        if re.match(r"[A-Z]{2,5}\.\d{3}", k) and isinstance(resposta_final[k], dict):
-            resposta_final.update(resposta_final.pop(k))
-            resposta_final["Identificador"] = k
-
-    if resposta_final.get("Secção", "Nenhuma") == "Nenhuma":
-        resposta_final["Secção"] = estrutura.get("Secção", "Nenhuma")
-
-    if resposta_final.get("Secção") and resposta_final.get("Pergunta", "").startswith(resposta_final["Secção"]):
-        resposta_final["Pergunta"] = resposta_final["Pergunta"].replace(resposta_final["Secção"], "").strip(": ").strip()
-
-    return estrutura, resposta_final
+    # Caso contrário, usa só o pré-processamento
+    return estrutura, estrutura

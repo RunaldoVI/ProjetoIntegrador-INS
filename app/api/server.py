@@ -63,7 +63,7 @@ def upload_pdf():
 @app.route('/llm-status', methods=['GET'])
 def llm_status():
     try:
-        response = requests.post("http://ollama:11434/api/show", json={"model": "qwen:7b"}, timeout=5)
+        response = requests.post("http://ollama:11434/api/show", json={"model": "mistral"}, timeout=5)
         if response.status_code == 200:
             data = response.json()
             pronto = "modelfile" in data
