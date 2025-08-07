@@ -1,34 +1,27 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+console.log("✅ history.js carregado!");
 
-  if (!user || !user.email) {
-    window.location.href = "login.html";
-    return;
-  }
+(() => {
+  const lista = document.getElementById("pdf-history");
 
-  const historyList = document.getElementById("pdf-history");
-
-  fetch(`http://localhost:5000/api/user/profile?email=${encodeURIComponent(user.email)}`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Erro ao carregar histórico.");
-      return res.json();
-    })
-    .then((dados) => {
-      historyList.innerHTML = "";
-
-      if (dados.pdfs && dados.pdfs.length > 0) {
-        dados.pdfs.forEach((pdf) => {
-          const li = document.createElement("li");
-          li.innerHTML = `${pdf.nome} <span class="text-xs text-gray-400">(${pdf.data})</span>`;
-          historyList.appendChild(li);
-        });
+  fetch("http://localhost:5000/api/pdf/todos")
+    .then(res => res.json())
+    .then(data => {
+      if (data.historico && data.historico.length > 0) {
+        const items = data.historico.map(item => `
+          <li class="flex items-center justify-between">
+            <div>
+              <strong>${item.nome_utilizador}</strong> ingeriu 📄 <em>${item.nome_pdf}</em>
+            </div>
+            <span class="text-xs text-gray-500">${item.data}</span>
+          </li>
+        `).join("");
+        lista.innerHTML = items;
       } else {
-        historyList.innerHTML = "<li>Nenhum PDF ingerido ainda.</li>";
+        lista.innerHTML = "<li>Nenhum PDF ingerido ainda.</li>";
       }
     })
-    .catch((err) => {
-      console.error("Erro ao carregar PDFs:", err);
-      historyList.innerHTML = `<li class="text-red-500">Erro ao carregar histórico.</li>`;
+    .catch(err => {
+      console.error("Erro ao carregar histórico global:", err);
+      lista.innerHTML = "<li>Erro ao carregar histórico.</li>";
     });
-});
-
+})();

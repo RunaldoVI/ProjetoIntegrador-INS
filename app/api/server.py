@@ -7,7 +7,10 @@ import os
 import json
 from user import user_bp
 
-app = Flask(__name__)
+import os
+app = Flask(__name__, static_url_path='/static',
+            static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../Frontend/static')))
+
 
 # CORS permissivo para desenvolvimento
 CORS(app)
@@ -110,7 +113,8 @@ def download_excel():
     else:
         return jsonify({'error': 'Ficheiro Excel não encontrado'}), 404
 
-# --- EXECUTAR A APP ---
 
+
+# --- EXECUTAR A APP ---
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0')

@@ -1,36 +1,5 @@
 [
   {
-    "Identificador": "DPQ.010",
-    "Secção": "Nenhuma",
-    "Pergunta": "Over the last 2 weeks, how often have you been bothered by the following problems: little interest or pleasure in doing things? Would you say . . .?",
-    "Respostas": [
-      {
-        "opção": "Not at all",
-        "valor": "0"
-      },
-      {
-        "opção": "Several days",
-        "valor": "1"
-      },
-      {
-        "opção": "More than half the days, or",
-        "valor": "2"
-      },
-      {
-        "opção": "Nearly every day",
-        "valor": "3"
-      },
-      {
-        "opção": "Refused",
-        "valor": "7"
-      },
-      {
-        "opção": "Don’t know",
-        "valor": "9"
-      }
-    ]
-  },
-  {
     "Identificador": "DUQ.200",
     "Secção": "Nenhuma",
     "Pergunta": "_ The following questions ask about use of drugs not prescribed by a doctor. Please remember that your answers to these questions will be kept confidential.  IF 60 – 69 YEARS GO TO DUQ.240.  ELSE CONTINUE.",
@@ -258,8 +227,25 @@
   {
     "Identificador": "DUQ.250",
     "Secção": "Nenhuma",
-    "Pergunta": "_ The following questions are about cocaine, including all the different forms of cocaine such as powder, ‘crack’, ‘free base’, and coca paste.",
-    "Respostas": []
+    "Pergunta": "Have you ever, even once, used cocaine, in any form?",
+    "Respostas": [
+      {
+        "opção": "Yes",
+        "valor": "1"
+      },
+      {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
+        "opção": "Don't know",
+        "valor": "9"
+      },
+      {
+        "opção": "No",
+        "valor": "2"
+      }
+    ]
   },
   {
     "Identificador": "DUQ.260",
@@ -364,8 +350,25 @@
   {
     "Identificador": "DUQ.290",
     "Secção": "Nenhuma",
-    "Pergunta": "_ The following questions are about heroin.",
-    "Respostas": []
+    "Pergunta": "Have you ever, even once, used heroin?",
+    "Respostas": [
+      {
+        "opção": "Yes",
+        "valor": "1"
+      },
+      {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
+        "opção": "Don't know",
+        "valor": "9"
+      },
+      {
+        "opção": "No",
+        "valor": "2"
+      }
+    ]
   },
   {
     "Identificador": "DUQ.300",
@@ -554,8 +557,25 @@
   {
     "Identificador": "DUQ.370",
     "Secção": "Nenhuma",
-    "Pergunta": "_ The following questions are about the different ways that certain drugs can be used.",
-    "Respostas": []
+    "Pergunta": "Have you ever, even once, used a needle to inject a drug not prescribed by a doctor?",
+    "Respostas": [
+      {
+        "opção": "Yes",
+        "valor": "1"
+      },
+      {
+        "opção": "Refused",
+        "valor": "7"
+      },
+      {
+        "opção": "Don't know",
+        "valor": "9"
+      },
+      {
+        "opção": "No",
+        "valor": "2"
+      }
+    ]
   },
   {
     "Identificador": "DUQ.380",

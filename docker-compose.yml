@@ -60,6 +60,7 @@ services:
       - ./pdfs-excels:/app/pdfs-excels
       - ollama-data:/root/.ollama
       - ./ollama-progress.log:/app/ollama-progress.log
+      - ./app/Frontend/static:/app/Frontend/static
     env_file:
       - .env
 

@@ -1,0 +1,735 @@
+===== Página 1 =====
+
+NHANES 2017
+12/19/16 Questionnaire: SP
+DEMOGRAPHICS INFORMATION – DMQ – SP
+Target Group: SPs Birth +
+BOX 1A
+CHECK ITEM DMQ.030:
+IF SP AGE >= 6, CONTINUE.
+O THERWISE, GO TO DMQ.061.
+1
+
+===== Página 2 =====
+
+DMQ.141 What is the highest grade or level of school {you have/SP has} completed or the highest degree {you
+have/s/he has} received?
+HAND CARD DMQ1
+READ HAND CARD CATEGORIES IF NECESSARY.
+ENTER HIGHEST LEVEL OF SCHOOL.
+NEVER ATTENDED/KINDERGARTEN
+ONLY ........................................................... 0 (BOX 1B)
+1ST GRADE .................................................. 1
+2ND GRADE.................................................. 2
+3RD GRADE.................................................. 3
+4TH GRADE .................................................. 4
+5TH GRADE .................................................. 5
+6TH GRADE .................................................. 6
+7TH GRADE .................................................. 7
+8TH GRADE .................................................. 8
+9TH GRADE .................................................. 9
+10TH GRADE ................................................ 10
+11TH GRADE ................................................ 11
+12TH GRADE, NO DIPLOMA........................ 12
+HIGH SCHOOL GRADUATE......................... 13
+GED OR EQUIVALENT ................................. 14
+SOME COLLEGE, NO DEGREE ................... 15
+ASSOCIATE DEGREE: OCCUPATIONAL,
+TECHNICAL, OR VOCATIONAL
+PROGRAM .................................................. 16
+ASSOCIATE DEGREE: ACADEMIC
+PROGRAM .................................................. 17
+BACHELOR’S DEGREE (EXAMPLE: BA,
+AB, BS, BBA) ............................................... 18
+MASTER’S DEGREE (EXAMPLE: MA,
+MS, MEng, MEd, MBA) ............................... 19
+PROFESSIONAL SCHOOL DEGREE
+(EXAMPLE: MD, DDS, DVM, JD) ............... 20
+DOCTORAL DEGREE (EXAMPLE:
+PhD, EdD) ................................................... 21
+REFUSED ..................................................... 77
+DON’T KNOW ............................................... 99
+CAPI INSTRUCTION:
+EDITS:
+(DMQ.141 = 19, 20 OR 21 AND SP AGE < 22) OR
+(DMQ.141 = 15, 16, 17 OR 18 AND SP AGE < 18) OR
+(DMQ.141 = 10, 11, 12, 13 OR 14 AND SP AGE < 14) OR
+(DMQ.141 = 5, 6, 7, 8 OR 9 AND SP AGE < 8)
+DISPLAY “IMPROBABLE ANSWER DUE TO SP’s AGE {SP AGE}. PLEASE VERIFY.”
+BOX 1AA
+CHECK ITEM DMQ.035:
+IF SP AGE <= 19, CONTINUE
+O THERWISE, GO TO DMQ.052.
+
+===== Página 3 =====
+
+DMQ.037 {Are you/Is SP} now . . .
+going to school, ............................................. 1
+between grades, or ........................................ 2
+neither? ......................................................... 3
+REFUSED ..................................................... 7
+DON’T KNOW ............................................... 9
+HELP SCREEN:
+Going to School: Attending any type of public or private educational establishment both in and out of the
+regular school system.
+BOX 1B
+CHECK ITEM DMQ.040:
+IF SP AGE >= 17, CONTINUE.
+O THERWISE, GO TO DMQ.061.
+DMQ.052 {Have you/Has SP} ever served on active duty in the U.S. Armed Forces, military Reserves, or National
+Guard? (Active duty does not include training for the Reserves or National Guard, but does include activation,
+for service in the U.S. or in a foreign country, in support of military or humanitarian operations.)
+YES ............................................................... 1
+NO ................................................................. 2 (DMQ.061)
+REFUSED ..................................................... 7 (DMQ.061)
+DON'T KNOW ............................................... 9 (DMQ.061)
+HELP SCREEN:
+Armed Forces: Non-civilian members of any of the armed services of the federal government (Army, Navy, Air
+Force, Coast Guard, Marines).
+DMQ.054 Did {you/SP} ever serve in a foreign country during a time of armed conflict or on a humanitarian or peace-
+keeping mission? (This would include National Guard or reserve or active duty monitoring or conducting peace
+keeping operations in Bosnia and Kosovo, in the Sinai between Egypt and Israel, or in response to the 2004
+tsunami or Haiti in 2010.)
+YES ............................................................... 1
+NO ................................................................. 2
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+
+===== Página 4 =====
+
+DMQ.057 When did {you/SP} serve on active duty in the U.S. Armed Forces?
+HAND CARD DMQ2
+CODE ALL THAT APPLY
+INTERVIEWER: CHECK ALL PERIODS IN WHICH THIS PERSON SERVED. CHECK THE ITEM EVEN IF
+THE SP SERVED JUST FOR PART OF THAT PERIOD.
+SEPT 2001 OR LATER .............................................................. 10
+AUGUST 1990 TO AUGUST 2001 (INCLUDING PERSIAN
+GULF WAR) ............................................................................. 11
+SEPTEMBER 1980 TO JULY 1990 ........................................... 12
+MAY 1975 TO AUGUST 1980.................................................... 13
+AUGUST 1964 TO APRIL 1975 (VIETNAM ERA) ..................... 14
+MARCH 1961 TO JULY 1964 .................................................... 15
+FEBRUARY 1955 TO FEBRUARY 1961 ................................... 16
+JULY 1950 TO JANUARY 1955 (KOREAN WAR) ..................... 17
+JANUARY 1947 TO JUNE 1950 ................................................ 18
+DECEMBER 1941 TO DECEMBER 1946 (WORLD WAR II) ..... 19
+NOVEMBER 1941 OR EARLIER ............................................... 20
+REFUSED .................................................................................. 77
+DON'T KNOW ............................................................................ 99
+SOFT EDIT: IF DMQ.057 = 10-20, DISPLAY “PLEASE VERIFY THAT THE SP WAS AT LEAST 18 YEARS
+OLD DURING {INSERT SELECTED RESPONSE}.”
+NEW BOX 1BB
+CHECK ITEM DMQ.058:
+IF CODE 11 (AUGUST 1990 TO AUGUST 2001) IN DMQ.057, CONTINUE.
+O THERWISE, GO TO DMQ.061.
+DMQ.059 Did {you/SP} serve in the Persian Gulf during Operation Desert Shield or Operation Desert Storm between
+August 1990 and April 1991?
+YES ............................................................... 1
+NO ................................................................. 2
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+DMQ.061 Next I have a few questions about {your/SP’s} name. {Do you/Does SP} usually go by another first name
+besides {DISPLAY FIRST NAME FROM DMQ-SPIV.040}?
+CAPI INSTRUCTION:
+DISPLAY "FIRST NAME:" AND FIRST NAME FROM DMQ-SPIV.040 AS LEFT HEADER.
+YES ............................................................... 1
+NO ................................................................. 2 (BOX 1BBB)
+REFUSED ..................................................... 7 (BOX 1BBB)
+DON'T KNOW ............................................... 9 (BOX 1BBB)
+
+===== Página 5 =====
+
+DMQ.071 What is this other first name?
+VERIFY SPELLING
+____________________________________
+ENTER NAME
+REFUSED ............................................... 7----7
+DON'T KNOW ......................................... 9----9
+NEW BOX 1BB2
+OMITTED
+BOX 1BBB
+CHECK ITEM DMQ.073a:
+IF AGE >= 14, CONTINUE.
+O THERWISE, GO TO BOX 1D.
+DMQ.380 {Are you/Is SP} now married, widowed, divorced, separated, never married or living with a partner?
+MARRIED ...................................................... 1
+WIDOWED .................................................... 2
+DIVORCED.................................................... 3
+SEPARATED ................................................. 4
+NEVER MARRIED ......................................... 5 (BOX 1D)
+LIVING WITH PARTNER .............................. 6
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+BOX 1C
+CHECK ITEM DMQ.075A:
+IF SP IS MALE, GO TO BOX 1D.
+O THERWISE, CONTINUE.
+DMQ.081 {Do you/Does SP} have a maiden name?
+ASK IF NOT KNOWN
+YES ............................................................... 1
+NO ................................................................. 2 (BOX 1D)
+REFUSED ..................................................... 7 (BOX 1D)
+DON'T KNOW ............................................... 9 (BOX 1D)
+
+===== Página 6 =====
+
+DMQ.090 What is {your/SP's} maiden name?
+G/Q
+VERIFY SPELLING
+CAPI INSTRUCTION:
+DISPLAY "LAST NAME:" AND SP'S CURRENT LAST NAME FROM DMQ-SPIV.060 AS LEFT HEADER.
+|___|
+ENTER MAIDEN NAME ................................ 1
+SAME AS CURRENT LAST NAME ............... 2 (BOX 1D)
+REFUSED ..................................................... 7 (BOX 1D)
+DON'T KNOW ............................................... 9 (BOX 1D)
+____________________________________
+REFUSED ..................................................... 7----7
+DON'T KNOW ............................................... 9----9
+BOX 1D
+CHECK ITEM DMQ.094:
+IF SP AGE >= 16, CONTINUE.
+O THERWISE, GO TO DMQ.241.
+DMQ.101 What is {your/SP's} father's last name?
+G/Q
+VERIFY SPELLING
+CAPI INSTRUCTION:
+DISPLAY "LAST NAME:" AND SP'S CURRENT LAST NAME FROM DMQ-SPIV.060 AS LEFT HEADER.
+IF MAIDEN NAME ENTERED IN DMQ.090G/Q, AND MAIDEN NAME IS DIFFERENT FROM CURRENT
+LAST NAME, ALSO DISPLAY "MAIDEN NAME:" AND MAIDEN NAME FROM DMQ.090G/Q AS LEFT
+HEADER.
+CAPI INSTRUCTION:
+HARD EDIT: IF SP MALE, DO NOT ALLOW RESPONSE 3.
+|___|
+ENTER NAME ............................................... 1
+SAME AS CURRENT LAST NAME ............... 2 (DMQ.241)
+SAME AS MAIDEN NAME ............................ 3 (DMQ.241)
+REFUSED ..................................................... 7 (DMQ.241)
+DON'T KNOW ............................................... 9 (DMQ.241)
+____________________________________
+REFUSED ..................................................... 7----7
+DON'T KNOW ............................................... 9----9
+
+===== Página 7 =====
+
+DMQ.241 {Do you/Does SP} consider {yourself/himself/herself} to be Hispanic, Latino, or of Spanish origin?
+READ IF NECESSARY: Where {do your/do his/do her} ancestors come from?
+Puerto Rican
+Cuban/Cuban American
+Dominican Republic
+Mexican/Mexican American
+Central/South American
+Other Latin American
+Other Hispanic or Latino
+YES ............................................................... 1
+NO ................................................................. 2
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+HELP SCREEN:
+SPANISH, HISPANIC OR LATINO PEOPLE MAY BE OF ANY RACE. LISTED BELOW ARE HISPANIC OR
+LATINO CATEGORIES/COUNTRIES.
+MEXICAN
+PUERTO RICAN
+CUBAN
+DOMINICAN REPUBLIC
+CENTRAL AMERICAN:
+COSTA RICAN
+GUATEMALAN
+HONDURAN
+NICARAGUAN
+PANAMANIAN
+SALVADORAN
+OTHER CENTRAL AMERICAN
+SOUTH AMERICAN:
+ARGENTINEAN
+BOLIVIAN
+CHILEAN
+COLOMBIAN
+ECUADORIAN
+PARAGUAYAN
+PERUVIAN
+URUGUAYAN
+VENEZUELAN
+OTHER SOUTH AMERICAN
+OTHER HISPANIC OR LATINO:
+SPANIARD
+SPANISH
+SPANISH AMERICAN
+BOX 3E
+OMITTED
+
+===== Página 8 =====
+
+BOX 3F
+OMITTED
+BOX 3G
+OMITTED
+BOX 3H
+OMITTED
+BOX 3I
+CHECK ITEM DMQ.242:
+IF YES (CODE 1) IN DMQ.241 AND YES IN SCQ.260 GO TO DMQ.253.
+IF NO (CODE 2) IN DMQ.241 AND NO IN SCQ.260 GO TO DMQ.263.
+O THERWISE, GO TO BOX 3J.
+BOX 3J
+CHECK ITEM DMQ.249:
+IF YES (CODE 1) OR DK IN DMQ.241 AND NO (CODE 2) IN SCQ.260, DISPLAY
+SOFT EDIT MESSAGE “WARNING – SCREENER ETHNICITY IS NOT HISPANIC –
+SP MAY BE DESAMPLED. HAND CARD DMQ3 TO RESPONDENT AND READ
+CATEGORIES.
+O THERWISE, GO TO BOX 3K.
+BOX 3K
+CHECK ITEM DMQ.254:
+IF NO (CODE 2) OR DK IN DMQ.241 AND YES (CODE 1) IN SCQ.260, DISPLAY
+SOFT EDIT MESSAGE “WARNING – SCREENER ETHNICITY IS HISPANIC – SP
+MAY BE DESAMPLED. HAND CARD DMQ3 TO RESPONDENT AND READ
+CATEGORIES.
+O THERWISE, GO TO BOX 3K-1.
+BOX 3K-1
+CHECK ITEM DMQ.256:
+IF YES IN DMQ.241, CONTINUE.
+O THERWISE, GO TO DMQ.263.
+
+===== Página 9 =====
+
+DMQ.253 Please give me the number of the group that represents {your/SP's} Hispanic/Latino or Spanish origin or
+OS ancestry. Please select 1 or more of these categories.
+PROBE: Where do you/your ancestors come from?
+HAND CARD DMQ3
+SELECT 1 OR MORE
+MEXICAN ...................................................... 10
+PUERTO RICAN ........................................... 11
+CUBAN .......................................................... 12
+DOMINICAN REPUBLIC ............................... 13
+CENTRAL AMERICAN:
+COSTA RICAN .......................................... 14
+GUATEMALAN ......................................... 15
+HONDURAN ............................................. 16
+NICARAGUAN .......................................... 17
+PANAMANIAN .......................................... 18
+SALVADORAN .......................................... 19
+OTHER CENTRAL AMERICAN ................ 20
+SOUTH AMERICAN:
+ARGENTINEAN ........................................ 21
+BOLIVIAN .................................................. 22
+CHILEAN ................................................... 23
+COLOMBIAN ............................................. 24
+ECUADORIAN .......................................... 25
+PARAGUAYAN ......................................... 26
+PERUVIAN ................................................ 27
+URUGUAYAN ........................................... 28
+VENEZUELAN .......................................... 29
+OTHER SOUTH AMERICAN .................... 30
+OTHER HISPANIC OR LATINO:
+FILIPINO ................................................... 31
+SPANIARD ................................................ 32
+SPANISH .................................................. 33
+SPANISH AMERICAN ............................... 34
+HISPANO/HISPANA ................................. 35
+HISPANIC/LATINO ................................... 36
+OTHER HISPANIC/LATINO (SPECIFY) ....... 40
+CHICANA/CHICANO ..................................... 41
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+BOX 3L
+CHECK ITEM DMQ.255:
+IF ‘OTHER SPECIFY’ (CODE 40) IN DMQ.253, DISPLAY SOFT ERROR MESSAGE
+“PLEASE REVIEW THE LIST AND SELECT RESPONSE FROM LIST BEFORE TYPING.
+THE LIST IS MEANT TO INCLUDE ALL CATEGORIES” AND CAPI SHOULD RETURN TO
+D MQ.253.
+
+===== Página 10 =====
+
+DMQ.263 Please look at the categories on this card. What race or races {do you/does SP} consider
+{yourself/himself/herself} to be? Please select one or more.
+HAND CARD DMQ4
+CHECK ALL THAT APPLY.
+AMERICAN INDIAN OR ALASKA NATIVE ... 1
+ASIAN ............................................................ 2
+BLACK OR AFRICAN AMERICAN ................ 3
+NATIVE HAWAIIAN OR PACIFIC ISLANDER . 4
+WHITE ........................................................... 5
+OTHER .......................................................... 6
+DK ................................................................. 99
+RF .................................................................. 77
+NEW BOX L-1
+CHECK ITEM DMQ.310:
+IF CODE 2 (ASIAN) IN DMQ.263 AND CODE 2 (ASIAN) IN SCQ.270, GO TO
+DMQ.336.
+IF NOT CODE 2 (ASIAN) IN DMQ.263 AND NOT CODE 2 (ASIAN) IN SCQ.270, GO
+TO BOX L-4d.
+OTHERWISE, GO TO NEW BOX L-2.
+NEW BOX L-2
+CHECK ITEM DMQ.315:
+IF CODE 2 (ASIAN) OR DK IN DMQ.263 AND NOT (CODE 2) IN SCQ.270, DISPLAY
+SOFT EDIT MESSAGE “WARNING – SCREENER RACE IS NOT ASIAN – SP MAY
+BE DESAMPLED.”
+O THERWISE, GO TO NEW BOX L-3.
+NEW BOX L-3
+CHECK ITEM DMQ.320:
+IF NOT CODE 2 OR DK IN DMQ.263 AND CODE 2 (ASIAN) IN SCQ.270, DISPLAY
+SOFT EDIT MESSAGE “WARNING – SCREENER RACE IS ASIAN – SP MAY BE
+DESAMPLED.
+O THERWISE, GO TO NEW BOX L-4.
+NEW BOX L-4
+CHECK ITEM DMQ.325:
+IF CODE 2 (ASIAN) IN DMQ.263, GO TO DMQ.336.
+O THERWISE, GO TO NEW BOX L-4a.
+
+===== Página 11 =====
+
+NEW BOX L-4a
+CHECK ITEM DMQ.327:
+IF CODE 3 (BLACK) IN DMQ.263 AND CODE 3 (BLACK) IN SCQ.270, GO TO NEW
+BOX L-4d.
+IF NOT CODE 3 (BLACK) IN DMQ.263 AND NOT CODE 3 (BLACK) IN SCQ.270, GO
+TO NEW BOX L-4d.
+O THERWISE, GO TO NEW BOX L-4b.
+NEW BOX L-4b
+CHECK ITEM DMQ.332:
+IF CODE 3 (BLACK) OR DK IN DMQ.263 AND NOT CODE 3 IN SCQ.270, DISPLAY
+SOFT EDIT MESSAGE “WARNING-SCREENER RACE IS NOT BLACK/AFRICAN
+AMERICAN-SP MAY BE DESAMPLED.”
+O THERWISE, GO TO NEW BOX L-4c.
+NEW BOX L-4c
+CHECK ITEM DMQ.338:
+IF NOT 3 OR DK IN DMQ.263 AND CODE 3 (BLACK/AFRICAN AMERICAN) IN
+SCQ.270, DISPLAY SOFT EDIT MESSAGE “WARNING-SCREENER RACE IS
+BLACK/AFRICAN AMERICAN-SP MAY BE DESAMPLED.”
+O THERWISE, GO TO NEW BOX L-4d.
+NEW BOX L-4d
+CHECK ITEM DMQ.339:
+IF CODE 4 (NHPI) IN DMQ.263, GO TO DMQ.350.
+I F NOT CODE 4 (NHPI) IN DMQ.263, GO TO NEW BOX L-5.
+NEW BOX L-5
+CHECK ITEM DMQ.330:IF CODE 6 (OTHER) IN DMQ.263 AND CODE 1 (YES-
+HISPANIC) IN DMQ.241, GO TO DMQ.266.
+O THERWISE, GO TO DMQ.107.
+
+===== Página 12 =====
+
+DMQ.350 Please give me the number of the group that represents {your/SP’s} Native Hawaiian or Pacific Islander origin
+or ancestry. Please select one or more of these categories.
+HAND CARD DMQ5
+PROBE: Where do your ancestors come from?
+NATIVE HAWAIIAN ....................................... 1
+GUAMANIAN OR CHAMORRO .................... 2
+SAMOAN ....................................................... 3
+OTHER PACIFIC ISLANDER ........................ 4
+REFUSED ..................................................... 7
+DON’T KNOW ............................................... 9
+BOX L-5a
+CHECK ITEM DMQ.355:
+G O TO NEW BOX L-5.
+
+===== Página 13 =====
+
+DMQ.336 Please give me the number of the group that represents {your/SP’s} Asian origin or ancestry. Please select
+one or more of these categories.
+HAND CARD DMQ6
+PROBE: Where do your ancestors come from?
+ASIAN INDIAN ............................................... 10
+BANGLADESHI ............................................. 11
+BENGALESE ................................................. 12
+BHARAT ........................................................ 13
+BHUTANESE ................................................. 14
+BURMESE ..................................................... 15
+CAMBODIAN ................................................. 16
+CANTONESE ................................................ 17
+CHINESE....................................................... 18
+DRAVIDIAN ................................................... 19
+EAST INDIAN ................................................ 20
+FILIPINO ....................................................... 21
+GOANESE ..................................................... 22
+HMONG ......................................................... 23
+INDOCHINESE .............................................. 24
+INDONESIAN ................................................ 25
+IWO JIMAN.................................................... 26
+JAPANESE .................................................... 27
+KOREAN ....................................................... 28
+LAOHMONG.................................................. 29
+LAOTIAN ....................................................... 30
+MADAGASCAR/MALAGASY ........................ 31
+MALAYSIAN .................................................. 32
+MALDIVIAN ................................................... 33
+MONG ........................................................... 34
+NEPALESE.................................................... 35
+NIPPONESE.................................................. 36
+OKINAWAN ................................................... 37
+PAKISTANI .................................................... 38
+SIAMESE....................................................... 39
+SINGAPOREAN ............................................ 40
+SRI LANKAN ................................................. 41
+TAIWANESE ................................................. 42
+THAI .............................................................. 43
+VIETNAMESE ............................................... 44
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+NEW BOX L-6
+CHECK ITEM DMQ.340:
+S KIP TO DMQ.107.
+
+===== Página 14 =====
+
+DMQ.266 CODE SP ANSWER TO ‘OTHER RACE’.
+OS
+MEXICAN ...................................................... 10
+PUERTO RICAN ........................................... 11
+CUBAN .......................................................... 12
+DOMINICAN REPUBLIC ............................... 13
+CENTRAL AMERICAN:
+COSTA RICAN .......................................... 14
+GUATEMALAN ......................................... 15
+HONDURAN ............................................. 16
+NICARAGUAN .......................................... 17
+PANAMANIAN .......................................... 18
+SALVADORAN .......................................... 19
+OTHER CENTRAL AMERICAN ................ 20
+SOUTH AMERICAN:
+ARGENTINEAN ........................................ 21
+BOLIVIAN .................................................. 22
+CHILEAN ................................................... 23
+COLOMBIAN ............................................. 24
+ECUADORIAN .......................................... 25
+PARAGUAYAN ......................................... 26
+PERUVIAN ................................................ 27
+URUGUAYAN ........................................... 28
+VENEZUELAN .......................................... 29
+OTHER SOUTH AMERICAN .................... 30
+OTHER HISPANIC OR LATINO:
+SPANIARD ................................................ 32
+SPANISH .................................................. 33
+SPANISH AMERICAN ............................... 34
+HISPANO/HISPANA ................................. 35
+HISPANIC/LATINO ................................... 36
+OTHER (SPECIFY) ....................................... 40
+REFUSED ..................................................... 77
+DON'T KNOW ............................................... 99
+BOX 3M
+CHECK ITEM DMQ.268:
+IF ‘OTHER SPECIFY’ (CODE 40) IN DMQ.266, DISPLAY SOFT ERROR MESSAGE –
+“PLEASE REVIEW THE LIST AND SELECT RESPONSE FROM LIST BEFORE TYPING.
+THE LIST IS MEANT TO INCLUDE ALL CATEGORIES.” AND CAPI SHOULD RETURN
+T O QUESTION DMQ.266.
+DMQ.107 In what country {were you/was SP} born?
+UNITED STATES .......................................... 1 (DMQ.130)
+OTHER COUNTRY ....................................... 2 (NEW BOX 3N)
+REFUSED ..................................................... 7 (BOX 5)
+DON'T KNOW ............................................... 9 (BOX 5)
+
+===== Página 15 =====
+
+NEW BOX 3N
+CHECK ITEM DMQ.108:
+IF CODE 2 (ASIAN) IN DMQ.263, GO TO DMQ.125.
+O THERWISE, CONTINUE.
+DMQ.112 SELECT COUNTRY OF BIRTH
+OS
+ARGENTINA.................................................. 1 (DMQ.160 M/Y)
+BELIZE .......................................................... 2 (DMQ.160 M/Y)
+BOLIVIA ........................................................ 3 (DMQ.160 M/Y)
+BRAZIL .......................................................... 4 (DMQ.160 M/Y)
+CHILE ............................................................ 5 (DMQ.160 M/Y)
+COLOMBIA.................................................... 6 (DMQ.160 M/Y)
+COSTA RICA ................................................. 7 (DMQ.160 M/Y)
+CUBA ............................................................ 8 (DMQ.160 M/Y)
+DOMINICAN REPUBLIC ............................... 9 (DMQ.160 M/Y)
+ECUADOR..................................................... 10 (DMQ.160 M/Y)
+EL SALVADOR .............................................. 11 (DMQ.160 M/Y)
+GUATEMALA ................................................ 12 (DMQ.160 M/Y)
+HONDURAS .................................................. 13 (DMQ.160 M/Y)
+MEXICO ........................................................ 14 (DMQ.160 M/Y)
+NICARAGUA ................................................. 15 (DMQ.160 M/Y)
+PANAMA ....................................................... 16 (DMQ.160 M/Y)
+PARAGUAY................................................... 17 (DMQ.160 M/Y)
+PERU ............................................................ 18 (DMQ.160 M/Y)
+PHILIPPINES ................................................ 19 (DMQ.160 M/Y)
+PUERTO RICO .............................................. 20 (DMQ.160 M/Y)
+SPAIN ............................................................ 21 (DMQ.160 M/Y)
+URUGUAY..................................................... 22 (DMQ.160 M/Y)
+VENEZUELA ................................................. 23 (DMQ.160 M/Y)
+OTHER COUNTRY (CAPI INSTRUCTION:
+DISPLAY DMQ.112 COUNTRY LIST.) ....... 40 (DMQ.160 M/Y)
+CAPI INSTRUCTION:
+IF ‘OTHER’ SELECTED, DISPLAY COUNTRY LIST IN ALPHABETICAL ORDER. INTERVIEWER SHOULD
+BE ABLE TO SELECT ONE FROM THE LIST.
+
+===== Página 16 =====
+
+DMQ.125 SELECT COUNTRY OF BIRTH
+OS
+BANGLADESH .............................................. 1
+BHUTAN ........................................................ 2
+BURMA/MYANMAR ...................................... 3
+CAMBODIA ................................................... 4
+CHINA ........................................................... 5
+HONG KONG ................................................ 6
+INDIA ............................................................. 7
+INDONESIA ................................................... 8
+JAPAN ........................................................... 9
+KOREA .......................................................... 10
+LAOS ............................................................. 11
+MACAU ......................................................... 12
+MADAGASCAR ............................................. 13
+MALAYSIA..................................................... 14
+MALDIVES .................................................... 15
+NEPAL ........................................................... 16
+PAKISTAN ..................................................... 17
+PHILIPPINES ................................................ 18
+SINGAPORE ................................................. 19
+SRI LANKA .................................................... 20
+TAIWAN ........................................................ 21
+THAILAND .................................................... 22
+TIBET ............................................................ 23
+VIETNAM....................................................... 24
+OTHER (CAPI INSTRUCTION: DISPLAY
+DMQ.125 COUNTRY LIST.) ....................... 25
+CAPI INSTRUCTION:
+IF ‘OTHER’ SELECTED, DISPLAY COUNTRY LIST IN ALPHABETICAL ORDER. INTERVIEWER SHOULD
+BE ABLE TO SELECT ONE FROM THE LIST.
+DMQ.160 In what month and year did {you/SP} come to the United States to stay?
+M/Y
+CAPI INSTRUCTION:
+HARD EDIT: NOT BEFORE SP’S DATE OF BIRTH AND NOT AFTER CURRENT DATE. IF OUT OF RANGE
+DISPLAY “DATE OF IMMIGRATION MUST BE AFTER DATE OF BIRTH {DOB YYYY} AND BEFORE
+TODAY.”
+|___|___|
+ENTER MONTH NUMBER
+REFUSED ............................................... 7777
+DON'T KNOW ......................................... 9999
+|___|___|___|___|
+ENTER 4-DIGIT YEAR
+REFUSED ............................................. 777777
+DON'T KNOW ....................................... 999999
+
+===== Página 17 =====
+
+DMQ.170 {Are you/Is SP} a citizen of the United States?
+[Information about citizenship is being collected by the National Center for Health Statistics to perform health
+related research. Providing this information is voluntary and is collected under the authority of the Public
+Health Service Act. There will be no effect on pending immigration or citizenship petitions.]
+HAND CARD DMQ7
+YES, BORN IN UNITED STATES ................. 1
+YES, BORN IN PUERTO RICO, GUAM,
+AMERICAN VIRGIN ISLANDS, OR
+OTHER U.S. TERRITORY ......................... 2
+YES, BORN ABROAD TO AMERICAN
+PARENTS................................................... 3
+YES, U.S. CITIZEN BY NATURALIZATION .. 4
+NO, NOT A CITIZEN OF THE UNITED
+STATES...................................................... 5
+REFUSED ..................................................... 7
+DON'T KNOW ............................................... 9
+HELP SCREEN:
+Naturalization: The process of granting full citizenship to a person of foreign birth.
+BOX 4
+CHECK ITEM DMQ.172:
+IF CODE 1 (BORN IN U.S.) IN DMQ.170 – DISPLAY SOFT ERROR MESSAGE “SP
+S AYS NOT BORN IN U.S. IN PREVIOUS QUESTION – PLEASE CORRECT.”
+BOX 5
+CHECK ITEM DMQ.175:
+S KIP TO DMQ.281a.
+DMQ.130 In what state {were you/was SP} born?
+ENTER 2 LETTER STATE ABBREVIATION TO START THE LOOKUP.
+SELECT STATE FROM CAPI STATE LIST.
+PRESS ENTER TO ACCEPT SELECTION.
+CAPI INSTRUCTION:
+DISPLAY FIPS STATE LIST. INTERVIEWER ONLY SHOULD BE ABLE TO SELECT 1 STATE FROM LIST.
+WHEN A STATE ABBREVIATION IS SELECTED, PREFILL THE FOLLOWING:
+DMQ130A – STATES FIPS CODE
+DMQ130B = STATE NAME
+DON'T KNOW AND REFUSED SHOULD BE VALID OPTIONS.
+THE STATE LOOKUP IN THE SP AND FAMILY QUESTIONNAIRES SHOULD WORK EXACTLY THE
+SAME.
+
+===== Página 18 =====
+
+DMQ.281a The National Center for Health Statistics will conduct statistical research by combining {your/his/her} survey
+data with vital, health, nutrition and other related records. {Your/SP’s} social security number is used only for
+these purposes. Providing this information is voluntary and is collected under the authority of Section 306 of
+the Public Health Service Act. There will be no effect on {your/his/her} benefits if you do not provide it.
+INTERVIEWER INSTRUCTION—ONLY READ IF ASKED. [Public Health Service Act is title 42, United States
+Code, section 242k.]
+What is {your/SP's} Social Security Number?
+INTERVIEWER INSTRUCTION:
+IF RESPONDENT CANNOT RECALL FROM MEMORY ASK {HIM/HER} TO GET CARD AT THIS TIME.
+IF RESPONDENT IS RELUCTANT OR NEEDS MORE INFORMATION OR REFUSES, READ: I understand
+your concern. By matching NHANES data with other health-related records, researchers can study health
+conditions like heart attacks and diabetes in depth. They can also better understand health care use and
+health care costs for all Americans. These findings will help doctors assist patients in making smart choices.
+Here are other examples (HAND CARD DMQ8) of things we have learned when we matched records from
+different sources. May I please have {your/SP’s} Social Security Number?
+ENTER SOCIAL SECURITY NUMBER.................................................... 1 (DMQ281b)
+DOES NOT HAVE SOCIAL SECURITY NUMBER .................................. 2 (BOX 6)
+REFUSED ................................................................................................ 7 (BOX 6)
+DON'T KNOW .......................................................................................... 9 (BOX 6)
+CAPI INSTRUCTION:
+IF SP REFUSES (CODE 7), DISPLAY THE FOLLOWING SOFT ERROR MESSAGE:
+Make sure you have read the required text on the screen.
+DMQ281b/c
+CAPI INSTRUCTION:
+REQUIRE DOUBLE ENTRY OF SOCIAL SECURITY NUMBER.
+|___|___|___| |___|___| |___|___|___|___|
+ENTER SOCIAL SECURITY NUMBER
+or
+REFUSED ......................................................................................... 777777777 (BOX 6)
+DON'T KNOW ................................................................................... 999999999 (BOX 6)
+HARD EDIT:
+VALIDATE THAT THERE ARE 9 DIGITS ENTERED FOR AN SSN. DO NOT ACCEPT ENTRY LESS THAN
+9 DIGITS FOR DMQ281B/C. IF A LESS THAN 9 DIGITS NUMBER WAS ENTERED, DISPLAY THE
+MESSAGE “The SSN should be a 9-digit number, please verify.”
+THE SSN IS A 3-PART NUMBER (3-DIGIT AREA NUMBER + 2-DIGIT GROUP NUMBER + 4-DIGIT SERIAL
+NUMBER). NONE OF THESE COMPARTMENTS CAN BE ALL ZEROS. PLEASE VERIFY AND DISPLAY
+ERROR MESSAGE “It is unlikely that the SSN starts with “000”, has “00” as its middle 2-digits, or has “0000”
+as its last 4 digits, please verify that you have the complete number.”
+
+===== Página 19 =====
+
+DMQ.300 INTERVIEWER: SELECT CATEGORY FOR REPORTING OF SOCIAL SECURITY NUMBER
+SELF REPORTED FROM MEMORY ....................................................... 1
+SELF REPORTED FROM RECORDS ..................................................... 2
+PROXY REPORTED FROM MEMORY ................................................... 3
+PROXY REPORTED FROM RECORDS.................................................. 4
+BOX 6
+OMITTED
+
+===== Página 20 =====
+
+HELP SCREEN FOR DMQ.141:
+School: An institution that advances a person toward an elementary or high school diploma, or a college or professional
+school degree. Do not count schooling in non-regular schools unless the credits are accepted by regular schools.
+Regular school includes graded public, private, and parochial schools, colleges, universities, graduate and professional
+schools, seminaries where a Bachelor's degree is offered, junior colleges specializing in skill training, colleges of education,
+and nursing schools where a Bachelor's degree is offered.
+If the person attended school outside of the "regular" school system, probe to determine if the schooling is applicable here.
+Use the following guidelines to determine if the schooling should be included:
+- Training Programs - Count training received "on the job," in the Armed Forces, or through correspondence school only if it
+was credited toward a school diploma, high school equivalency (GED), or college degree.
+- Vocational, Trade, or Business School - Do not include secretarial school, mechanical or computer training school, nursing
+school where a Bachelor's degree is not offered, and other vocational trade or business schools outside the regular school
+system.
+- General Educational Development (GED) or High School Equivalency - An exam certified equivalent of a high school
+diploma. If the person has not actually completed all 4 years of high school, but has acquired his/her GED (high school
+equivalency based on passing the GED exam), count this and enter code "14."
+- Adult Education - Adult education classes should not be included as regular school unless such schooling has been counted
+for credit in a regular school system. If a person has taken adult education classes not for credit, these classes should not
+be counted as regular school. Adult education courses given in a public school building are part of regular schooling only if
+their completion can advance a person toward an elementary school certificate, a high school diploma (or GED), or a college
+degree.
+- Other School Systems - If the person attended school in another country, in an ungraded school, in a "normal school",
+under a tutor, or under other special circumstances, ask the respondent to give the nearest equivalent of years in regular
+U.S. schooling.
+GED (General Educational Development): An exam certified equivalent of a high school diploma.
+Occupational/Technical/Vocational Programs: Includes secretarial school, mechanical or computer training school, nursing
+school where a Bachelor's degree is not offered and other trade and business schools outside the regular school system.
+Vocational (Trade or Business) School: When determining the highest grade or year of regular school the person ever
+completed, do not include secretarial school, mechanical or computer training school, nursing school where a Bachelor's
+degree is not offered, and other vocational trade or business schools outside the regular school system.
+College: Any junior college, community college, four-year college or university, nursing school or seminary where a college
+degree is offered, and graduate school or professional school that is attended after obtaining a degree from a 4-year
+institution.
+Bachelor's Degree: An educational degree given by a college or university to a person who has completed a four-year course
+or its equivalent in the humanities or related studies (B.A.) or in the sciences (B.S.).
+Doctorate Degree: The highest educational degree given by a college or university to a person who has completed a
+prescribed course of advanced graduate study. For example—a Doctor of Philosophy (Ph.D.).
+

@@ -79,6 +79,30 @@ function loadIngest() {
     showToast("PDF carregado com sucesso!", "success");
   }
 
+  function recriarFileDeSession() {
+  const base64 = sessionStorage.getItem("pdfBase64");
+  const name = sessionStorage.getItem("pdfName");
+  const size = parseFloat(sessionStorage.getItem("pdfSize"));
+
+  if (base64 && name && size) {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+
+    const blob = new Blob(byteArrays, { type: "application/pdf" });
+    return new File([blob], name, { type: "application/pdf" });
+  }
+
+  return null;
+}
+
   function analisarPdf(file, modoForcado = null) {
     analyzing = true;
     const output = document.getElementById("output");
@@ -300,6 +324,31 @@ naoGostoBtn.addEventListener("click", () => {
   }
 
   showToast("Análise concluída com sucesso!", "success");
+  const user = JSON.parse(localStorage.getItem("user"));
+const novoFile = recriarFileDeSession();
+if (modoAtual === "automatico") {
+if (user && user.email && novoFile) {
+  const historicoData = new FormData();
+  historicoData.append("pdf", novoFile); // Ficheiro novo recriado
+  historicoData.append("email", user.email);
+
+  fetch("http://localhost:5000/api/user/upload_pdf", {
+    method: "POST",
+    body: historicoData,
+  })
+  .then(res => res.json())
+  .then(histData => {
+if (histData.status?.toLowerCase().includes("sucesso")) {
+  console.log("Histórico guardado com sucesso!");
+} else {
+  console.warn("Falha ao guardar histórico:", histData);
+}
+  })
+  .catch(err => {
+    console.error("Erro ao guardar histórico do PDF:", err);
+  });
+}
+}
 })
       .catch(err => {
         loader.remove();
@@ -383,6 +432,7 @@ naoGostoBtn.addEventListener("click", () => {
       showPdfResult(file);
     }
   }
+
 
  const modoToggle = document.getElementById("modoToggle");
   const modoText = document.getElementById("modoText");

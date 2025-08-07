@@ -1,0 +1,287 @@
+[
+  {
+    "Identificador": "DPQ.010",
+    "Secção": "Over the last 2 weeks...",
+    "Pergunta": "little interest or pleasure in doing things? Would you say . . .",
+    "Respostas": [
+      {
+        "opção": "Not at all",
+        "valor": "0"
+      },
+      {
+        "opção": "several days",
+        "valor": "1"
+      },
+      {
+        "opção": "more than half the days",
+        "valor": "2"
+      },
+      {
+        "opção": "nearly every day?",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON'T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.020",
+    "Secção": "Over the last 2 weeks...",
+    "Pergunta": "feeling down, depressed, or hopeless?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON’T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.030",
+    "Secção": "Over the last 2 weeks...",
+    "Pergunta": "trouble falling or staying asleep, or sleeping too much?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON’T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.040",
+    "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
+    "Pergunta": "feeling tired or having little energy?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON'T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.050",
+    "Secção": "Over the last 2 weeks...",
+    "Pergunta": "poor appetite or overeating?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON’T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.060",
+    "Secção": "Over the last 2 weeks, how often have you been bothered by the following problems:",
+    "Pergunta": "feeling bad about yourself – or that you are a failure or have let yourself or your family down?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON'T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.070",
+    "Secção": "Over the last 2 weeks...",
+    "Pergunta": "trouble concentrating on things, such as reading the newspaper or watching TV?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON'T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.080",
+    "Secção": "Over the last 2 weeks...",
+    "Pergunta": "moving or speaking so slowly that other people could have noticed? Or the opposite – being so fidgety or restless that you have been moving around a lot more than usual?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON'T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.090",
+    "Secção": "Over the last 2 weeks...",
+    "Pergunta": "Thoughts that you would be better off dead or of hurting yourself in some way?",
+    "Respostas": [
+      {
+        "opção": "NOT AT ALL",
+        "valor": "0"
+      },
+      {
+        "opção": "SEVERAL DAYS",
+        "valor": "1"
+      },
+      {
+        "opção": "MORE THAN HALF THE DAYS",
+        "valor": "2"
+      },
+      {
+        "opção": "NEARLY EVERY DAY",
+        "valor": "3"
+      },
+      {
+        "opção": "REFUSED",
+        "valor": "7"
+      },
+      {
+        "opção": "DON'T KNOW",
+        "valor": "9"
+      }
+    ]
+  },
+  {
+    "Identificador": "DPQ.100",
+    "Secção": "Nenhuma",
+    "Pergunta": ".  OTHERWISE, GO TO NEXT SECTION.",
+    "Respostas": []
+  }
+]

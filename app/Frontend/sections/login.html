@@ -1,4 +1,4 @@
-<!--login.html-->
+<!-- login.html -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="../css/login.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="../assets/icon.png" type="image/png" />
-
 </head>
 <body>
   <div class="background-gradient"></div>
@@ -27,6 +26,12 @@
         <input type="password" id="password" required />
         <label for="password">Palavra-passe</label>
         <span class="icon">🔒</span>
+      </div>
+
+      <!-- ✅ Checkbox lembrar-me -->
+      <div class="flex items-center gap-2 mb-4">
+        <input type="checkbox" id="rememberMe" class="form-checkbox h-4 w-4 text-accent" />
+        <label for="rememberMe" class="text-sm text-gray-600 dark:text-gray-300">Lembrar-me por 30 dias</label>
       </div>
 
       <button type="submit" class="btn-primary">
