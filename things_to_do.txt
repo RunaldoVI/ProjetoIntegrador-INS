@@ -23,3 +23,9 @@
 #2 estruturacao dos pdf´s
 
 conseguir estrurar bem qualquer pdf que inserirmos no codigo ProjetoFinal.py
+
+
+LLM Mudar Modelo FIcheiros:
+startup.sh
+promptllm.py
+server.py

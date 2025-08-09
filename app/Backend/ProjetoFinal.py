@@ -11,10 +11,6 @@ caminho_pdf = sys.argv[1]
 modo = sys.argv[2].lower()
 instrucoes_extra = sys.argv[3] if len(sys.argv) > 3 else ""
 
-# Limpa preview anterior (opcional)
-if modo == "preview" and os.path.exists("preview_output.json"):
-    os.remove("preview_output.json")
-
 # Executa o modo correto
 if modo == "preview":
     executar_preview(caminho_pdf, instrucoes_extra)

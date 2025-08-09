@@ -9,16 +9,15 @@ def processar_bloco(bloco, pergunta, secao_geral, preview_identificador=None):
         return None, None
 
     estrutura = separar_pergunta_respostas(bloco, secao_geral)
-
     if estrutura is None:
-        print("❌ Pré-processamento falhou. Opcional: enviar para o LLM.")
+        print("❌ Pré-processamento falhou.")
         return None, None
 
     if estrutura.get("Identificador", "").strip() == preview_identificador:
         print(f"⏭️  Ignorado (mesmo identificador do preview: {preview_identificador})")
         return None, None
 
-    # Se quiseres ainda usar o LLM como fallback para enriquecer:
+    # ✅ Usa sempre o LLM
     resposta_llm_raw = enviar_pagina_para_llm(bloco, pergunta)
 
     try:
@@ -27,7 +26,6 @@ def processar_bloco(bloco, pergunta, secao_geral, preview_identificador=None):
     except:
         resposta_llm = {}
 
-    # Novo: usar só os dados do LLM se estiverem completos e válidos
     if (
         isinstance(resposta_llm, dict)
         and resposta_llm.get("Pergunta")
@@ -36,5 +34,5 @@ def processar_bloco(bloco, pergunta, secao_geral, preview_identificador=None):
         print("🤖 A usar resposta do LLM (válida)")
         return estrutura, resposta_llm
 
-    # Caso contrário, usa só o pré-processamento
-    return estrutura, estrutura
+    print("⚠️ LLM respondeu mal ou incompleto. Ignorado.")
+    return None, None

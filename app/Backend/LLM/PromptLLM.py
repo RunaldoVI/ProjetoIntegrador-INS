@@ -1,22 +1,29 @@
 import requests
 import json
 
+# --- Contador de tokens simples ---
+def contar_tokens_simples(texto):
+    palavras = texto.strip().split()
+    tokens_estimados = int(len(palavras) / 0.75)
+    return tokens_estimados
+
+
+# --- Prompt base para análise ---
 def obter_pergunta(instrucoes_adicionais=None):
     prompt = (
         "Tens à tua frente um excerto de um questionário estruturado (como o NHANES). "
         "Extrai, de forma organizada, todas as perguntas válidas com base nas instruções abaixo.\n\n"
-
         "❗ Instruções importantes:\n"
         "- Não traduzas nada.\n"
-        "- Cada pergunta começa com um identificador único no formato 'XXX.###' (ex: 'DPQ.010', 'DUQ.200', 'ALQ.111', etc).\n"
-        "- Se houver um texto introdutório que se aplica a várias perguntas consecutivas (ex: 'Over the last 2 weeks...'), considera esse texto como uma 'Secção' e aplica-o a todas as perguntas seguintes até que o contexto mude.\n"
+        "- Cada pergunta começa com um identificador único no formato 'XXX.###'.\n"
+        "- Se houver um texto introdutório que se aplica a várias perguntas consecutivas considera esse texto como uma 'Secção' e aplica-o a todas as perguntas seguintes até que o contexto mude.\n"
         "- Se o bloco não tiver secção aplicável, define \"Secção\": \"Nenhuma\".\n"
         "- Ignora qualquer bloco que seja:\n"
         "  - apenas instruções técnicas (ex: 'CHECK ITEM', 'BOX 1', 'GO TO', 'HANDCARD', 'ENTER AGE', etc.),\n"
         "  - ou uma pergunta que não tenha pelo menos uma opção de resposta com valor numérico (ex: 0, 1, 2, ...).\n"
         "- A pergunta pode vir imediatamente após o identificador ou numa linha seguinte. Junta as partes corretamente.\n"
         "- As respostas devem ser listadas com o seu texto e valor numérico.\n\n"
-
+        "- Matem as respostas todas e a estrutura original do ficheiro."
         "✅ Formato obrigatório de saída (em JSON):\n\n"
         "{\n"
         "  \"Identificador\": \"XXX.###\",\n"
@@ -25,22 +32,37 @@ def obter_pergunta(instrucoes_adicionais=None):
         "  \"Respostas\": [\n"
         "    { \"opção\": \"Texto da resposta\", \"valor\": \"0\" },\n"
         "    { \"opção\": \"Texto da resposta\", \"valor\": \"1\" },\n"
-        "    ...\n"
+        "    etc..\n"
         "  ]\n"
         "}\n\n"
-        "Repete este formato JSON para cada pergunta válida."
+        "Returna me o output em formato JSON!"
     )
 
     if instrucoes_adicionais:
-        prompt += "\n\n📌 Instruções adicionais do utilizador:\n" + instrucoes_adicionais.strip()
+        prompt += (
+            "\n\n📌 Instruções adicionais do utilizador:\n"
+            f"{instrucoes_adicionais.strip()}\n"
+        )
 
     return prompt
 
 
-def enviar_pagina_para_llm(texto_pagina, prompt, modelo="mistral", url="http://localhost:11434/api/chat"):
-    """
-    Envia um texto para o modelo LLM via Ollama (ou servidor compatível).
-    """
+# --- Envio para o modelo via Ollama ---
+def enviar_pagina_para_llm(texto_pagina, prompt, modelo="llama3:8b", url="http://ollama:11434/api/chat", debug=False):
+    conteudo_user = f"{texto_pagina}\n\n{prompt}"
+    tokens_estimados = contar_tokens_simples(conteudo_user)
+
+    print("\n📤 Enviando para o LLM...")
+    print(f"🔹 Modelo: {modelo}")
+    print(f"🔢 Tokens estimados: {tokens_estimados}")
+    print(f"📄 Página (preview): {texto_pagina[:150].replace(chr(10), ' ')}...")
+    print(f"📝 Prompt (preview): {prompt[:150].replace(chr(10), ' ')}...\n")
+
+    if debug:
+        print("--- TEXTO COMPLETO ENVIADO ---")
+        print(conteudo_user)
+        print("--- FIM ---\n")
+
     payload = {
         "model": modelo,
         "messages": [
@@ -50,7 +72,7 @@ def enviar_pagina_para_llm(texto_pagina, prompt, modelo="mistral", url="http://l
             },
             {
                 "role": "user",
-                "content": f"{texto_pagina}\n\n{prompt}"
+                "content": conteudo_user
             }
         ]
     }
@@ -58,7 +80,6 @@ def enviar_pagina_para_llm(texto_pagina, prompt, modelo="mistral", url="http://l
     resposta_total = ""
     try:
         response = requests.post(url, json=payload, stream=True)
-
         if response.status_code == 200:
             for line in response.iter_lines(decode_unicode=True):
                 if line:
@@ -69,9 +90,12 @@ def enviar_pagina_para_llm(texto_pagina, prompt, modelo="mistral", url="http://l
                     except json.JSONDecodeError:
                         resposta_total += f"\n⚠️ Erro a processar linha: {line}"
         else:
-            resposta_total = f"❌ Erro: {response.status_code}\n{response.text}"
+            resposta_total = f"❌ Erro HTTP {response.status_code}:\n{response.text}"
 
     except Exception as e:
         resposta_total = f"❌ Erro de conexão: {e}"
 
+    print("\n🧠 Resposta completa do LLM:\n")
+    print(resposta_total.strip())
+    print("\n✅ Fim da resposta.\n")
     return resposta_total
