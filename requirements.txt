@@ -11,3 +11,4 @@ openpyxl
 langdetect
 sentence-transformers
 werkzeug
+opencv-python-headless

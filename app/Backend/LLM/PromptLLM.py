@@ -48,7 +48,7 @@ def obter_pergunta(instrucoes_adicionais=None):
 
 
 # --- Envio para o modelo via Ollama ---
-def enviar_pagina_para_llm(texto_pagina, prompt, modelo="llama3:8b", url="http://ollama:11434/api/chat", debug=False):
+def enviar_pagina_para_llm(texto_pagina, prompt, modelo="mistral", url="http://ollama:11434/api/chat", debug=False):
     conteudo_user = f"{texto_pagina}\n\n{prompt}"
     tokens_estimados = contar_tokens_simples(conteudo_user)
 

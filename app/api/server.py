@@ -1,4 +1,4 @@
-#server.py
+# server.py
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import requests
@@ -7,10 +7,11 @@ import os
 import json
 from user import user_bp
 
-import os
-app = Flask(__name__, static_url_path='/static',
-            static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../Frontend/static')))
-
+app = Flask(
+    __name__,
+    static_url_path='/static',
+    static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../Frontend/static'))
+)
 
 # CORS permissivo para desenvolvimento
 CORS(app)
@@ -40,13 +41,23 @@ def upload_pdf():
 
     try:
         modo_bruto = request.form.get("modo", "automatico")
-        modo = modo_bruto.replace("--modo", "").strip()
+        modo = modo_bruto.replace("--modo", "").strip().lower()
         instrucoes_extra = request.form.get("instrucoes", "").strip()
 
-        subprocess.run(
-            ["python", "/app/Backend/ProjetoFinal.py", filepath, modo, instrucoes_extra],
-             check=True
-            )
+        # Flag vindo do frontend quando o utilizador clica "continuar" depois do preview
+        reuse_preview = request.form.get("reuse_preview", "").strip().lower() in ("1", "true", "yes")
+
+        # Monta args para o runner principal
+        args = ["python", "/app/Backend/ProjetoFinal.py", filepath, modo]
+
+        if modo == "preview":
+            # preview aceita instruções como 3º arg
+            args.append(instrucoes_extra or "")
+        elif modo == "automatico" and reuse_preview:
+            # só passa o flag se de facto veio do preview
+            args.append("--reuse-preview")
+
+        subprocess.run(args, check=True)
 
         if modo == "preview":
             preview_path = "preview_output.json"
@@ -61,12 +72,14 @@ def upload_pdf():
 
     except subprocess.CalledProcessError as e:
         return jsonify({'error': f'Erro ao processar PDF: {str(e)}'}), 500
+
+
 # --- MONITORAMENTO DO LLM ---
 
 @app.route('/llm-status', methods=['GET'])
 def llm_status():
     try:
-        response = requests.post("http://ollama:11434/api/show", json={"model": "llama3:8b"}, timeout=5)
+        response = requests.post("http://ollama:11434/api/show", json={"model": "mistral"}, timeout=5)
         if response.status_code == 200:
             data = response.json()
             pronto = "modelfile" in data
@@ -102,17 +115,15 @@ def llm_progress():
 @app.route('/download-excel', methods=['GET'])
 def download_excel():
     excel_path = os.path.join(UPLOAD_FOLDER, "INS-NHANES-DPQ_J.xlsx")
-    
     if os.path.exists(excel_path):
         return send_file(
             excel_path,
             as_attachment=True,
-            download_name="INS-NHANES-DPQ_J.xlsx",  # nome visível no download
+            download_name="INS-NHANES-DPQ_J.xlsx",
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
     else:
         return jsonify({'error': 'Ficheiro Excel não encontrado'}), 404
-
 
 
 # --- EXECUTAR A APP ---

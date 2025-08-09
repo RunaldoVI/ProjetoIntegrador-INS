@@ -1,163 +1,212 @@
-import sys
-import os
-import json
-import re
+# AutomaticPreviewMode.py
+import sys, os, json, re
 
-print("=== AutomaticPreviewMode.py carregado: versão final com limpeza de ruído ===")
-
+# paths base
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Database")))
 
-from Extração.TextExtractorPDF import extrair_texto_para_txt
-from Extração.VisualExtractorPDF import extrair_blocos_visuais
+from Extração.ExtrairPDF import processar_pdf
 from LLM.PromptLLM import obter_pergunta
 from ExcelWriter.ExcelWriter import executar
 from DataBaseConnection import importar_json_para_bd
 from PdfViewMode.utils_extracao import processar_bloco
-from Limpeza.PreProcessamento import (
-    identificar_secao_mais_comum,
-    extrair_blocos_limpos,
+
+# -----------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------
+
+def _ordenar_campos(item: dict) -> dict:
+    return {
+        "Identificador": item.get("Identificador", ""),
+        "Secção": item.get("Secção", "Nenhuma"),
+        "Pergunta": item.get("Pergunta", ""),
+        "Respostas": item.get("Respostas", []),
+    }
+
+def _out_dir_e_txt_do_pdf(caminho_pdf: str):
+    base = os.path.splitext(os.path.basename(caminho_pdf))[0]
+    out_dir = os.path.join(os.path.dirname(caminho_pdf), f"{base}_out")
+    txt_path = os.path.join(out_dir, f"{base}_perguntas_e_respostas.txt")
+    return out_dir, txt_path
+
+def garantir_txt_extracao(caminho_pdf: str) -> str:
+    out_dir, txt_path = _out_dir_e_txt_do_pdf(caminho_pdf)
+    if os.path.exists(txt_path):
+        return txt_path
+    print("🧩 TXT não encontrado. A extrair do PDF…")
+    _, gerado = processar_pdf(caminho_pdf)
+    if not os.path.exists(gerado):
+        raise FileNotFoundError(f"Falha a criar o TXT de extração: {gerado}")
+    return gerado
+
+BLOCO_RE = re.compile(
+    r"^ID:\s*(?P<id>.+?)\s*\|\s*Página:\s*(?P<pag>\d+)\s*?\n"
+    r"(?:Sec[çc][ãa]o\s*:\s*(?P<sec>.+?)\s*\n)?"
+    r"Pergunta:\s*\n(?P<pergunta>.*?)\nResposta:\s*\n(?P<resposta>.*?)(?=\n-+\n|\Z)",
+    re.DOTALL | re.MULTILINE
 )
 
-def preparar_texto_para_llm(raw: str) -> str:
-    linhas = raw.splitlines()
-    padroes_remover = [
-        r"^\s*HAND CARD", r"^\s*CAPI INSTRUCTION", r"^\s*SOFT EDIT",
-        r"^\s*HARD EDIT", r"^\s*INTERVIEWER INSTRUCTION", r"^\s*CHECK ITEM",
-        r"^\s*BOX", r"^\s*ENTER #", r"^\s*DISPLAY QUANTITY", r"^\s*DISPLAY NUMBER",
-        r"^\s*ALQ-\d+", r".*PREVIOUSLY REPORTED.*", r".*CODED\s+‘?0’?.*",
-        r"^\s*IF SP .*", r"^\s*ERROR MESSAGE.*", r"^\s*RANGE .*", r"^\s*YES IF .*",
-        r"^\s*SOFT CHECK.*", r"^\s*\|___\|___\|___\|", r"^\s*--+$"
-    ]
-    linhas_filtradas = []
-    for linha in linhas:
-        if any(re.search(pat, linha, flags=re.IGNORECASE) for pat in padroes_remover):
-            continue
-        if re.fullmatch(r"\s*\d+\s*", linha):
-            continue
-        linhas_filtradas.append(linha.strip())
+def _parse_respostas(texto: str):
+    linhas = [l.strip() for l in (texto or "").splitlines() if l.strip()]
+    out = []
+    for l in linhas:
+        m = re.match(r"^\s*(?P<v>\d+)\s*[-:]\s*(?P<op>.+?)\s*$", l) \
+            or re.match(r"^\s*(?P<op>.+?)\s*[\(\[]\s*(?P<v>\d+)\s*[\)\]]\s*$", l) \
+            or re.match(r"^\s*(?P<v>\d+)[\)\.]\s*(?P<op>.+?)\s*$", l)
+        if m:
+            out.append({"opção": m.group("op").strip(), "valor": m.group("v").strip()})
+    return out
 
-    texto = "\n".join(linhas_filtradas)
-    texto = re.sub(r"^\s*\[.*?\]\s*", "", texto)
-    return texto
+def ler_blocos_do_txt(caminho_txt: str):
+    with open(caminho_txt, "r", encoding="utf-8") as f:
+        raw = f.read()
 
-def bloco_valido(texto: str) -> bool:
-    """Ignora blocos com 1-2 linhas sem interrogação (provável ruído técnico)."""
-    if len(texto.splitlines()) <= 2 and not re.search(r"\?\s*$", texto, re.MULTILINE):
-        return False
-    return True
+    blocos = []
+    for m in BLOCO_RE.finditer(raw):
+        ident = m.group("id").strip()
+        pagina = int(m.group("pag"))
+        secao = (m.group("sec") or "").strip()
+        pergunta_txt = (m.group("pergunta") or "").strip()
+        resposta_txt = (m.group("resposta") or "").strip()
+
+        pergunta_linhas = [l for l in pergunta_txt.splitlines() if l.strip()]
+        resposta_linhas = [l for l in resposta_txt.splitlines() if l.strip()]
+
+        estrutura_original = {
+            "Identificador": ident,
+            "Secção": secao or "Nenhuma",
+            "Pergunta": "\n".join(pergunta_linhas),
+            "Respostas": _parse_respostas(resposta_txt)
+        }
+
+        blocos.append({
+            "Identificador": ident,
+            "Pagina": pagina,
+            "Secao": secao or "Nenhuma",
+            "PerguntaLinhas": pergunta_linhas,
+            "RespostaLinhas": resposta_linhas,
+            "EstruturaOriginal": estrutura_original
+        })
+    return blocos
+
+def formatar_para_llm(bloco: dict) -> str:
+    p = "\n".join(bloco["PerguntaLinhas"]) if bloco["PerguntaLinhas"] else ""
+    r = "\n".join(bloco["RespostaLinhas"]) if bloco["RespostaLinhas"] else ""
+    s = bloco.get("Secao", "Nenhuma")
+    return (
+        f"ID: {bloco['Identificador']}\n"
+        f"Página: {bloco['Pagina']}\n"
+        f"Secção: {s}\n"
+        f"Pergunta:\n{p}\n"
+        f"Resposta:\n{r}\n"
+    )
+
+def respostas_validas(respostas):
+    return [r for r in (respostas or []) if r.get("opção", "").strip() and r.get("valor", "").strip()]
+
+def _expandir_multi_id(resposta_llm):
+    out = []
+    if isinstance(resposta_llm, dict) and resposta_llm and all(isinstance(v, dict) for v in resposta_llm.values()):
+        for ident, corpo in resposta_llm.items():
+            c = dict(corpo)
+            if "Identificador" not in c:
+                c["Identificador"] = ident
+            if "ID" in c and "Identificador" not in c:
+                c["Identificador"] = str(c.pop("ID")).strip()
+            out.append(c)
+    elif isinstance(resposta_llm, dict):
+        c = dict(resposta_llm)
+        if "Identificador" not in c and "ID" in c:
+            c["Identificador"] = str(c.pop("ID")).strip()
+        out.append(c)
+    return out
+
+# -----------------------------------------------------------
+# Main
+# -----------------------------------------------------------
 
 if len(sys.argv) < 2:
-    print("❌ Uso: python AutomaticPreviewMode.py caminho_para_pdf")
+    print("❌ Uso: python AutomaticPreviewMode.py caminho_para_pdf [--reuse-preview]")
     sys.exit(1)
 
 caminho_pdf = sys.argv[1]
-caminho_txt = extrair_texto_para_txt(caminho_pdf)
-extrair_blocos_visuais(caminho_pdf)
+reuse_preview = any(arg.strip().lower() == "--reuse-preview" for arg in sys.argv[2:])
 
-with open(caminho_txt, "r", encoding="utf-8") as f:
-    conteudo = f.read()
+try:
+    caminho_txt = garantir_txt_extracao(caminho_pdf)
+except Exception as e:
+    print("❌", e)
+    sys.exit(1)
 
-paginas = [p.strip() for p in conteudo.split("===== Página") if p.strip()]
-secao_geral = identificar_secao_mais_comum(paginas)
-pergunta = obter_pergunta()
+prompt_llm = obter_pergunta()
 
-blocos_finais = []
-identificadores_vistos = set()
 preview_path = "preview_output.json"
-preview_pergunta = None
+identificadores_vistos = set()
+blocos_finais = []
 
-if os.path.exists(preview_path):
-    with open(preview_path, "r", encoding="utf-8") as f:
-        bloco_preview = json.load(f)
-        blocos_finais.append(bloco_preview)
-        preview_pergunta = bloco_preview.get("Pergunta", "").strip()
-        preview_identificador = bloco_preview.get("Identificador", "").strip()
-        identificadores_vistos.add(preview_identificador)
-    print("✅ Preview carregado e reaproveitado.")
-else:
-    print("⚠️ Nenhum preview encontrado.")
+if reuse_preview and os.path.exists(preview_path):
+    try:
+        with open(preview_path, "r", encoding="utf-8") as f:
+            bloco_preview = json.load(f)
+        if isinstance(bloco_preview, dict) and bloco_preview.get("Identificador"):
+            blocos_finais.append(_ordenar_campos(bloco_preview))  # <--
+            identificadores_vistos.add(bloco_preview["Identificador"])
+            print(f"✅ Reutilizado preview: {bloco_preview['Identificador']}")
+    except Exception as e:
+        print("⚠️ Não foi possível ler preview_output.json:", e)
 
-def guardar_rejeitado(i, j, bloco):
-    with open("rejeitados_debug.json", "a", encoding="utf-8") as f:
-        json.dump({"pagina": i, "bloco": j, "texto": bloco["texto"]}, f, ensure_ascii=False)
-        f.write(",\n")
+blocos_txt = ler_blocos_do_txt(caminho_txt)
+print(f"🔎 {len(blocos_txt)} blocos encontrados no TXT.")
 
-# Página 1
-primeira_pagina = paginas[0]
-restantes_paginas = paginas[1:]
-blocos = extrair_blocos_limpos(primeira_pagina)
-
-for j, bloco in enumerate(blocos, start=1):
-    if bloco["tipo"] != "Pergunta" or len(bloco["texto"].strip()) < 10:
-        continue
-
-    texto_original = bloco["texto"]
-    texto = preparar_texto_para_llm(texto_original)
-
-    if not bloco_valido(texto):
-        print(f"⚠️ Bloco {j} ignorado (conteúdo de navegação) na página 1")
-        continue
-
-    print(f"[DEBUG] Página 1, Bloco {j} - texto a enviar ao LLM:")
-    print(texto)
-    print("-" * 40)
-
-    estrutura, resposta_final = processar_bloco(texto, pergunta, secao_geral, preview_pergunta)
-    if not resposta_final:
-        print(f"⚠️ Bloco {j} rejeitado ou inválido (página 1)")
-        guardar_rejeitado(1, j, bloco)
-        continue
-
-    ident = resposta_final["Identificador"].strip()
+for idx, bloco in enumerate(blocos_txt, start=1):
+    ident = bloco["Identificador"]
     if ident in identificadores_vistos:
-        print(f"⚠️ Bloco {j} ignorado (duplicado: {ident})")
         continue
 
-    identificadores_vistos.add(ident)
-    blocos_finais.append(resposta_final)
+    texto_para_llm = formatar_para_llm(bloco)
 
-# Demais páginas
-for i, texto_pagina in enumerate(restantes_paginas, start=2):
-    blocos = extrair_blocos_limpos(texto_pagina)
-    if not blocos:
-        print(f"\n📄 Página {i} ignorada (sem blocos válidos).")
-        continue
+    estrutura_original, resposta_llm = processar_bloco(
+        texto_para_llm,
+        prompt_llm,
+        bloco.get("Secao", "Nenhuma"),
+        preview_identificador=None
+    )
 
-    for j, bloco in enumerate(blocos, start=1):
-        if bloco["tipo"] != "Pergunta" or len(bloco["texto"].strip()) < 10:
-            continue
+    expandidas = _expandir_multi_id(resposta_llm) if resposta_llm else []
 
-        texto_original = bloco["texto"]
-        texto = preparar_texto_para_llm(texto_original)
+    if expandidas:
+        for item in expandidas:
+            ident_item = item.get("Identificador")
+            if not ident_item:
+                continue
 
-        if not bloco_valido(texto):
-            print(f"⚠️ Bloco {j} ignorado (conteúdo de navegação) na página {i}")
-            continue
+            rv_llm  = respostas_validas(item.get("Respostas"))
+            rv_orig = respostas_validas(bloco["EstruturaOriginal"].get("Respostas"))
+            if len(rv_llm) < len(rv_orig):
+                faltantes = [r for r in rv_orig if not any(r.get('valor') == x.get('valor') for x in rv_llm)]
+                rv_llm.extend(faltantes)
+            item["Respostas"] = rv_llm or rv_orig
 
-        print(f"\n🧠 Página {i}, Bloco {j} - texto a enviar ao LLM:")
-        print(texto)
-        print("-" * 40)
-
-        estrutura, resposta_final = processar_bloco(texto, pergunta, secao_geral, preview_pergunta)
-        if not resposta_final:
-            print(f"⚠️ Bloco {j} rejeitado ou inválido (página {i})")
-            guardar_rejeitado(i, j, bloco)
-            continue
-
-        ident = resposta_final["Identificador"].strip()
-        if ident in identificadores_vistos:
-            print(f"⚠️ Bloco {j} ignorado (duplicado: {ident})")
-            continue
-
-        identificadores_vistos.add(ident)
-        blocos_finais.append(resposta_final)
+            if ident_item not in identificadores_vistos:
+                blocos_finais.append(_ordenar_campos(item))
+                identificadores_vistos.add(ident_item)
+    else:
+        if ident not in identificadores_vistos:
+            blocos_finais.append(_ordenar_campos(bloco["EstruturaOriginal"]))  # <--
+            identificadores_vistos.add(ident)
 
 output_path = os.path.join(os.getcwd(), "output_blocos_conciliados.json")
-print(f"\n[DEBUG] Gravando {len(blocos_finais)} blocos em: {output_path}")
 with open(output_path, "w", encoding="utf-8") as f:
     json.dump(blocos_finais, f, indent=2, ensure_ascii=False)
-print("📁 Output final guardado.")
 
-importar_json_para_bd("output_blocos_conciliados.json")
-executar()
+print(f"\n✅ Guardado: {output_path} (total {len(blocos_finais)} blocos)")
+
+try:
+    importar_json_para_bd("output_blocos_conciliados.json")
+except Exception as e:
+    print("⚠️ importar_json_para_bd falhou:", e)
+
+try:
+    executar()
+except Exception as e:
+    print("⚠️ ExcelWriter.executar falhou:", e)

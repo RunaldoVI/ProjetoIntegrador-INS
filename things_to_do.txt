@@ -1,9 +1,4 @@
 #IMPORTANTE PARA FUNCIONALIDADES DO PROGRAMA PRINCIPAL
-- Excels:
-         Quando analisa o pdf retornar um excel prefeito do estilo INS ao utilizador na web para download
-
-- Output do LLM
-        Melhorar o output do LLM 
 
 - Server Ollama
         Meter o ollama num servidor (safety encrypt IP e essas coisas)

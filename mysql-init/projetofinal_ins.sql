@@ -26,7 +26,8 @@ SET time_zone = "+00:00";
 CREATE TABLE `perguntas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `texto` text NOT NULL,
-  `identificador` int NULL,
+  `identificador-pergunta` VARCHAR(32) NULL,
+  `identificador-semantico` int NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -36,7 +37,8 @@ CREATE TABLE `perguntas` (
 CREATE TABLE `respostas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `texto` text NOT NULL,
-  `identificador` int NULL,
+  `identificador-pergunta` VARCHAR(32) NULL,
+  `identificador-semantico` int NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 -- --------------------------------------------------------

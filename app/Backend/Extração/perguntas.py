@@ -3,7 +3,7 @@ import fitz
 import re
 import cv2
 import numpy as np
-from identificadores import texto_a_direita_mesma_altura, texto_a_direita_smart
+from .identificadores import texto_a_direita_mesma_altura, texto_a_direita_smart
 
 # regex para identificar respostas (terminam com número) — só usado no fallback
 REGEX_RESPOSTA = re.compile(r".*(?:[.\u2026_]{2,}.*\d+|[.\u2026_]+ *\d+)\s*$")
