@@ -12,3 +12,8 @@ langdetect
 sentence-transformers
 werkzeug
 opencv-python-headless
+ollama
+qdrant-client
+langchain
+langchain-community
+langchain-ollama

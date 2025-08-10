@@ -1,5 +1,12 @@
 console.log("✅ history.js carregado!");
 
+// 🔐 Verificar login antes de carregar histórico
+const user = JSON.parse(localStorage.getItem("user") || "null");
+if (!user || !user.email) {
+  window.location.href = "sections/login.html";
+  throw new Error("Histórico bloqueado: utilizador não autenticado");
+}
+
 (() => {
   const lista = document.getElementById("pdf-history");
 

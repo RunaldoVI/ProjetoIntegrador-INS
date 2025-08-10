@@ -11,6 +11,28 @@ from .Caps_Detector import first_caps_region, split_blue_q_and_answers
 
 # ---------------- Helpers: limpeza e secção linha-a-linha ----------------
 
+def _singularize_token(tok: str) -> str:
+    """
+    Heurística mínima p/ singular/plural:
+    - remove 's' final se len>3 e não terminar com 'ss'
+    """
+    if len(tok) > 3 and tok.endswith("s") and not tok.endswith("ss"):
+        return tok[:-1]
+    return tok
+
+def _similar_norm_simple(a: str, b: str) -> bool:
+    """
+    Compara duas strings tolerando singular/plural e pequenas diferenças
+    (pontuação/maiúsculas já tratadas por _norm_line).
+    """
+    A = _norm_line(a)
+    B = _norm_line(b)
+    if not A or not B:
+        return False
+    A = " ".join(_singularize_token(t) for t in A.split())
+    B = " ".join(_singularize_token(t) for t in B.split())
+    return A == B
+
 # remove runs de pontos/ellipses/bullets/underscore usados como leaders
 _LEADER_RE = re.compile(r"[.\u2026•·_]{2,}")
 
@@ -77,18 +99,18 @@ def _inferir_secao_por_linhas(lista_perguntas_azuis):
     return bonito, key_top, freq
 
 def _remover_linha_secao(pergunta_texto: str, secao_key_norm: str) -> str:
-    """Remove a primeira linha cuja versão normalizada == secao_key_norm."""
+    """Remove a primeira linha cuja versão seja equivalente à secção
+    após normalização e singularização simples."""
     if not pergunta_texto or not secao_key_norm:
         return pergunta_texto or ""
     linhas = [l.rstrip() for l in pergunta_texto.splitlines()]
     out, removed = [], False
     for l in linhas:
-        if not removed and _norm_line(l) == secao_key_norm:
+        if not removed and _similar_norm_simple(l, secao_key_norm):
             removed = True
             continue
         out.append(l)
     return "\n".join(out).strip()
-
 
 # ---------------- Render preview ----------------
 
