@@ -6,6 +6,10 @@ import subprocess
 import os
 import json
 from user import user_bp
+from Backend.Chatbot.qdrant_query import answer_question
+
+
+CHAT_MODEL = os.getenv("CHAT_MODEL", "mistral")
 
 app = Flask(
     __name__,
@@ -21,6 +25,32 @@ app.register_blueprint(user_bp)
 UPLOAD_FOLDER = '/app/pdfs-excels'
 USERS_FILE = '/app/users.json'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+#-------- ChatBot --------
+
+
+@app.route('/chat-rag', methods=['POST'])
+def chat_rag():
+    try:
+        # Tolerante: não levanta exceção se o JSON vier estranho
+        data = request.get_json(silent=True)
+
+        if data is not None and isinstance(data, dict):
+            q = (data.get('question') or '').strip()
+        else:
+            # fallback: tenta ler como form-urlencoded
+            q = (request.form.get('question') or request.values.get('question') or '').strip()
+
+        if not q:
+            return jsonify({'error': 'Pergunta vazia'}), 400
+
+        topk = int(os.getenv("TOPK", "5"))
+        resp = answer_question(q, k=topk)
+        return jsonify(resp), 200
+
+    except Exception as e:
+        app.logger.exception("Erro em /chat-rag")
+        return jsonify({'error': str(e)}), 500
 
 
 # --- UPLOAD DE PDF ---
@@ -79,7 +109,7 @@ def upload_pdf():
 @app.route('/llm-status', methods=['GET'])
 def llm_status():
     try:
-        response = requests.post("http://ollama:11434/api/show", json={"model": "mistral"}, timeout=5)
+        response = requests.post("http://ollama:11434/api/show", json={"model": CHAT_MODEL}, timeout=5)
         if response.status_code == 200:
             data = response.json()
             pronto = "modelfile" in data

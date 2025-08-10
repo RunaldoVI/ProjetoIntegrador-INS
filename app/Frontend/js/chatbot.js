@@ -1,0 +1,224 @@
+
+/**
+ * Chatbot Bubble Widget
+ * Minimal drop-in script. Point CONFIG.apiUrl to your backend.
+ */
+
+export const ChatbotBubble = (() => {
+  const CONFIG = {
+    apiUrl: "/api/chat", // change to your endpoint
+    headers: { "Content-Type": "application/json" },
+    simulateStreaming: true,
+  };
+
+  const qs = (sel, root = document) => root.querySelector(sel);
+  const els = {};
+
+  function markup() {
+    return `
+    <button class="cb-launcher" id="cbLauncher" aria-label="Abrir chatbot">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+      </svg>
+      <span class="cb-badge" id="cbBadge">1</span>
+    </button>
+
+    <section class="cb-panel" id="cbPanel" role="dialog" aria-label="Chatbot" aria-modal="false">
+      <header class="cb-header" id="cbHeader">
+        <div class="cb-avatar" aria-hidden="true">AI</div>
+        <div>
+          <div class="cb-title">Assistente</div>
+          <div class="cb-subtitle">Online agora</div>
+        </div>
+        <div class="cb-spacer"></div>
+        <button class="cb-btn" id="cbMinimize" title="Minimizar" aria-label="Minimizar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+        </button>
+        <button class="cb-btn" id="cbClose" title="Fechar" aria-label="Fechar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </header>
+
+      <main class="cb-body" id="cbBody" tabindex="0">
+        <div class="cb-message">
+          <div class="cb-bubble">Olá! 👋
+Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quiseres.</div>
+        </div>
+      </main>
+
+      <footer class="cb-footer">
+        <input id="cbInput" class="cb-input" type="text" placeholder="Escreve aqui e carrega Enter…" aria-label="Mensagem para o assistente" />
+        <button id="cbSend" class="cb-send">Enviar</button>
+      </footer>
+    </section>
+    `;
+  }
+
+  function addMessage(content, who = "bot") {
+    const wrap = document.createElement("div");
+    wrap.className = `cb-message ${who === "you" ? "you" : ""}`;
+
+    const bubble = document.createElement("div");
+    bubble.className = "cb-bubble";
+    bubble.textContent = content;
+
+    const time = document.createElement("div");
+    time.className = "cb-time";
+    time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(time);
+    els.body.appendChild(wrap);
+    els.body.scrollTop = els.body.scrollHeight;
+  }
+
+  function addTyping() {
+    const wrap = document.createElement("div");
+    wrap.className = "cb-message";
+    wrap.id = "cbTyping";
+    const bubble = document.createElement("div");
+    bubble.className = "cb-bubble";
+    bubble.innerHTML = '<span class="cb-typing" aria-label="A escrever"><span></span><span></span><span></span></span>';
+    wrap.appendChild(bubble);
+    els.body.appendChild(wrap);
+    els.body.scrollTop = els.body.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = qs("#cbTyping");
+    if (t) t.remove();
+  }
+
+  function togglePanel(show) {
+    const visible = show ?? (els.panel.style.display === "none" || els.panel.style.display === "");
+    if (visible) {
+      els.panel.style.display = "flex";
+      els.body.scrollTop = els.body.scrollHeight;
+      els.badge.style.display = "none";
+      els.input.focus();
+    } else {
+      els.panel.style.display = "none";
+    }
+  }
+
+  async function sendMessage() {
+    const text = els.input.value.trim();
+    if (!text) return;
+    els.input.value = "";
+    addMessage(text, "you");
+
+    if (CONFIG.simulateStreaming) addTyping();
+
+    try {
+      const res = await fetch(CONFIG.apiUrl, {
+        method: "POST",
+        headers: CONFIG.headers,
+        body: JSON.stringify({ message: text }),
+      });
+
+      let reply = "";
+      const contentType = res.headers.get("content-type") || "";
+
+      if (contentType.includes("text/event-stream")) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let acc = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          acc += decoder.decode(value, { stream: true });
+        }
+        reply = acc.replace(/^data:\s*/gm, "").trim();
+      } else if (contentType.includes("application/json")) {
+        const data = await res.json();
+        reply = data.reply || JSON.stringify(data);
+      } else {
+        reply = await res.text();
+      }
+
+      if (CONFIG.simulateStreaming) removeTyping();
+      addMessage(reply, "bot");
+    } catch (e) {
+      if (CONFIG.simulateStreaming) removeTyping();
+      addMessage("Ups, houve um erro a contactar o servidor. Verifica o endpoint em CONFIG.apiUrl.", "bot");
+      console.error(e);
+    }
+  }
+
+  function pingBadge() {
+    if (els.panel.style.display === "none" || els.panel.style.display === "") {
+      els.badge.style.display = "flex";
+      els.badge.textContent = "1";
+    }
+  }
+
+  function makeDraggable() {
+    let isDown = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+    const panel = els.panel, handle = els.header;
+
+    const getRect = () => panel.getBoundingClientRect();
+
+    handle.addEventListener("pointerdown", (e) => {
+      if (panel.classList.contains("minimized")) return;
+      isDown = true; panel.setPointerCapture(e.pointerId);
+      const r = getRect();
+      startX = e.clientX; startY = e.clientY;
+      startLeft = r.left; startTop = r.top;
+    });
+
+    window.addEventListener("pointermove", (e) => {
+      if (!isDown) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      panel.style.right = "auto"; panel.style.bottom = "auto";
+      const rect = getRect();
+      panel.style.left = Math.max(8, Math.min(window.innerWidth - rect.width - 8, startLeft + dx)) + "px";
+      panel.style.top = Math.max(8, Math.min(window.innerHeight - rect.height - 8, startTop + dy)) + "px";
+    });
+
+    window.addEventListener("pointerup", () => { isDown = false; });
+  }
+
+  function attachEvents(root) {
+    els.launcher.addEventListener("click", () => togglePanel(true));
+    els.close.addEventListener("click", () => togglePanel(false));
+    els.minimize.addEventListener("click", () => els.panel.classList.toggle("minimized"));
+    els.send.addEventListener("click", sendMessage);
+    els.input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    setTimeout(() => { pingBadge(); }, 2000);
+  }
+
+  function mount(target = document.body) {
+    const container = document.createElement("div");
+    container.id = "cb-root";
+    container.innerHTML = markup();
+    target.appendChild(container);
+
+    // cache elements
+    els.launcher = qs("#cbLauncher", container);
+    els.badge = qs("#cbBadge", container);
+    els.panel = qs("#cbPanel", container);
+    els.header = qs("#cbHeader", container);
+    els.body = qs("#cbBody", container);
+    els.input = qs("#cbInput", container);
+    els.send = qs("#cbSend", container);
+    els.close = qs("#cbClose", container);
+    els.minimize = qs("#cbMinimize", container);
+
+    els.panel.style.display = "none";
+
+    makeDraggable();
+    attachEvents(container);
+  }
+
+  function setConfig(partial) {
+    Object.assign(CONFIG, partial || {});
+  }
+
+  return { mount, setConfig };
+})();

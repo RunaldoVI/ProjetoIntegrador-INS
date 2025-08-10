@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/theme-switch.css" />
   <link rel="stylesheet" href="css/nav.css" />
   <link rel="stylesheet" href="css/auth-buttons.css" />
+  <link rel="stylesheet" href="css/chatbot.css">
 
   <script>
     tailwind.config = {
@@ -111,6 +112,15 @@
   <script src="js/nav.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
+  <script type="module">
+  import { ChatbotBubble } from './js/chatbot.js';
+  ChatbotBubble.mount();
+  ChatbotBubble.setConfig({
+    apiUrl: "/api/chat", // altera para o teu endpoint backend
+    headers: { "Content-Type": "application/json" },
+    simulateStreaming: true
+  });
+</script>
 
 <!-- Overlay de carregamento LLM com visual premium -->
 <div id="llm-loading-overlay" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center hidden">

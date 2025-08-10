@@ -13,6 +13,16 @@ services:
     environment:
       - OLLAMA_DEBUG=error
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"   # REST
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+
   mysql:
     image: mysql:8.0
     container_name: database-mysql
@@ -55,14 +65,24 @@ services:
     restart: always
     depends_on:
       - projeto
+      - qdrant           # << agora a API só arranca depois do Qdrant
     volumes:
       - ./app:/app
       - ./pdfs-excels:/app/pdfs-excels
-      - ollama-data:/root/.ollama
       - ./ollama-progress.log:/app/ollama-progress.log
       - ./app/Frontend/static:/app/Frontend/static
+     # - ollama-data:/root/.ollama   # (opcional; não é necessário para usar a API do Ollama)
     env_file:
       - .env
+    environment:
+      PYTHONPATH: /app
+      # URLs internas na rede do compose
+      OLLAMA_BASE_URL: http://ollama:11434
+      QDRANT_URL: http://qdrant:6333
+      # Modelos que vamos usar no Chatbot (ajusta se quiseres)
+      CHAT_MODEL: mistral
+      EMB_MODEL: nomic-embed-text
+      TOPK: "5"
 
   frontend:
     image: nginx:latest
@@ -79,3 +99,4 @@ services:
 volumes:
   ollama-data:
   mysql_data:
+  qdrant_data:

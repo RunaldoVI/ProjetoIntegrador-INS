@@ -3,21 +3,9 @@
 - Server Ollama
         Meter o ollama num servidor (safety encrypt IP e essas coisas)
 
-#1-Inserir Na base de dados respostas e perguntas
-
-#2-Verificar se nova pergunta é uma versão da que ja existe ou uma nova
-
 #Inserir o INS Template a partir da base de dados
 
-#Base Dados 1-Pergunta tem varias respostas, 2-Respotas podem ter varias perguntas mas a resposta tem de ser Unica tal como a pergunta, 
-
 #Criar questionarios a partir da base de dados
-
-#Blibioteca Python PDF - FITZ
-
-#2 estruturacao dos pdf´s
-
-conseguir estrurar bem qualquer pdf que inserirmos no codigo ProjetoFinal.py
 
 
 LLM Mudar Modelo FIcheiros:
