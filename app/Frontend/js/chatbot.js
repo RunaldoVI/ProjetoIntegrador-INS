@@ -14,45 +14,55 @@ export const ChatbotBubble = (() => {
   const qs = (sel, root = document) => root.querySelector(sel);
   const els = {};
 
-  function markup() {
-    return `
-    <button class="cb-launcher" id="cbLauncher" aria-label="Abrir chatbot">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
-      </svg>
-      <span class="cb-badge" id="cbBadge">1</span>
-    </button>
+ function markup() {
+  return `
+  <button class="cb-launcher" id="cbLauncher" aria-label="Abrir chatbot">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+    </svg>
+    <span class="cb-badge" id="cbBadge">1</span>
+  </button>
 
-    <section class="cb-panel" id="cbPanel" role="dialog" aria-label="Chatbot" aria-modal="false">
-      <header class="cb-header" id="cbHeader">
-        <div class="cb-avatar" aria-hidden="true">AI</div>
-        <div>
-          <div class="cb-title">Assistente</div>
-          <div class="cb-subtitle">Online agora</div>
-        </div>
-        <div class="cb-spacer"></div>
-        <button class="cb-btn" id="cbMinimize" title="Minimizar" aria-label="Minimizar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
-        </button>
-        <button class="cb-btn" id="cbClose" title="Fechar" aria-label="Fechar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
-      </header>
+  <section class="cb-panel" id="cbPanel" role="dialog" aria-label="Chatbot" aria-modal="false">
+    <header class="cb-header" id="cbHeader">
+      <div class="cb-avatar" aria-hidden="true">AI</div>
+      <div>
+        <div class="cb-title">Assistente</div>
+        <div class="cb-subtitle">Online agora</div>
+      </div>
+      <div class="cb-spacer"></div>
+      <button class="cb-btn" id="cbMinimize" title="Minimizar" aria-label="Minimizar">
+        <svg class="cb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14"/></svg>
+      </button>
+      <button class="cb-btn" id="cbClose" title="Fechar" aria-label="Fechar">
+        <svg class="cb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </header>
 
-      <main class="cb-body" id="cbBody" tabindex="0">
-        <div class="cb-message">
-          <div class="cb-bubble">Olá! 👋
+    <main class="cb-body" id="cbBody" tabindex="0" aria-live="polite">
+      <div class="cb-message">
+        <div class="cb-bubble">Olá! 👋
 Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quiseres.</div>
-        </div>
-      </main>
+      </div>
+    </main>
 
-      <footer class="cb-footer">
+    <footer class="cb-footer">
+      <div class="cb-suggestions" id="cbSuggestions">
+        <span class="cb-chip" data-q="O que posso fazer aqui?">O que posso fazer aqui?</span>
+        <span class="cb-chip" data-q="Como mudar para modo escuro?">Como mudar para modo escuro?</span>
+        <span class="cb-chip" data-q="Onde vejo os PDFs ingeridos?">Onde vejo os PDFs ingeridos?</span>
+      </div>
+      <div class="cb-input-wrap">
+        <svg class="cb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.44 11.05 4.12 3.2a1 1 0 0 0-1.36 1.28l3.06 7.16a1 1 0 0 1 0 .73l-3.06 7.16a1 1 0 0 0 1.36 1.28l17.32-7.85a1 1 0 0 0 0-1.91Z"/></svg>
         <input id="cbInput" class="cb-input" type="text" placeholder="Escreve aqui e carrega Enter…" aria-label="Mensagem para o assistente" />
-        <button id="cbSend" class="cb-send">Enviar</button>
-      </footer>
-    </section>
-    `;
-  }
+        <button id="cbSend" class="cb-send" title="Enviar" aria-label="Enviar">
+          <svg class="cb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </footer>
+  </section>`;
+}
 
   function addMessage(content, who = "bot") {
     const wrap = document.createElement("div");
@@ -104,7 +114,7 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
   async function sendMessage() {
     const text = els.input.value.trim();
     if (!text) return;
-    els.input.value = "";
+    els.input.disabled = "false";
     addMessage(text, "you");
 
     if (CONFIG.simulateStreaming) addTyping();
@@ -214,6 +224,15 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
 
     makeDraggable();
     attachEvents(container);
+
+    // quick replies
+qs("#cbSuggestions", container)?.addEventListener("click", (e) => {
+  const chip = e.target.closest(".cb-chip");
+  if (!chip) return;
+  els.input.value = chip.getAttribute("data-q") || chip.textContent.trim();
+  els.input.focus();
+});
+
   }
 
   function setConfig(partial) {

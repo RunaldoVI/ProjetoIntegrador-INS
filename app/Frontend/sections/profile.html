@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <!-- Estilo personalizado -->
-  <link rel="stylesheet" href="../css/profile.css" />
+  <link rel="stylesheet" href="../css/profile.css?v=2" />
 
   <!-- Tema -->
   <script>
@@ -34,9 +34,7 @@
             accent: "#3b82f6",
             highlight: "#334155",
           },
-          fontFamily: {
-            sans: ["Inter", "sans-serif"],
-          },
+          fontFamily: { sans: ["Inter", "sans-serif"] },
         },
       },
     };
@@ -44,7 +42,7 @@
 </head>
 
 <body class="bg-lightBg dark:bg-darkBg text-lightText dark:text-darkText font-sans p-4 transition-colors">
-  <section class="max-w-4xl mx-auto space-y-8 animate-fade-in">
+  <section class="max-w-4xl mx-auto space-y-8">
     <!-- Avatar + Nome -->
     <div class="flex flex-col items-center gap-4">
       <img
@@ -90,70 +88,106 @@
     </div>
   </section>
 
-<div class="text-center">
-  <button id="btnEditarPerfil" class="mt-4 inline-flex items-center px-6 py-2 rounded-full bg-lightAccent text-white hover:bg-blue-600 transition font-medium shadow">
-    <i class="fas fa-edit mr-2"></i> Editar Perfil
-  </button>
-</div>
-
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 w-full h-full">
-  <div id="editModalContent" class="bg-darkBg border border-gray-700 p-8 rounded-2xl shadow-2xl w-full max-w-lg space-y-5">
-    <h2 class="text-2xl font-bold text-center text-white">Editar Perfil</h2>
-
-    <div class="space-y-3">
-  <div>
-    <label for="editNome" class="block text-sm font-medium text-gray-300 mb-1">Nome</label>
-    <input id="editNome" type="text" placeholder="Ex: João Silva"
-      class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-darkCard text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+  <div class="text-center">
+    <button id="btnEditarPerfil" class="mt-4 inline-flex items-center px-6 py-2 rounded-full bg-lightAccent text-white hover:bg-blue-600 transition font-medium shadow">
+      <i class="fas fa-edit mr-2"></i> Editar Perfil
+    </button>
   </div>
 
-  <!-- Password -->
-  <div>
-    <label for="editPassword" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
-    <div class="relative">
-      <input id="editPassword" type="password" placeholder="••••••••"
-        class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-darkCard text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" />
-      <button type="button" onclick="togglePassword()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
-        <i class="fa fa-eye" id="togglePasswordIcon"></i>
-      </button>
+  <!-- Modal -->
+<div id="editModal" class="fixed inset-0 hidden z-50 w-full h-full">
+  <!-- overlay -->
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+  <!-- painel -->
+  <div class="relative z-10 w-full h-full flex items-center justify-center px-4"
+       role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="editModalContent"
+         class="bg-lightCard dark:bg-darkCard border border-lightHighlight dark:border-gray-700
+                p-8 rounded-2xl shadow-2xl w-full max-w-lg space-y-5">
+      <h2 id="modal-title" class="text-2xl font-bold text-center text-gray-900 dark:text-white">
+        Editar Perfil
+      </h2>
+
+      <div class="space-y-3">
+        <!-- Nome -->
+        <div>
+          <label for="editNome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome</label>
+          <input id="editNome" type="text" placeholder="Ex: João Silva"
+                 class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-blue-500
+                        dark:border-gray-600 dark:bg-darkCard dark:text-white" />
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="editPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+          <div class="relative">
+            <input id="editPassword" type="password" placeholder="••••••••"
+                   class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 pr-10
+                          focus:outline-none focus:ring-2 focus:ring-blue-500
+                          dark:border-gray-600 dark:bg-darkCard dark:text-white" />
+            <button type="button" onclick="togglePassword()"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
+                    aria-label="Mostrar/ocultar password">
+              <i class="fa fa-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Email (readonly) -->
+        <div>
+          <label for="editEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+          <input id="editEmail" type="email" readonly
+                 class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed
+                        dark:border-gray-600 dark:bg-darkCard dark:text-gray-400" />
+        </div>
+
+        <!-- Função -->
+        <div>
+          <label for="editFuncao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Função</label>
+          <input id="editFuncao" type="text"
+                 class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-blue-500
+                        dark:border-gray-600 dark:bg-darkCard dark:text-white" />
+        </div>
+
+        <!-- Instituição -->
+        <div>
+          <label for="editInstituicao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instituição</label>
+          <input id="editInstituicao" type="text"
+                 class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900
+                        focus:outline-none focus:ring-2 focus:ring-blue-500
+                        dark:border-gray-600 dark:bg-darkCard dark:text-white" />
+        </div>
+
+        <!-- Avatar -->
+        <div>
+          <label for="editAvatar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Avatar</label>
+          <input id="editAvatar" type="file"
+                 class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900
+                        file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
+                        file:bg-blue-600 file:text-white hover:file:bg-blue-700
+                        dark:border-gray-600 dark:bg-darkCard dark:text-white" />
+          <img id="avatarPreview" class="w-24 h-24 rounded-full object-cover mt-2" />
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <button id="btnCancelar"
+                  class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300
+                         dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 text-sm transition">
+            Cancelar
+          </button>
+          <button id="btnGuardar"
+                  class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm transition">
+            Guardar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- Email (readonly) -->
-  <div>
-    <label for="editEmail" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-    <input id="editEmail" type="email" placeholder="seuemail@exemplo.com" readonly
-      class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-darkCard text-gray-400 cursor-not-allowed" />
-  </div>
-
-  <!-- Função -->
-  <div>
-    <label for="editFuncao" class="block text-sm font-medium text-gray-300 mb-1">Função</label>
-    <input id="editFuncao" type="text" placeholder="Ex: Estudante"
-      class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-darkCard text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
-  </div>
-
-  <!-- Instituição -->
-  <div>
-    <label for="editInstituicao" class="block text-sm font-medium text-gray-300 mb-1">Instituição</label>
-    <input id="editInstituicao" type="text" placeholder="Ex: Universidade XYZ"
-      class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-darkCard text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
-  </div>
-
-  <!-- Avatar Upload -->
-  <div>
-    <label for="editAvatar" class="block text-sm font-medium text-gray-300 mb-1">Avatar</label>
-    <input id="editAvatar" type="file"
-      class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-darkCard text-white focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
-    <img id="avatarPreview" class="w-24 h-24 rounded-full object-cover mt-2" />
-    </div>
-    <div class="flex justify-end gap-3 pt-4">
-      <button id="btnCancelar" class="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white text-sm transition">Cancelar</button>
-      <button id="btnGuardar" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm transition">Guardar</button>
-    </div>
-  </div>
 </div>
-</div>
+
   <!-- Scripts -->
   <script src="../js/toast.js"></script>
   <script src="../js/theme.js"></script>

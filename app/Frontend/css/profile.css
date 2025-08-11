@@ -1,47 +1,68 @@
+/* =========================
+   Perfil — estilos globais
+   ========================= */
+
 /* Reset de links */
 a {
   text-decoration: none;
   color: inherit;
 }
+a:hover { text-decoration: underline; }
 
-/* Espaçamento entre linhas melhorado para listas */
-ul {
-  line-height: 1.6;
+/* Listas com melhor legibilidade */
+ul { line-height: 1.6; }
+
+/* Títulos com tracking suave */
+h2, h3 { letter-spacing: -0.5px; }
+
+/* Paleta de acento (mantém alinhada com Tailwind config) */
+:root{
+  --accent: #3b82f6;     /* azul claro */
+  --accent-dark: #7dd3fc;/* azul no dark */
 }
 
-/* Estilo suave para títulos */
-h2, h3 {
-  letter-spacing: -0.5px;
-}
+/* Ícones em títulos */
+h3 i { color: var(--accent); }
+.dark h3 i { color: var(--accent-dark); }
 
-/* Ícones dentro de títulos */
-h3 i {
-  color: #3b82f6;
-}
+/* Classe utilitária de acento */
+.text-accent { color: var(--accent); }
+.dark .text-accent { color: var(--accent-dark); }
 
-/* Cores personalizadas (herdadas do Tailwind config) */
-.text-accent {
-  color: #3b82f6;
-}
-
-/* Botão redondo de edição */
+/* Botão redondo de edição (hover suave) */
 button.rounded-full {
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
-
 button.rounded-full:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(59, 130, 246, 0.4);
 }
+/* sombras ligeiramente diferentes no dark */
+.dark button.rounded-full {
+  box-shadow: 0 4px 10px rgba(125, 211, 252, 0.25);
+}
+.dark button.rounded-full:hover {
+  box-shadow: 0 6px 14px rgba(125, 211, 252, 0.35);
+}
+
+/* Animação simples (usada na secção) */
+.animate-fade-in {
+  animation: profile-fade-in 300ms ease-out both;
+}
+@keyframes profile-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 /* Responsividade */
 @media (max-width: 640px) {
-  section {
-    padding: 1rem;
-  }
+  section { padding: 1rem; }
+  .grid-cols-2 { grid-template-columns: 1fr !important; }
+}
 
-  .grid-cols-2 {
-    grid-template-columns: 1fr !important;
-  }
+/* (Opcional) classe para painel de modal, caso uses em JS/CSS */
+.modal-panel{
+  /* só utilitária – a cor de fundo já vem do HTML via Tailwind */
+  border-radius: 1rem;
 }
