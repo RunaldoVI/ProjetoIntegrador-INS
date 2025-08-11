@@ -1,118 +1,105 @@
 /* === SECTION: SOBRE O PROJETO === */
 
-#section-about {
-  scroll-margin-top: 100px;
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-  color: #374151; /* gray-700 */
+/* Paleta por defeito (claro) */
+:root{
+  --about-fg:#374151;            /* gray-700 */
+  --about-h1:#1f2937;            /* gray-800 */
+  --about-h2:#1f2937;            /* gray-800 */
+  --flip-front-bg:#ffffff;
+  --flip-front-fg:#1f2937;
+  --flip-back-bg:#f3f4f6;
+  --flip-back-fg:#374151;
 }
 
-@media (prefers-color-scheme: dark) {
-  #section-about {
-    color: #d1d5db; /* gray-300 */
-  }
+/* Overrides quando o site está em dark (classe .dark no <html> ou <body>) */
+.dark{
+  --about-fg:#d1d5db;            /* gray-300 */
+  --about-h1:#f3f4f6;
+  --about-h2:#f9fafb;
+  --flip-front-bg:#1f2937;
+  --flip-front-fg:#f3f4f6;
+  --flip-back-bg:#374151;
+  --flip-back-fg:#f3f4f6;
 }
 
-#section-about h2 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 2.5rem;
-  color: #1f2937;
+#section-about{
+  scroll-margin-top:100px;
+  padding-top:3rem;
+  padding-bottom:3rem;
+  color:var(--about-fg);
 }
 
-@media (prefers-color-scheme: dark) {
-  #section-about h2 {
-    color: #f3f4f6;
-  }
+#section-about h2{
+  font-size:2.25rem;
+  font-weight:700;
+  text-align:center;
+  margin-bottom:2.5rem;
+  color:var(--about-h1);
 }
 
-#section-about h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: #1f2937;
-}
-
-@media (prefers-color-scheme: dark) {
-  #section-about h3 {
-    color: #f9fafb;
-  }
+#section-about h3{
+  font-size:1.5rem;
+  font-weight:600;
+  margin-bottom:0.75rem;
+  color:var(--about-h2);
 }
 
 #section-about p,
-#section-about li {
-  line-height: 1.7;
-  font-size: 1rem;
-  text-align: justify;
+#section-about li{
+  line-height:1.7;
+  font-size:1rem;
+  text-align:justify;
 }
 
 /* === LISTAS === */
-#section-about ul {
-  padding-left: 1.25rem;
-  margin-top: 0.5rem;
+#section-about ul{
+  padding-left:1.25rem;
+  margin-top:0.5rem;
 }
-
-#section-about li {
-  margin-bottom: 0.5rem;
-}
+#section-about li{ margin-bottom:0.5rem; }
 
 /* === FLIP CARDS: MISSÃO / VISÃO === */
 
-.perspective {
-  perspective: 1000px;
+.perspective{ perspective:1000px; }
+
+.flip-card{
+  position:relative;
+  width:100%;
+  height:12rem;
+  transition:transform 0.6s;
+  transform-style:preserve-3d;
+}
+.group:hover .flip-card{ transform:rotateY(180deg); }
+
+.flip-face{
+  position:absolute;
+  width:100%;
+  height:100%;
+  padding:1.5rem;
+  border-radius:0.75rem;
+  backface-visibility:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:justify;
+  font-size:0.95rem;
+  box-shadow:0 4px 8px rgba(0,0,0,0.1);
 }
 
-.flip-card {
-  position: relative;
-  width: 100%;
-  height: 12rem;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.group:hover .flip-card {
-  transform: rotateY(180deg);
-}
-
-.flip-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  backface-visibility: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: justify;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Frente */
-.flip-front {
-  background-color: #ffffff;
-  color: #1f2937;
-}
-
-@media (prefers-color-scheme: dark) {
-  .flip-front {
-    background-color: #1f2937;
-    color: #f3f4f6;
-  }
+/* Frente (forçado por variáveis) */
+#section-about .flip-front{
+  background-color:var(--flip-front-bg) !important;
+  color:var(--flip-front-fg) !important;
 }
 
 /* Verso */
-.flip-back {
-  background-color: #f3f4f6;
-  color: #374151;
-  transform: rotateY(180deg);
+#section-about .flip-back{
+  background-color:var(--flip-back-bg) !important;
+  color:var(--flip-back-fg) !important;
+  transform:rotateY(180deg);
 }
 
-@media (prefers-color-scheme: dark) {
-  .flip-back {
-    background-color: #374151;
-    color: #f3f4f6;
-  }
+/* Preferências de movimento */
+@media (prefers-reduced-motion: reduce){
+  .flip-card{ transition:none; }
 }

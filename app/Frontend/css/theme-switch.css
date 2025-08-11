@@ -94,3 +94,48 @@
 .modo-switch:checked::before {
   transform: translateX(20px);
 }
+/* --- Forçar flip por estado do site (classe .dark no <html>) --- */
+
+/* Site CLARO */
+html:not(.dark) #section-about .flip-front{
+  background:#ffffff !important; color:#1f2937 !important;
+}
+html:not(.dark) #section-about .flip-back{
+  background:#f3f4f6 !important; color:#374151 !important;
+}
+
+/* Site ESCURO */
+html.dark #section-about .flip-front{
+  background:#1f2937 !important; color:#f3f4f6 !important;
+}
+html.dark #section-about .flip-back{
+  background:#374151 !important; color:#f3f4f6 !important;
+}
+
+/* Se o SO estiver em dark mas o site em CLARO, mantém CLARO */
+@media (prefers-color-scheme: dark){
+  html:not(.dark) #section-about .flip-front{
+    background:#ffffff !important; color:#1f2937 !important;
+  }
+  html:not(.dark) #section-about .flip-back{
+    background:#f3f4f6 !important; color:#374151 !important;
+  }
+}
+/* Texto dos flip-cards */
+html:not(.dark) #section-about .flip-front,
+html:not(.dark) #section-about .flip-front *{
+  color:#111827 !important; /* gray-900 (preto) */
+}
+
+html:not(.dark) #section-about .flip-back,
+html:not(.dark) #section-about .flip-back *{
+  color:#374151 !important; /* gray-700 */
+}
+
+html.dark #section-about .flip-front,
+html.dark #section-about .flip-front *,
+html.dark #section-about .flip-back,
+html.dark #section-about .flip-back *{
+  color:#f3f4f6 !important; /* texto claro no dark */
+}
+

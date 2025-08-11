@@ -2,8 +2,10 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Projeto Integrador INS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projeto Integrador INS — Sobre</title>
+  <meta name="description" content="Plataforma académica para ingestão, análise e visualização de PDFs, com interface moderna, exportação para Excel e processamento semântico." />
+  <meta name="theme-color" content="#0f172a" />
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,118 +13,136 @@
   <!-- Estilo personalizado -->
   <link rel="stylesheet" href="../css/about.css" />
 </head>
-<body class="bg-white dark:bg-gray-900">
+<body class="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+<main id="content" class="px-4 py-12">
+  <section id="section-about" class="section">
+    <h1 class="text-4xl font-bold text-center mb-10 text-gray-900 dark:text-gray-100">
+      Sobre o Projeto
+    </h1>
 
-<section id="section-about" class="section px-4 py-12">
-  <h2 class="text-4xl font-bold text-center mb-10 text-gray-800 dark:text-gray-100">Sobre o Projeto</h2>
+    <div class="max-w-5xl mx-auto space-y-10 leading-relaxed text-justify">
+      <p class="text-lg">
+        O <strong>Projeto Integrador INS</strong> é uma iniciativa académica interdisciplinar que transforma conhecimento teórico em soluções práticas. A plataforma permite ingestão, análise e visualização de ficheiros PDF de forma intuitiva, eficiente e acessível.
+      </p>
 
-  <div class="max-w-5xl mx-auto space-y-10 text-gray-700 dark:text-gray-300 text-justify leading-relaxed">
+      <!-- MISSÃO & VISÃO COM FLIP ACESSÍVEL -->
+      <div class="grid sm:grid-cols-2 gap-8">
+        <!-- Missão -->
+        <div class="perspective group">
+          <button type="button" class="flip-card w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
+                  aria-expanded="false" data-open="false">
+            <div class="flip-face flip-front rounded-xl p-6 bg-gray-50 dark:bg-gray-800 shadow">
+              <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">🎯 Missão</h2>
+            </div>
+            <div class="flip-face flip-back rounded-xl p-6 bg-white dark:bg-gray-800 shadow text-gray-700 dark:text-gray-300">
+              Aplicar conhecimentos académicos para desenvolver uma solução funcional que otimize o manuseio e a análise de documentos digitais.
+            </div>
+          </button>
+          <p class="sr-only" id="missao-desc">Cartão com conteúdo alternável sobre a missão do projeto.</p>
+        </div>
 
-    <p class="text-lg">
-      O <strong>Projeto Integrador INS</strong> é uma iniciativa acadêmica interdisciplinar que visa transformar conhecimentos teóricos em soluções práticas. A plataforma foi desenvolvida para realizar a ingestão, análise e visualização de arquivos PDF de forma intuitiva, eficiente e acessível.
-    </p>
-
-    <!-- MISSÃO & VISÃO COM FLIP -->
-    <div class="grid sm:grid-cols-2 gap-8">
-      <!-- Missão -->
-      <div class="perspective group">
-        <div class="flip-card">
-          <div class="flip-face flip-front">
-            <h3 class="text-2xl font-semibold">🎯 Missão</h3>
-          </div>
-          <div class="flip-face flip-back">
-            Aplicar conhecimentos acadêmicos para desenvolver uma solução funcional que otimize o manuseio e a análise de documentos digitais.
-          </div>
+        <!-- Visão -->
+        <div class="perspective group">
+          <button type="button" class="flip-card w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
+                  aria-expanded="false" data-open="false">
+            <div class="flip-face flip-front rounded-xl p-6 bg-gray-50 dark:bg-gray-800 shadow">
+              <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">🌟 Visão</h2>
+            </div>
+            <div class="flip-face flip-back rounded-xl p-6 bg-white dark:bg-gray-800 shadow text-gray-700 dark:text-gray-300">
+              Ser uma referência na integração de competências técnicas em contextos educacionais, com impacto positivo e aplicabilidade real.
+            </div>
+          </button>
+          <p class="sr-only" id="visao-desc">Cartão com conteúdo alternável sobre a visão do projeto.</p>
         </div>
       </div>
 
-      <!-- Visão -->
-      <div class="perspective group">
-        <div class="flip-card">
-          <div class="flip-face flip-front">
-            <h3 class="text-2xl font-semibold">🌟 Visão</h3>
-          </div>
-          <div class="flip-face flip-back">
-            Ser um projeto referência em integração de competências técnicas em ambientes educacionais, com impacto positivo e aplicabilidade real.
-          </div>
-        </div>
-      </div>
+      <!-- Funcionalidades -->
+      <section aria-labelledby="features-title">
+        <h2 id="features-title" class="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">⚙️ Funcionalidades</h2>
+        <ul class="list-disc list-inside space-y-1 pl-4">
+          <li>📥 Upload e processamento inteligente de ficheiros PDF</li>
+          <li>🌓 Interface moderna com suporte a modo claro e escuro</li>
+          <li>🕓 Histórico de documentos ingeridos</li>
+          <li>🧠 Simulação de análise semântica com retorno visual</li>
+          <li>📊 Exportação de resultados estruturados (Excel)</li>
+          <li>🔐 Acesso autenticado com área de perfil</li>
+        </ul>
+      </section>
+
+      <!-- Tecnologias -->
+      <section aria-labelledby="tech-title">
+        <h2 id="tech-title" class="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">💻 Tecnologias Utilizadas</h2>
+        <p>Foco em desempenho, escalabilidade e experiência do utilizador:</p>
+        <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
+          <li><strong>React</strong> e <strong>Tailwind CSS</strong> (Frontend)</li>
+          <li><strong>Node.js</strong> e <strong>Express</strong> (API)</li>
+          <li><strong>MySQL</strong> (Base de dados relacional)</li>
+          <li><strong>Ollama</strong> + <strong>LLM Mistral</strong> (Processamento semântico)</li>
+          <li><strong>Docker</strong> e <strong>Docker Compose</strong> (Orquestração de contentores)</li>
+        </ul>
+      </section>
     </div>
 
-    <!-- Funcionalidades -->
-    <div>
-      <h3 class="text-2xl font-semibold mb-3 text-gray-800 dark:text-white">⚙️ Funcionalidades</h3>
-      <ul class="list-disc list-inside space-y-1 pl-4">
-        <li>📥 Upload e processamento inteligente de arquivos PDF</li>
-        <li>🌓 Interface moderna com suporte a tema claro e escuro</li>
-        <li>🕓 Histórico de documentos ingeridos</li>
-        <li>🧠 Simulação de análise semântica com retorno visual</li>
-        <li>📊 Exportação de resultados estruturados (formato Excel)</li>
-        <li>🔐 Acesso autenticado com área de perfil</li>
-      </ul>
+    <!-- Equipa -->
+    <h2 class="text-3xl font-bold text-center mt-20 mb-10 text-gray-900 dark:text-white">👥 Nossa Equipa</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+      <!-- Rodrigo Vicente -->
+      <figure class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+        <img src="../assets/foto_vicente.png" alt="Fotografia de Rodrigo Vicente" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300"
+             loading="lazy" decoding="async" width="640" height="256">
+        <figcaption class="absolute inset-0 flex flex-col items-center justify-center bg-black/70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+          <h3 class="text-white text-xl font-bold">Rodrigo Vicente</h3>
+          <p class="text-gray-200 text-sm mt-1">Desenvolvedor Front-End</p>
+          <p class="text-gray-100 text-xs mt-2">Interface, responsividade e experiência do utilizador.</p>
+        </figcaption>
+      </figure>
+
+      <!-- João Custódio -->
+      <figure class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+        <img src="../assets/foto_joao.png" alt="Fotografia de João Custódio" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300"
+             loading="lazy" decoding="async" width="640" height="256">
+        <figcaption class="absolute inset-0 flex flex-col items-center justify-center bg-black/70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+          <h3 class="text-white text-xl font-bold">João Custódio</h3>
+          <p class="text-gray-200 text-sm mt-1">Desenvolvedor Front-End</p>
+          <p class="text-gray-100 text-xs mt-2">Funcionalidades visuais, acessibilidade e temas.</p>
+        </figcaption>
+      </figure>
+
+      <!-- Tomás Ribalonga -->
+      <figure class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+        <img src="../assets/foto_tomas.png" alt="Fotografia de Tomás Ribalonga" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300"
+             loading="lazy" decoding="async" width="640" height="256">
+        <figcaption class="absolute inset-0 flex flex-col items-center justify-center bg-black/70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+          <h3 class="text-white text-xl font-bold">Tomás Ribalonga</h3>
+          <p class="text-gray-200 text-sm mt-1">Desenvolvedor Full Stack</p>
+          <p class="text-gray-100 text-xs mt-2">Arquitetura e integração front/back-end.</p>
+        </figcaption>
+      </figure>
+
+      <!-- Bernardo Granadas -->
+      <figure class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
+        <img src="../assets/foto_bernardo.png" alt="Fotografia de Bernardo Granadas" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300"
+             loading="lazy" decoding="async" width="640" height="256">
+        <figcaption class="absolute inset-0 flex flex-col items-center justify-center bg-black/70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
+          <h3 class="text-white text-xl font-bold">Bernardo Granadas</h3>
+          <p class="text-gray-200 text-sm mt-1">Desenvolvedor Back-End</p>
+          <p class="text-gray-100 text-xs mt-2">Servidor, processamento de PDFs e exportação.</p>
+        </figcaption>
+      </figure>
     </div>
+  </section>
+</main>
 
-    <!-- Tecnologias -->
-    <div>
-      <h3 class="text-2xl font-semibold mb-3 text-gray-800 dark:text-white">💻 Tecnologias Utilizadas</h3>
-      <p>O sistema foi desenvolvido com foco em desempenho, escalabilidade e experiência do utilizador, utilizando:</p>
-      <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
-        <li><strong>React</strong> e <strong>Tailwind CSS</strong> (Frontend)</li>
-        <li><strong>Node.js</strong> e <strong>Express</strong> (API)</li>
-        <li><strong>MySQL</strong> (Base de dados relacional)</li>
-        <li><strong>Ollama</strong> + <strong>LLM Mistral</strong> (Processamento semântico)</li>
-        <li><strong>Docker</strong> e <strong>Docker Compose</strong> (Orquestração de containers)</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Equipa -->
-  <h3 class="text-3xl font-bold text-center mt-20 mb-10 text-gray-800 dark:text-white">👥 Nossa Equipe</h3>
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-
-    <!-- Rodrigo Vicente -->
-    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
-      <img src="../assets/foto_vicente.png" alt="Foto de Rodrigo Vicente" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
-      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
-        <h4 class="text-white text-xl font-bold">Rodrigo Vicente</h4>
-        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Front-End</p>
-        <p class="text-gray-100 text-xs mt-2">Responsável pela interface, responsividade e experiência do usuário.</p>
-      </div>
-    </div>
-
-    <!-- João Custódio -->
-    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
-      <img src="../assets/foto_joao.png" alt="Foto de João Custódio" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
-      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
-        <h4 class="text-white text-xl font-bold">João Custódio</h4>
-        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Front-End</p>
-        <p class="text-gray-100 text-xs mt-2">Implementou funcionalidades visuais e suporte a acessibilidade e temas.</p>
-      </div>
-    </div>
-
-    <!-- Tomás Ribalonga -->
-    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
-      <img src="../assets/foto_tomas.png" alt="Foto de Tomás Ribalonga" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
-      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
-        <h4 class="text-white text-xl font-bold">Tomás Ribalonga</h4>
-        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Full Stack</p>
-        <p class="text-gray-100 text-xs mt-2">Coordenou a arquitetura do sistema e a integração entre front e back-end.</p>
-      </div>
-    </div>
-
-    <!-- Bernardo Granadas -->
-    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition">
-      <img src="../assets/foto_bernardo.png" alt="Foto de Bernardo Granadas" class="w-full h-64 object-cover group-hover:blur-sm transition duration-300">
-      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition duration-300 text-center px-4">
-        <h4 class="text-white text-xl font-bold">Bernardo Granadas</h4>
-        <p class="text-gray-200 text-sm mt-1">Desenvolvedor Back-End</p>
-        <p class="text-gray-100 text-xs mt-2">Implementou o servidor, processador de PDFs e exportação de dados.</p>
-      </div>
-    </div>
-
-  </div>
-</section>
-
+<!-- Script pequeno para alternar o flip em clique/teclado -->
+<script>
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.flip-card');
+    if (!card) return;
+    const isOpen = card.getAttribute('data-open') === 'true';
+    card.setAttribute('data-open', String(!isOpen));
+    card.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>
 </body>
 </html>
