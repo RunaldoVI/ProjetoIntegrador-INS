@@ -1,8 +1,3 @@
-/**
- * Chatbot Bubble Widget
- * Minimal drop-in script. Point CONFIG.apiUrl to your backend.
- */
-
 export const ChatbotBubble = (() => {
   const CONFIG = {
     apiUrl: "http://localhost:5000/chat-rag",
@@ -10,7 +5,6 @@ export const ChatbotBubble = (() => {
     simulateStreaming: true,
   };
 
-  // Torna apiUrl imutável
   Object.defineProperty(CONFIG, "apiUrl", {
     value: CONFIG.apiUrl,
     writable: false,
@@ -18,9 +12,7 @@ export const ChatbotBubble = (() => {
     enumerable: true
   });
 
-  // Copia local para usar sempre no fetch
   const API_URL = CONFIG.apiUrl;
-
   const qs = (sel, root = document) => root.querySelector(sel);
   const els = {};
 
@@ -42,9 +34,6 @@ export const ChatbotBubble = (() => {
         <div class="cb-subtitle">Online agora</div>
       </div>
       <div class="cb-spacer"></div>
-      <button class="cb-btn" id="cbMinimize" title="Minimizar" aria-label="Minimizar">
-        <svg class="cb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14"/></svg>
-      </button>
       <button class="cb-btn" id="cbClose" title="Fechar" aria-label="Fechar">
         <svg class="cb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
@@ -130,7 +119,6 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
     els.send.disabled = true;
     addMessage(text, "you");
     if (CONFIG.simulateStreaming) addTyping();
-    console.log("CONFIG.apiUrl em runtime =", CONFIG.apiUrl);
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -181,7 +169,7 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
     const panel = els.panel, handle = els.header;
     const getRect = () => panel.getBoundingClientRect();
     handle.addEventListener("pointerdown", (e) => {
-      if (panel.classList.contains("minimized")) return;
+      if (e.target.closest(".cb-btn")) return; // evita arrastar ao clicar no botão fechar
       isDown = true; panel.setPointerCapture(e.pointerId);
       const r = getRect();
       startX = e.clientX; startY = e.clientY;
@@ -199,9 +187,8 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
   }
 
   function attachEvents(root) {
-    els.launcher.addEventListener("click", () => togglePanel(true));
+    els.launcher.addEventListener("click", () => togglePanel());
     els.close.addEventListener("click", () => togglePanel(false));
-    els.minimize.addEventListener("click", () => els.panel.classList.toggle("minimized"));
     els.send.addEventListener("click", sendMessage);
     els.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -209,8 +196,12 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
         sendMessage();
       }
     });
+    window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") togglePanel(false);
+});
     setTimeout(() => { pingBadge(); }, 2000);
   }
+  
 
   function mount(target = document.body) {
     const container = document.createElement("div");
@@ -225,7 +216,6 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
     els.input = qs("#cbInput", container);
     els.send = qs("#cbSend", container);
     els.close = qs("#cbClose", container);
-    els.minimize = qs("#cbMinimize", container);
     els.panel.style.display = "none";
     makeDraggable();
     attachEvents(container);
