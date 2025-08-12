@@ -28,8 +28,7 @@ COLLECTION_REPO = os.getenv("COLLECTION_REPO", "repo_collection")
 # Raiz do projeto dentro do container e padrões de ficheiros a indexar
 REPO_ROOT = os.getenv("REPO_ROOT", "/app")
 REPO_GLOBS = os.getenv("REPO_GLOBS",
-    "Backend/**/*.py,Backend/**/*.md,Frontend/**/*.md,Frontend/**/*.html,Frontend/**/*.js,Frontend/**/*.css,README.md,**/*.sql"
-).split(",")
+    "Backend/**/*.py,Backend/**/*.md,Frontend/**/*.md,Frontend/**/*.html,Frontend/**/*.js,Frontend/**/*.css,README.md,**/*.sql").split(",")
 
 # --- Documentação de utilizador (User KB) ---
 COLLECTION_USERKB = os.getenv("COLLECTION_USERKB", "user_kb")

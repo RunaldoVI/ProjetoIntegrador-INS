@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(() => {
         localStorage.removeItem("user");
         sessionStorage.removeItem("user");
-        window.location.href = "login.html";
+        window.location.href = "../sections/login.html";
       });
   } else {
     if (authButtons) authButtons.classList.remove("hidden");

@@ -1,4 +1,3 @@
-
 /**
  * Chatbot Bubble Widget
  * Minimal drop-in script. Point CONFIG.apiUrl to your backend.
@@ -6,16 +5,27 @@
 
 export const ChatbotBubble = (() => {
   const CONFIG = {
-    apiUrl: "/api/chat", // change to your endpoint
-    headers: { "Content-Type": "application/json" },
+    apiUrl: "http://localhost:5000/chat-rag",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
     simulateStreaming: true,
   };
+
+  // Torna apiUrl imutável
+  Object.defineProperty(CONFIG, "apiUrl", {
+    value: CONFIG.apiUrl,
+    writable: false,
+    configurable: false,
+    enumerable: true
+  });
+
+  // Copia local para usar sempre no fetch
+  const API_URL = CONFIG.apiUrl;
 
   const qs = (sel, root = document) => root.querySelector(sel);
   const els = {};
 
- function markup() {
-  return `
+  function markup() {
+    return `
   <button class="cb-launcher" id="cbLauncher" aria-label="Abrir chatbot">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -62,20 +72,17 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
       </div>
     </footer>
   </section>`;
-}
+  }
 
   function addMessage(content, who = "bot") {
     const wrap = document.createElement("div");
     wrap.className = `cb-message ${who === "you" ? "you" : ""}`;
-
     const bubble = document.createElement("div");
     bubble.className = "cb-bubble";
     bubble.textContent = content;
-
     const time = document.createElement("div");
     time.className = "cb-time";
     time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
     wrap.appendChild(bubble);
     wrap.appendChild(time);
     els.body.appendChild(wrap);
@@ -101,35 +108,41 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
 
   function togglePanel(show) {
     const visible = show ?? (els.panel.style.display === "none" || els.panel.style.display === "");
+    els.panel.style.display = visible ? "flex" : "none";
     if (visible) {
-      els.panel.style.display = "flex";
       els.body.scrollTop = els.body.scrollHeight;
       els.badge.style.display = "none";
       els.input.focus();
-    } else {
-      els.panel.style.display = "none";
     }
+  }
+
+  function extractReply(data) {
+    if (data == null) return "";
+    return data.reply ?? data.answer ?? data.output ?? data.text ?? (
+      typeof data === "string" ? data : JSON.stringify(data)
+    );
   }
 
   async function sendMessage() {
     const text = els.input.value.trim();
     if (!text) return;
-    els.input.disabled = "false";
+    els.input.disabled = true;
+    els.send.disabled = true;
     addMessage(text, "you");
-
     if (CONFIG.simulateStreaming) addTyping();
-
+    console.log("CONFIG.apiUrl em runtime =", CONFIG.apiUrl);
     try {
-      const res = await fetch(CONFIG.apiUrl, {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: CONFIG.headers,
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ question: text }),
       });
-
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const ct = res.headers.get("content-type") || "";
       let reply = "";
-      const contentType = res.headers.get("content-type") || "";
-
-      if (contentType.includes("text/event-stream")) {
+      if (ct.includes("application/json")) {
+        reply = extractReply(await res.json());
+      } else if (ct.includes("text/event-stream")) {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let acc = "";
@@ -139,19 +152,20 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
           acc += decoder.decode(value, { stream: true });
         }
         reply = acc.replace(/^data:\s*/gm, "").trim();
-      } else if (contentType.includes("application/json")) {
-        const data = await res.json();
-        reply = data.reply || JSON.stringify(data);
       } else {
         reply = await res.text();
       }
-
       if (CONFIG.simulateStreaming) removeTyping();
-      addMessage(reply, "bot");
+      addMessage(reply || "Sem conteúdo na resposta.", "bot");
     } catch (e) {
       if (CONFIG.simulateStreaming) removeTyping();
       addMessage("Ups, houve um erro a contactar o servidor. Verifica o endpoint em CONFIG.apiUrl.", "bot");
       console.error(e);
+    } finally {
+      els.input.disabled = false;
+      els.send.disabled = false;
+      els.input.value = "";
+      els.input.focus();
     }
   }
 
@@ -165,9 +179,7 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
   function makeDraggable() {
     let isDown = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
     const panel = els.panel, handle = els.header;
-
     const getRect = () => panel.getBoundingClientRect();
-
     handle.addEventListener("pointerdown", (e) => {
       if (panel.classList.contains("minimized")) return;
       isDown = true; panel.setPointerCapture(e.pointerId);
@@ -175,7 +187,6 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
       startX = e.clientX; startY = e.clientY;
       startLeft = r.left; startTop = r.top;
     });
-
     window.addEventListener("pointermove", (e) => {
       if (!isDown) return;
       const dx = e.clientX - startX, dy = e.clientY - startY;
@@ -184,7 +195,6 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
       panel.style.left = Math.max(8, Math.min(window.innerWidth - rect.width - 8, startLeft + dx)) + "px";
       panel.style.top = Math.max(8, Math.min(window.innerHeight - rect.height - 8, startTop + dy)) + "px";
     });
-
     window.addEventListener("pointerup", () => { isDown = false; });
   }
 
@@ -199,7 +209,6 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
         sendMessage();
       }
     });
-
     setTimeout(() => { pingBadge(); }, 2000);
   }
 
@@ -208,8 +217,6 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
     container.id = "cb-root";
     container.innerHTML = markup();
     target.appendChild(container);
-
-    // cache elements
     els.launcher = qs("#cbLauncher", container);
     els.badge = qs("#cbBadge", container);
     els.panel = qs("#cbPanel", container);
@@ -219,24 +226,25 @@ Sou o teu assistente. Faz-me perguntas sobre o site ou o teu projeto quando quis
     els.send = qs("#cbSend", container);
     els.close = qs("#cbClose", container);
     els.minimize = qs("#cbMinimize", container);
-
     els.panel.style.display = "none";
-
     makeDraggable();
     attachEvents(container);
-
-    // quick replies
-qs("#cbSuggestions", container)?.addEventListener("click", (e) => {
-  const chip = e.target.closest(".cb-chip");
-  if (!chip) return;
-  els.input.value = chip.getAttribute("data-q") || chip.textContent.trim();
-  els.input.focus();
-});
-
+    qs("#cbSuggestions", container)?.addEventListener("click", (e) => {
+      const chip = e.target.closest(".cb-chip");
+      if (!chip) return;
+      els.input.value = chip.getAttribute("data-q") || chip.textContent.trim();
+      els.input.focus();
+    });
   }
 
   function setConfig(partial) {
-    Object.assign(CONFIG, partial || {});
+    if (partial && "apiUrl" in partial && partial.apiUrl !== CONFIG.apiUrl) {
+      console.warn("[ChatbotBubble] Tentativa de override do apiUrl bloqueada:", partial.apiUrl);
+      const { apiUrl, ...rest } = partial;
+      Object.assign(CONFIG, rest);
+    } else {
+      Object.assign(CONFIG, partial || {});
+    }
   }
 
   return { mount, setConfig };
