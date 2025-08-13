@@ -2,34 +2,39 @@
 import sys
 import subprocess
 import os
-
-from PdfViewMode.PreviewMode import executar_preview
+import argparse
+from PdfViewMode.PreviewMode import executar_preview_todos
 
 print("[DEBUG] Args recebidos:", sys.argv)
 
-if len(sys.argv) < 3:
-    print("❌ Uso: python ProjetoFinal.py caminho_para_pdf preview|automatico [instrucoes|--reuse-preview]")
-    sys.exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument("caminho_pdf", help="Caminho para o PDF a processar")
+parser.add_argument("modo", choices=["preview", "automatico"], help="Modo de execução")
+parser.add_argument("instrucoes", nargs="?", default="", help="Instruções extra (apenas no modo preview)")
+parser.add_argument("--reuse-preview", action="store_true", help="Reaproveitar dados do preview anterior")
+parser.add_argument("--only-ident", type=str, help="Processar apenas o bloco com este Identificador")
+parser.add_argument("--only-file", type=str, help="Processar apenas o bloco com este nome de ficheiro JSON")
+args = parser.parse_args()
 
-caminho_pdf = sys.argv[1]
-modo = sys.argv[2].lower()
+if args.modo == "preview":
+    # Instruções extra só se não for o flag --reuse-preview
+    instrucoes_extra = args.instrucoes if args.instrucoes != "--reuse-preview" else ""
 
-# pode vir um 3º argumento:
-#  - preview: instruções extra (string)
-#  - automatico: flag --reuse-preview
-extra_arg = sys.argv[3] if len(sys.argv) > 3 else ""
+    # Passar flags novas para a função preview
+    executar_preview_todos(
+        args.caminho_pdf,
+        instrucoes_extra,
+        only_ident=args.only_ident,
+        only_file=args.only_file,
+        reuse_preview=args.reuse_preview
+    )
 
-if modo == "preview":
-    instrucoes_extra = extra_arg if extra_arg != "--reuse-preview" else ""
-    executar_preview(caminho_pdf, instrucoes_extra)
-
-elif modo == "automatico":
+elif args.modo == "automatico":
     base_dir = os.path.dirname(os.path.abspath(__file__))
     auto_path = os.path.join(base_dir, "PdfViewMode", "AutomaticPreviewMode.py")
-    args = ["python", auto_path, caminho_pdf]
-    if extra_arg.strip().lower() == "--reuse-preview":
-        args.append("--reuse-preview")
-    subprocess.run(args, check=True)
-
+    cmd = ["python", auto_path, args.caminho_pdf]
+    if args.reuse_preview:
+        cmd.append("--reuse-preview")
+    subprocess.run(cmd, check=True)
 else:
     print("❌ Modo inválido. Use 'preview' ou 'automatico'")

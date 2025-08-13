@@ -1,0 +1,144 @@
+ID: ALQ.111 | Página: 1
+Secção: Nenhuma
+Pergunta:
+The next questions are about drinking alcoholic beverages. Included are liquor (such as whiskey or gin), beer,
+wine, wine coolers, and any other type of alcoholic beverage.
+In {your/SP’s} entire life, {have you/has he/has she} had at least 1 drink of any kind of alcohol, not counting
+small tastes or sips? By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half ounces of liquor.
+Resposta:
+YES  1
+NO 2 (END OF SECTION)
+REFUSED  7
+DON'T KNOW  9
+
+------------------------------------------------------------
+ID: ALQ.121 | Página: 1
+Secção: Nenhuma
+Pergunta:
+During the past 12 months, about how often did {you/SP} drink any type of alcoholic beverage?
+PROBE: How many days per week, per month, or per year did {you/SP} drink?
+Resposta:
+EVERY DAY  1
+NEARLY EVERY DAY  2
+3 TO 4 TIMES A WEEK  3
+2 TIMES A WEEK  4
+ONCE A WEEK  5
+2 TO 3 TIMES A MONTH  6
+ONCE A MONTH  7
+7 TO 11 TIMES IN THE LAST YEAR  8
+3 TO 6 TIMES IN THE LAST YEAR  9
+1 TO 2 TIMES IN THE LAST YEAR  10
+NEVER IN THE LAST YEAR  0
+REFUSED  77
+DON’T KNOW  99
+
+------------------------------------------------------------
+ID: ALQ.130 | Página: 2
+Secção: Nenhuma
+Pergunta:
+During the past 12 months, on those days that {you/SP} drank alcoholic beverages, on the average, how
+many drinks did {you/he/she} have? (By a drink, I mean a 12 oz. beer, a 5 oz. glass of wine, or one and a half
+ounces of liquor.)
+Resposta:
+| | | |
+ENTER # OF DRINKS
+REFUSED  777
+DON'T KNOW  999
+
+------------------------------------------------------------
+ID: ALQ.142 | Página: 2
+Secção: Nenhuma
+Pergunta:
+During the past 12 months, about how often did {you/SP} have {DISPLAY NUMBER} or more drinks of any
+alcoholic beverage?
+PROBE: How many days per week, per month, or per year did {you/SP} have {DISPLAY NUMBER} or more
+drinks in a single day?
+Resposta:
+EVERY DAY  1
+NEARLY EVERY DAY  2
+3 TO 4 TIMES A WEEK  3
+2 TIMES A WEEK  4
+ONCE A WEEK  5
+2 TO 3 TIMES A MONTH  6
+ONCE A MONTH  7
+7 TO 11 TIMES IN THE LAST YEAR  8
+3 TO 6 TIMES IN THE LAST YEAR  9
+1 TO 2 TIMES IN THE LAST YEAR  10
+NEVER IN THE LAST YEAR 0 (ALQ.151)
+REFUSED  77
+DON’T KNOW  99
+
+------------------------------------------------------------
+ID: ALQ.270 | Página: 3
+Secção: Nenhuma
+Pergunta:
+During the past 12 months, about how often did {you/SP} have {DISPLAY NUMBER} or more drinks in a
+period of two hours or less?
+Resposta:
+EVERY DAY  1
+NEARLY EVERY DAY  2
+3 TO 4 TIMES A WEEK  3
+2 TIMES A WEEK  4
+ONCE A WEEK  5
+2 TO 3 TIMES A MONTH  6
+ONCE A MONTH  7
+7 TO 11 TIMES IN THE LAST YEAR  8
+3 TO 6 TIMES IN THE LAST YEAR  9
+1 TO 2 TIMES IN THE LAST YEAR  10
+NEVER IN THE LAST YEAR  0
+REFUSED  77
+DON’T KNOW  99
+
+------------------------------------------------------------
+ID: ALQ.280 | Página: 3
+Secção: Nenhuma
+Pergunta:
+During the past 12 months, about how often did {you/SP} have 8 or more drinks in a single day?
+Resposta:
+EVERY DAY  1
+NEARLY EVERY DAY  2
+3 TO 4 TIMES A WEEK  3
+2 TIMES A WEEK  4
+ONCE A WEEK  5
+2 TO 3 TIMES A MONTH  6
+ONCE A MONTH  7
+7 TO 11 TIMES IN THE LAST YEAR  8
+3 TO 6 TIMES IN THE LAST YEAR  9
+1 TO 2 TIMES IN THE LAST YEAR  10
+NEVER IN THE LAST YEAR 0 (ALQ.151)
+REFUSED  77
+DON’T KNOW  99
+
+------------------------------------------------------------
+ID: ALQ.290 | Página: 4
+Secção: Nenhuma
+Pergunta:
+During the past 12 months, about how often did {you/SP} have 12 or more drinks in a single day?
+Resposta:
+EVERY DAY  1
+NEARLY EVERY DAY  2
+3 TO 4 TIMES A WEEK  3
+2 TIMES A WEEK  4
+ONCE A WEEK  5
+2 TO 3 TIMES A MONTH  6
+ONCE A MONTH  7
+7 TO 11 TIMES IN THE LAST YEAR  8
+3 TO 6 TIMES IN THE LAST YEAR  9
+1 TO 2 TIMES IN THE LAST YEAR  10
+NEVER IN THE LAST YEAR  0
+REFUSED  77
+DON’T KNOW  99
+
+------------------------------------------------------------
+ID: ALQ.151 | Página: 4
+Secção: Nenhuma
+Pergunta:
+Was there ever a time or times in {your/SP's} life when {you/he/she} drank {DISPLAY NUMBER} or more
+drinks of any kind of alcoholic beverage almost every day?
+Resposta:
+YES  1
+NO  2
+REFUSED  7
+DON'T KNOW  9
+
+------------------------------------------------------------

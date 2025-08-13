@@ -5,6 +5,125 @@ function loadIngest() {
   let currentPdfFile = null;
   let analyzing = false;
 
+  // estado navegação
+  let navState = { questionario: null, ident: null, file: null };
+
+function renderPreviewBlock(payload) {
+  // payload vem do backend
+  navState.questionario = payload.questionario;
+  navState.ident = payload.ident;
+  navState.file = payload.file;
+
+  const dataItem = payload.item || {};
+  const respostas = Array.isArray(dataItem.Respostas) ? dataItem.Respostas : [];
+
+  const output = document.getElementById("output");
+  const htmlRespostas = respostas.map(r => {
+    const opt = (r.opção ?? r.option ?? r.label ?? r.texto ?? "").toString();
+    const val = (r.valor ?? r.value ?? "").toString();
+    return `<li>${opt || "(sem texto)"}${val ? ` <span class="opacity-70">(${val})</span>` : ""}</li>`;
+  }).join("");
+
+  output.innerHTML = `
+    <div class="mt-4 p-4 bg-highlight rounded relative">
+      <h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>
+
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <button id="prevBlockBtn"
+                class="px-3 py-1 rounded border border-gray-400 disabled:opacity-40 z-10"
+                data-prev-file="${payload.prev_file ?? ''}"
+                data-prev-ident="${payload.prev_ident ?? ''}"
+                title="Anterior">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+
+        <div class="text-white text-sm">
+          <strong>🧠 Identificador:</strong> ${dataItem.Identificador || "(nenhum)"}<br/>
+          <strong>📌 Secção:</strong> ${dataItem["Secção"] || "(Nenhuma)"}<br/>
+        </div>
+
+        <button id="nextBlockBtn"
+                class="px-3 py-1 rounded border border-gray-400 disabled:opacity-40 z-10"
+                data-next-file="${payload.next_file ?? ''}"
+                data-next-ident="${payload.next_ident ?? ''}"
+                title="Seguinte">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <p class="text-white"><strong>❓ Pergunta:</strong> ${dataItem.Pergunta || ""}</p>
+      <p class="text-white mt-2"><strong>✅ Respostas:</strong></p>
+      <ul class="list-disc pl-6 text-sm text-white">${htmlRespostas}</ul>
+    </div>
+  `;
+
+  // ligar botões com fallback: usa file se existir, senão ident
+  const prevBtn = document.getElementById("prevBlockBtn");
+  const nextBtn = document.getElementById("nextBlockBtn");
+
+  if (prevBtn) {
+    const prevFile  = prevBtn.dataset.prevFile  || "";
+    const prevIdent = prevBtn.dataset.prevIdent || "";
+    prevBtn.disabled = !(prevFile || prevIdent);
+    prevBtn.onclick = () => {
+      if (prevFile || prevIdent) {
+        loadPreviewBlock(navState.questionario, prevIdent || null, prevFile || null);
+      }
+    };
+  }
+
+  if (nextBtn) {
+    const nextFile  = nextBtn.dataset.nextFile  || "";
+    const nextIdent = nextBtn.dataset.nextIdent || "";
+    nextBtn.disabled = !(nextFile || nextIdent);
+    nextBtn.onclick = () => {
+      if (nextFile || nextIdent) {
+        loadPreviewBlock(navState.questionario, nextIdent || null, nextFile || null);
+      }
+    };
+  }
+}
+
+
+  // aceita ident OU file (se file presente, usa file)
+  function loadPreviewBlock(questionario, ident = null, file = null) {
+    let url = `http://localhost:5000/outputs/${encodeURIComponent(questionario)}/item`;
+    if (file) {
+      url += `?file=${encodeURIComponent(file)}`;
+    } else if (ident) {
+      url += `?ident=${encodeURIComponent(ident)}`;
+    }
+    console.log("GET", url);
+
+    fetch(url)
+      .then(async (r) => {
+        const txt = await r.text();
+        if (!r.ok) throw new Error(`${r.status} ${txt}`);
+        return JSON.parse(txt);
+      })
+      .then((payload) => {
+        renderPreviewBlock(payload);
+        attachPreviewActions();
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar bloco:", err);
+        showToast("Erro ao carregar bloco do questionário.", "error");
+      });
+  }
+
+  // atalhos de teclado ← →
+  document.addEventListener("keydown", (e) => {
+    if (!navState.questionario || !navState.ident) return;
+    if (e.key === "ArrowLeft") {
+      const prev = document.getElementById("prevBlockBtn");
+      if (prev && !prev.disabled) prev.click();
+    } else if (e.key === "ArrowRight") {
+      const next = document.getElementById("nextBlockBtn");
+      if (next && !next.disabled) next.click();
+    }
+  });
+
+  // ======== UI BASE ========
   function resetUI() {
     sessionStorage.removeItem("pdfLoaded");
     sessionStorage.removeItem("pdfName");
@@ -17,14 +136,16 @@ function loadIngest() {
     document.getElementById("pdfInput").value = "";
     document.getElementById("file-name").textContent = "";
 
-    // Remover botão de download se existir
     const oldDownload = document.querySelector("#output a[href$='download-excel']");
     if (oldDownload?.parentElement) {
       oldDownload.parentElement.remove();
     }
 
+    navBusy = false;
+    navToken = 0;
     currentPdfFile = null;
     analyzing = false;
+    navState = { questionario: null, ident: null };
   }
 
   function simulatePdfRead(file) {
@@ -80,31 +201,185 @@ function loadIngest() {
   }
 
   function recriarFileDeSession() {
-  const base64 = sessionStorage.getItem("pdfBase64");
-  const name = sessionStorage.getItem("pdfName");
-  const size = parseFloat(sessionStorage.getItem("pdfSize"));
+    const base64 = sessionStorage.getItem("pdfBase64");
+    const name = sessionStorage.getItem("pdfName");
+    const size = parseFloat(sessionStorage.getItem("pdfSize"));
 
-  if (base64 && name && size) {
-    const byteCharacters = atob(base64);
-    const byteArrays = [];
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
+    if (base64 && name && size) {
+      const byteCharacters = atob(base64);
+      const byteArrays = [];
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
       }
-      byteArrays.push(new Uint8Array(byteNumbers));
+
+      const blob = new Blob(byteArrays, { type: "application/pdf" });
+      return new File([blob], name, { type: "application/pdf" });
     }
 
-    const blob = new Blob(byteArrays, { type: "application/pdf" });
-    return new File([blob], name, { type: "application/pdf" });
+    return null;
   }
 
-  return null;
-}
+  // ======== BOTÕES CONTINUAR / NÃO GOSTO (RE-ANEXO DINÂMICO) ========
+  function attachPreviewActions() {
+    const output = document.getElementById("output");
 
+    // remover instâncias antigas
+    output.querySelectorAll(".continuar-btn, .naogosto-btn").forEach((el) => el.remove());
+
+    // continuar
+    const continuarBtn = document.createElement("button");
+    continuarBtn.textContent = "✅ Continuar com processamento automático";
+    continuarBtn.className =
+      "mt-6 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition continuar-btn";
+    continuarBtn.addEventListener("click", () => {
+      document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach((el) => el.remove());
+      continuarBtn.disabled = true;
+      continuarBtn.textContent = "A continuar...";
+
+      modoAtual = "automatico";
+      const modoToggleBtn = document.getElementById("modoToggle");
+      const modoText = document.getElementById("modoText");
+
+      if (modoText && modoToggleBtn) {
+        modoToggleBtn.checked = modoAtual === "automatico";
+        modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
+      }
+
+      const base64 = sessionStorage.getItem("pdfBase64");
+      const name = sessionStorage.getItem("pdfName");
+      const size = parseFloat(sessionStorage.getItem("pdfSize"));
+
+      if (base64 && name && size) {
+        const byteCharacters = atob(base64);
+        const byteArrays = [];
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+          const slice = byteCharacters.slice(offset, offset + 512);
+          const byteNumbers = new Array(slice.length);
+          for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+          }
+          byteArrays.push(new Uint8Array(byteNumbers));
+        }
+
+        const blob = new Blob(byteArrays, { type: "application/pdf" });
+        const file = new File([blob], name, { type: "application/pdf" });
+
+        analisarPdf(file, "automatico");
+      } else {
+        showToast("Erro: ficheiro PDF não encontrado.", "error");
+      }
+    });
+    output.appendChild(continuarBtn);
+
+    // não gosto
+    const naoGostoBtn = document.createElement("button");
+    naoGostoBtn.textContent = "❌ Não gosto da resposta";
+    naoGostoBtn.className =
+      "mt-2 ml-2 px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition naogosto-btn";
+    output.appendChild(naoGostoBtn);
+
+    if (!document.getElementById("feedbackModal")) {
+      const modal = document.createElement("div");
+      modal.id = "feedbackModal";
+      modal.className =
+        "fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden backdrop-blur-sm";
+      modal.innerHTML = `
+        <div class="bg-white dark:bg-darkCard rounded-xl p-6 w-full max-w-xl shadow-lg relative">
+          <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-red-600">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+          <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Adicionar instruções personalizadas para o LLM</h3>
+          <textarea id="modalTextarea" rows="6" class="w-full p-3 border border-gray-300 rounded dark:bg-darkHighlight dark:text-white"></textarea>
+          <button id="saveSuggestionBtn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">💾 Usar estas instruções</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      modal.querySelector("#closeModalBtn").addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+      });
+
+modal.querySelector("#saveSuggestionBtn").addEventListener("click", () => {
+  const texto = modal.querySelector("#modalTextarea").value.trim();
+  if (texto.length === 0) {
+    showToast("Por favor escreva algo primeiro.", "warning");
+    return;
+  }
+
+  const questionario = navState.questionario;
+  const ident = navState.ident || "";  // bloco atual
+  const file  = navState.file  || "";  // se navegas por ficheiro
+
+  // proteger contra estado inválido
+  if (!questionario || (!ident && !file)) {
+    showToast("Bloco atual não identificado.", "error");
+    return;
+  }
+
+  // evitar duplo clique
+  const btn = modal.querySelector("#saveSuggestionBtn");
+  btn.disabled = true;
+  btn.textContent = "A reprocessar bloco...";
+
+  fetch(`http://localhost:5000/outputs/${encodeURIComponent(questionario)}/item/reprocess`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ident: ident,          // usa ident se existir…
+      file: file,            // …ou file, o backend aceita ambos
+      instructions: texto,   // instruções apenas para ESTE bloco
+    }),
+  })
+    .then(async (r) => {
+      const txt = await r.text();
+      if (!r.ok) throw new Error(`${r.status} ${txt}`);
+      return JSON.parse(txt);
+    })
+    .then((payload) => {
+      // fecha modal e atualiza o preview deste mesmo bloco
+      modal.classList.add("hidden");
+      showToast("Bloco reprocessado com as instruções dadas.", "success");
+      renderPreviewBlock(payload);  // atualiza navState internamente
+      attachPreviewActions();       // reata os botões
+    })
+    .catch((err) => {
+      console.error(err);
+      showToast("Erro ao reprocessar o bloco.", "error");
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = "💾 Usar estas instruções";
+    });
+});
+    }
+
+    const naoGostoModalBtn = document.getElementById("feedbackModal") ? naoGostoBtn : null;
+    if (naoGostoModalBtn) {
+      naoGostoBtn.addEventListener("click", () => {
+        const modal = document.getElementById("feedbackModal");
+        if (modal) {
+          modal.classList.remove("hidden");
+          modal.querySelector("#modalTextarea").value = "";
+        }
+      });
+    }
+  }
+
+  // ======== PROCESSAMENTO ========
   function analisarPdf(file, modoForcado = null) {
     analyzing = true;
+    navState = { questionario: null, ident: null };
+navBusy = false;
+navToken = 0;
     const output = document.getElementById("output");
     const button = document.getElementById("analisarBtn");
 
@@ -125,232 +400,100 @@ function loadIngest() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("modo", modoForcado || modoAtual);
+
     const instrucaoExtra = sessionStorage.getItem("instrucoesPersonalizadas");
-if (instrucaoExtra) {
-  formData.append("instrucoes", instrucaoExtra);
-  sessionStorage.removeItem("instrucoesPersonalizadas");
-}
+    if (instrucaoExtra) {
+      formData.append("instrucoes", instrucaoExtra);
+      sessionStorage.removeItem("instrucoesPersonalizadas");
+    }
 
     fetch("http://localhost:5000/upload", {
       method: "POST",
       body: formData,
     })
-      .then(res => res.json())
-.then(data => {
-  loader.remove();
-  const previewsAntigos = document.querySelectorAll("#output .bg-highlight");
-  document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach(el => el.remove());
-  previewsAntigos.forEach(p => p.remove());
+      .then((res) => res.json())
+      .then((data) => {
+        loader.remove();
 
-  const resultadoDiv = document.createElement("div");
-  resultadoDiv.className = "mt-4 p-4 bg-highlight rounded";
-  resultadoDiv.innerHTML = `<h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>`;
-  const instrucaoExtra = sessionStorage.getItem("instrucoesPersonalizadas");
-if (instrucaoExtra) {
-  resultadoDiv.innerHTML += `
-    <div class="mb-4 text-sm text-blue-200 bg-blue-900 px-4 py-2 rounded shadow-sm">
-      📝 Este resultado inclui as instruções personalizadas que adicionaste ao LLM.
-    </div>
-  `;
-}
+        // limpa previews e botões antigos
+        document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach((el) => el.remove());
 
-  if (modoAtual === "preview" && data.Pergunta) {
-    resultadoDiv.innerHTML += `
-      <p class="text-white"><strong>🧠 Identificador:</strong> ${data.Identificador || "(nenhum)"}</p>
-      <p class="text-white"><strong>📌 Secção:</strong> ${data.Secção || "(Nenhuma)"}</p>
-      <p class="text-white"><strong>❓ Pergunta:</strong> ${data.Pergunta}</p>
-      <p class="text-white"><strong>✅ Respostas:</strong></p>
-      <ul class="list-disc pl-6 text-sm text-white">
-        ${(data.Respostas || []).map(r => {
-          const texto = typeof r === "string" ? r : (r.label || r.texto || JSON.stringify(r));
-          return `<li>${texto}</li>`;
-        }).join("")}
-      </ul>
+        if (modoAtual === "preview") {
+          // Novo formato (recomendado): {questionario, ident, prev_ident, next_ident, item, file}
+          if (data && data.item && data.ident && data.questionario) {
+            renderPreviewBlock(data);
+            attachPreviewActions();
+          }
+          // Compat: formato antigo flat {Pergunta, ...}
+          else if (data && data.Pergunta) {
+            const questionarioSlug = (sessionStorage.getItem("pdfName") || "Questionario")
+              .replace(/\.[Pp][Dd][Ff]$/, "")
+              .replace(/[^A-Za-z0-9._-]+/g, "_");
+            renderPreviewBlock({
+              questionario: questionarioSlug,
+              ident: data.Identificador || "SEM.ID",
+              prev_ident: null,
+              next_ident: null,
+              item: data,
+              file: null,
+            });
+            attachPreviewActions();
+          } else {
+            showToast("Preview inválido: resposta inesperada da API.", "error");
+          }
+        } else {
+          // automático (tal como tinhas)
+          const resultadoDiv = document.createElement("div");
+          resultadoDiv.className = "mt-4 p-4 bg-highlight rounded";
+          resultadoDiv.innerHTML = `<h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>`;
+          resultadoDiv.innerHTML += `<p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>`;
+          output.innerHTML = "";
+          output.appendChild(resultadoDiv);
 
-    `;
+          const downloadContainer = document.createElement("div");
+          downloadContainer.className = "mt-4 flex justify-center";
 
-    output.appendChild(resultadoDiv);
-    
+          const downloadBtn = document.createElement("a");
+          downloadBtn.href = "http://localhost:5000/download-excel";
+          downloadBtn.download = true;
+          downloadBtn.className =
+            "inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition";
+          downloadBtn.textContent = "⬇️ Descarregar Excel Gerado";
 
-  const continuarBtn = document.createElement("button");
-continuarBtn.textContent = "✅ Continuar com processamento automático";
-continuarBtn.className = "mt-6 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition continuar-btn";
-  continuarBtn.addEventListener("click", () => {
-   const naoGostoExistente =   document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach(el => el.remove());
-  if (naoGostoExistente) naoGostoExistente.remove();
-  continuarBtn.disabled = true;
-  continuarBtn.textContent = "A continuar...";
+          downloadContainer.appendChild(downloadBtn);
+          output.appendChild(downloadContainer);
+        }
 
-  // 🔁 Corrigir aqui:
-  modoAtual = "automatico";
-  const modoToggleBtn = document.getElementById("modoToggle");
-const modoText = document.getElementById("modoText");
+        showToast("Análise concluída com sucesso!", "success");
 
-if (modoText && modoToggleBtn) {
-  modoToggleBtn.checked = (modoAtual === "automatico");
-  modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
-}
+        // histórico (mantido)
+        const user = JSON.parse(localStorage.getItem("user"));
+        const novoFile = recriarFileDeSession();
+        if (modoAtual === "automatico") {
+          if (user && user.email && novoFile) {
+            const historicoData = new FormData();
+            historicoData.append("pdf", novoFile);
+            historicoData.append("email", user.email);
 
-  document.getElementById("modoToggle").textContent = "🔄 Modo: Automático";
-
-  const base64 = sessionStorage.getItem("pdfBase64");
-  const name = sessionStorage.getItem("pdfName");
-  const size = parseFloat(sessionStorage.getItem("pdfSize"));
-
-  if (base64 && name && size) {
-    const previewExistente = document.querySelector("#output .bg-highlight");
-    if (previewExistente) {
-      previewExistente.insertAdjacentHTML("beforeend", `<p class="text-sm text-white italic">🔁 A continuar processamento completo...</p>`);
-    }
-
-    const byteCharacters = atob(base64);
-    const byteArrays = [];
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-      byteArrays.push(new Uint8Array(byteNumbers));
-    }
-
-    const blob = new Blob(byteArrays, { type: "application/pdf" });
-    const file = new File([blob], name, { type: "application/pdf" });
-
-    // ✅ Agora sim: forçar modo automático
-    analisarPdf(file, "automatico");
-  } else {
-    showToast("Erro: ficheiro PDF não encontrado.", "error");
-  }
-});
-
-    output.appendChild(continuarBtn);
-
-const naoGostoBtn = document.createElement("button");
-naoGostoBtn.textContent = "❌ Não gosto da resposta";
-naoGostoBtn.className = "mt-2 ml-2 px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition naogosto-btn";
-output.appendChild(naoGostoBtn);
-
-// Criar modal se ainda não existir
-if (!document.getElementById("feedbackModal")) {
-  const modal = document.createElement("div");
-  modal.id = "feedbackModal";
-  modal.className = "fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden backdrop-blur-sm";
-  modal.innerHTML = `
-    <div class="bg-white dark:bg-darkCard rounded-xl p-6 w-full max-w-xl shadow-lg relative">
-      <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-red-600">
-        <i class="fas fa-times text-xl"></i>
-      </button>
-      <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Adicionar instruções personalizadas para o LLM</h3>
-      <textarea id="modalTextarea" rows="6" class="w-full p-3 border border-gray-300 rounded dark:bg-darkHighlight dark:text-white"></textarea>
-      <button id="saveSuggestionBtn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">💾 Usar estas instruções</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  // Fechar modal ao clicar no X
-  modal.querySelector("#closeModalBtn").addEventListener("click", () => {
-    modal.classList.add("hidden");
-  });
-
-  // Fechar ao clicar fora do conteúdo
-  modal.addEventListener("click", e => {
-    if (e.target === modal) modal.classList.add("hidden");
-  });
-
-  // Guardar sugestão
-modal.querySelector("#saveSuggestionBtn").addEventListener("click", () => {
-const texto = modal.querySelector("#modalTextarea").value.trim();
-if (texto.length > 0) {
-  sessionStorage.setItem("instrucoesPersonalizadas", texto);
-  showToast("Instruções registadas com sucesso. A reprocessar em modo preview...", "success");
-  modal.classList.add("hidden");
-
-  // ⚡ Forçar novo processamento em modo preview
-  const base64 = sessionStorage.getItem("pdfBase64");
-  const name = sessionStorage.getItem("pdfName");
-  const size = parseFloat(sessionStorage.getItem("pdfSize"));
-
-  if (base64 && name && size) {
-    const byteCharacters = atob(base64);
-    const byteArrays = [];
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-      byteArrays.push(new Uint8Array(byteNumbers));
-    }
-
-    const blob = new Blob(byteArrays, { type: "application/pdf" });
-    const file = new File([blob], name, { type: "application/pdf" });
-
-    // 👇 Forçar reprocessamento com preview e instruções atualizadas
-    analisarPdf(file, "preview");
-  } else {
-    showToast("Erro ao reprocessar: ficheiro não encontrado.", "error");
-  }
-} else {
-  showToast("Por favor escreva algo primeiro.", "warning");
-}
-});
-}
-
-// Mostrar o modal
-naoGostoBtn.addEventListener("click", () => {
-  const modal = document.getElementById("feedbackModal");
-  if (modal) {
-    modal.classList.remove("hidden");
-    modal.querySelector("#modalTextarea").value = "";
-  }
-});
-
-  } else {
-    resultadoDiv.innerHTML += `<p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>`;
-    output.appendChild(resultadoDiv);
-
-    const downloadContainer = document.createElement("div");
-    downloadContainer.className = "mt-4 flex justify-center";
-
-    const downloadBtn = document.createElement("a");
-    downloadBtn.href = "http://localhost:5000/download-excel";
-    downloadBtn.download = true;
-    downloadBtn.className = "inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition";
-    downloadBtn.textContent = "⬇️ Descarregar Excel Gerado";
-
-    downloadContainer.appendChild(downloadBtn);
-    output.appendChild(downloadContainer);
-  }
-
-  showToast("Análise concluída com sucesso!", "success");
-  const user = JSON.parse(localStorage.getItem("user"));
-const novoFile = recriarFileDeSession();
-if (modoAtual === "automatico") {
-if (user && user.email && novoFile) {
-  const historicoData = new FormData();
-  historicoData.append("pdf", novoFile); // Ficheiro novo recriado
-  historicoData.append("email", user.email);
-
-  fetch("http://localhost:5000/api/user/upload_pdf", {
-    method: "POST",
-    body: historicoData,
-  })
-  .then(res => res.json())
-  .then(histData => {
-if (histData.status?.toLowerCase().includes("sucesso")) {
-  console.log("Histórico guardado com sucesso!");
-} else {
-  console.warn("Falha ao guardar histórico:", histData);
-}
-  })
-  .catch(err => {
-    console.error("Erro ao guardar histórico do PDF:", err);
-  });
-}
-}
-})
-      .catch(err => {
+            fetch("http://localhost:5000/api/user/upload_pdf", {
+              method: "POST",
+              body: historicoData,
+            })
+              .then((res) => res.json())
+              .then((histData) => {
+                if (histData.status?.toLowerCase().includes("sucesso")) {
+                  console.log("Histórico guardado com sucesso!");
+                } else {
+                  console.warn("Falha ao guardar histórico:", histData);
+                }
+              })
+              .catch((err) => {
+                console.error("Erro ao guardar histórico do PDF:", err);
+              });
+          }
+        }
+      })
+      .catch((err) => {
         loader.remove();
         showToast("Erro ao analisar o PDF.", "error");
         console.error(err);
@@ -370,7 +513,7 @@ if (histData.status?.toLowerCase().includes("sucesso")) {
 
     const reader = new FileReader();
     reader.onload = function (e) {
-      const base64 = e.target.result.split(',')[1];
+      const base64 = e.target.result.split(",")[1];
       sessionStorage.setItem("pdfBase64", base64);
       sessionStorage.setItem("pdfName", file.name);
       sessionStorage.setItem("pdfSize", file.size);
@@ -388,7 +531,7 @@ if (histData.status?.toLowerCase().includes("sucesso")) {
       if (input.files.length) handleFile(input.files[0]);
     });
 
-    dropzone.addEventListener("dragover", e => {
+    dropzone.addEventListener("dragover", (e) => {
       e.preventDefault();
       dropzone.classList.add("bg-lightHighlight", "dark:bg-darkHighlight");
     });
@@ -397,7 +540,7 @@ if (histData.status?.toLowerCase().includes("sucesso")) {
       dropzone.classList.remove("bg-lightHighlight", "dark:bg-darkHighlight");
     });
 
-    dropzone.addEventListener("drop", e => {
+    dropzone.addEventListener("drop", (e) => {
       e.preventDefault();
       dropzone.classList.remove("bg-lightHighlight", "dark:bg-darkHighlight");
       if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
@@ -433,16 +576,13 @@ if (histData.status?.toLowerCase().includes("sucesso")) {
     }
   }
 
-
- const modoToggle = document.getElementById("modoToggle");
+  const modoToggle = document.getElementById("modoToggle");
   const modoText = document.getElementById("modoText");
 
   if (modoToggle && modoText) {
-    // Inicializar estado do botão e texto
-    modoToggle.checked = (modoAtual === "automatico");
+    modoToggle.checked = modoAtual === "automatico";
     modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
 
-    // Reagir à alteração
     modoToggle.addEventListener("change", () => {
       modoAtual = modoToggle.checked ? "automatico" : "preview";
       modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
