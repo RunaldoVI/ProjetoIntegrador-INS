@@ -8,82 +8,85 @@ function loadIngest() {
   // estado navegação
   let navState = { questionario: null, ident: null, file: null };
 
-function renderPreviewBlock(payload) {
-  // payload vem do backend
-  navState.questionario = payload.questionario;
-  navState.ident = payload.ident;
-  navState.file = payload.file;
+  function renderPreviewBlock(payload) {
+    // payload vem do backend
+    navState.questionario = payload.questionario;
+    navState.ident = payload.ident;
+    navState.file = payload.file;
 
-  const dataItem = payload.item || {};
-  const respostas = Array.isArray(dataItem.Respostas) ? dataItem.Respostas : [];
+    const dataItem = payload.item || {};
+    const respostas = Array.isArray(dataItem.Respostas) ? dataItem.Respostas : [];
 
-  const output = document.getElementById("output");
-  const htmlRespostas = respostas.map(r => {
-    const opt = (r.opção ?? r.option ?? r.label ?? r.texto ?? "").toString();
-    const val = (r.valor ?? r.value ?? "").toString();
-    return `<li>${opt || "(sem texto)"}${val ? ` <span class="opacity-70">(${val})</span>` : ""}</li>`;
-  }).join("");
+    const output = document.getElementById("output");
+    const htmlRespostas = respostas
+      .map((r) => {
+        const opt = (r.opção ?? r.option ?? r.label ?? r.texto ?? "").toString();
+        const val = (r.valor ?? r.value ?? "").toString();
+        return `<li>${opt || "(sem texto)"}${
+          val ? ` <span class="opacity-70">(${val})</span>` : ""
+        }</li>`;
+      })
+      .join("");
 
-  output.innerHTML = `
-    <div class="mt-4 p-4 bg-highlight rounded relative">
-      <h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>
+    output.innerHTML = `
+      <div class="mt-4 p-4 bg-highlight rounded relative">
+        <h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>
 
-      <div class="flex items-center justify-between gap-2 mb-3">
-        <button id="prevBlockBtn"
-                class="px-3 py-1 rounded border border-gray-400 disabled:opacity-40 z-10"
-                data-prev-file="${payload.prev_file ?? ''}"
-                data-prev-ident="${payload.prev_ident ?? ''}"
-                title="Anterior">
-          <i class="fas fa-arrow-left"></i>
-        </button>
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <button id="prevBlockBtn"
+                  class="px-3 py-1 rounded border border-gray-400 disabled:opacity-40 z-10"
+                  data-prev-file="${payload.prev_file ?? ""}"
+                  data-prev-ident="${payload.prev_ident ?? ""}"
+                  title="Anterior">
+            <i class="fas fa-arrow-left"></i>
+          </button>
 
-        <div class="text-white text-sm">
-          <strong>🧠 Identificador:</strong> ${dataItem.Identificador || "(nenhum)"}<br/>
-          <strong>📌 Secção:</strong> ${dataItem["Secção"] || "(Nenhuma)"}<br/>
+          <div class="text-white text-sm">
+            <strong>🧠 Identificador:</strong> ${dataItem.Identificador || "(nenhum)"}<br/>
+            <strong>📌 Secção:</strong> ${dataItem["Secção"] || "(Nenhuma)"}<br/>
+          </div>
+
+          <button id="nextBlockBtn"
+                  class="px-3 py-1 rounded border border-gray-400 disabled:opacity-40 z-10"
+                  data-next-file="${payload.next_file ?? ""}"
+                  data-next-ident="${payload.next_ident ?? ""}"
+                  title="Seguinte">
+            <i class="fas fa-arrow-right"></i>
+          </button>
         </div>
 
-        <button id="nextBlockBtn"
-                class="px-3 py-1 rounded border border-gray-400 disabled:opacity-40 z-10"
-                data-next-file="${payload.next_file ?? ''}"
-                data-next-ident="${payload.next_ident ?? ''}"
-                title="Seguinte">
-          <i class="fas fa-arrow-right"></i>
-        </button>
+        <p class="text-white"><strong>❓ Pergunta:</strong> ${dataItem.Pergunta || ""}</p>
+        <p class="text-white mt-2"><strong>✅ Respostas:</strong></p>
+        <ul class="list-disc pl-6 text-sm text-white">${htmlRespostas}</ul>
       </div>
+    `;
 
-      <p class="text-white"><strong>❓ Pergunta:</strong> ${dataItem.Pergunta || ""}</p>
-      <p class="text-white mt-2"><strong>✅ Respostas:</strong></p>
-      <ul class="list-disc pl-6 text-sm text-white">${htmlRespostas}</ul>
-    </div>
-  `;
+    // ligar botões com fallback: usa file se existir, senão ident
+    const prevBtn = document.getElementById("prevBlockBtn");
+    const nextBtn = document.getElementById("nextBlockBtn");
 
-  // ligar botões com fallback: usa file se existir, senão ident
-  const prevBtn = document.getElementById("prevBlockBtn");
-  const nextBtn = document.getElementById("nextBlockBtn");
+    if (prevBtn) {
+      const prevFile = prevBtn.dataset.prevFile || "";
+      const prevIdent = prevBtn.dataset.prevIdent || "";
+      prevBtn.disabled = !(prevFile || prevIdent);
+      prevBtn.onclick = () => {
+        if (prevFile || prevIdent) {
+          loadPreviewBlock(navState.questionario, prevIdent || null, prevFile || null);
+        }
+      };
+    }
 
-  if (prevBtn) {
-    const prevFile  = prevBtn.dataset.prevFile  || "";
-    const prevIdent = prevBtn.dataset.prevIdent || "";
-    prevBtn.disabled = !(prevFile || prevIdent);
-    prevBtn.onclick = () => {
-      if (prevFile || prevIdent) {
-        loadPreviewBlock(navState.questionario, prevIdent || null, prevFile || null);
-      }
-    };
+    if (nextBtn) {
+      const nextFile = nextBtn.dataset.nextFile || "";
+      const nextIdent = nextBtn.dataset.nextIdent || "";
+      nextBtn.disabled = !(nextFile || nextIdent);
+      nextBtn.onclick = () => {
+        if (nextFile || nextIdent) {
+          loadPreviewBlock(navState.questionario, nextIdent || null, nextFile || null);
+        }
+      };
+    }
   }
-
-  if (nextBtn) {
-    const nextFile  = nextBtn.dataset.nextFile  || "";
-    const nextIdent = nextBtn.dataset.nextIdent || "";
-    nextBtn.disabled = !(nextFile || nextIdent);
-    nextBtn.onclick = () => {
-      if (nextFile || nextIdent) {
-        loadPreviewBlock(navState.questionario, nextIdent || null, nextFile || null);
-      }
-    };
-  }
-}
-
 
   // aceita ident OU file (se file presente, usa file)
   function loadPreviewBlock(questionario, ident = null, file = null) {
@@ -103,6 +106,9 @@ function renderPreviewBlock(payload) {
       })
       .then((payload) => {
         renderPreviewBlock(payload);
+        // ✅ garantir que o Continuar usa /finalize também na navegação por blocos
+        sessionStorage.setItem("fromPreview", "true");
+        sessionStorage.setItem("previewQuestionario", payload.questionario || "");
         attachPreviewActions();
       })
       .catch((err) => {
@@ -228,62 +234,122 @@ function renderPreviewBlock(payload) {
   function attachPreviewActions() {
     const output = document.getElementById("output");
 
-    // remover instâncias antigas
-    output.querySelectorAll(".continuar-btn, .naogosto-btn").forEach((el) => el.remove());
+    // remover instâncias antigas (inclui o wrapper, para não acumular)
+    output.querySelectorAll(".continuar-btn, .naogosto-btn, .actions-wrap").forEach((el) => el.remove());
+
+    // wrapper para os botões
+    const actionsWrap = document.createElement("div");
+    actionsWrap.className = "actions-wrap mt-4 flex flex-wrap items-center gap-2";
 
     // continuar
     const continuarBtn = document.createElement("button");
     continuarBtn.textContent = "✅ Continuar com processamento automático";
     continuarBtn.className =
-      "mt-6 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition continuar-btn";
-    continuarBtn.addEventListener("click", () => {
-      document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach((el) => el.remove());
-      continuarBtn.disabled = true;
-      continuarBtn.textContent = "A continuar...";
-
-      modoAtual = "automatico";
-      const modoToggleBtn = document.getElementById("modoToggle");
-      const modoText = document.getElementById("modoText");
-
-      if (modoText && modoToggleBtn) {
-        modoToggleBtn.checked = modoAtual === "automatico";
-        modoText.textContent = `Modo ${modoAtual.charAt(0).toUpperCase() + modoAtual.slice(1)}`;
-      }
-
-      const base64 = sessionStorage.getItem("pdfBase64");
-      const name = sessionStorage.getItem("pdfName");
-      const size = parseFloat(sessionStorage.getItem("pdfSize"));
-
-      if (base64 && name && size) {
-        const byteCharacters = atob(base64);
-        const byteArrays = [];
-        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-          const slice = byteCharacters.slice(offset, offset + 512);
-          const byteNumbers = new Array(slice.length);
-          for (let i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-          }
-          byteArrays.push(new Uint8Array(byteNumbers));
-        }
-
-        const blob = new Blob(byteArrays, { type: "application/pdf" });
-        const file = new File([blob], name, { type: "application/pdf" });
-
-        analisarPdf(file, "automatico");
-      } else {
-        showToast("Erro: ficheiro PDF não encontrado.", "error");
-      }
-    });
-    output.appendChild(continuarBtn);
+      "px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition continuar-btn";
 
     // não gosto
     const naoGostoBtn = document.createElement("button");
     naoGostoBtn.textContent = "❌ Não gosto da resposta";
     naoGostoBtn.className =
-      "mt-2 ml-2 px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition naogosto-btn";
-    output.appendChild(naoGostoBtn);
+      "px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition naogosto-btn";
 
-    if (!document.getElementById("feedbackModal")) {
+    actionsWrap.appendChild(continuarBtn);
+    actionsWrap.appendChild(naoGostoBtn);
+    output.appendChild(actionsWrap);
+
+    // handler CONTINUAR
+    continuarBtn.addEventListener("click", async () => {
+      const fromPreview = sessionStorage.getItem("fromPreview") === "true";
+      const questionario = sessionStorage.getItem("previewQuestionario") || navState.questionario;
+
+      if (!fromPreview || !questionario) {
+        showToast("Sem contexto de preview — a continuar pelo modo automático…", "warning");
+        // cai no fluxo antigo
+        const base64 = sessionStorage.getItem("pdfBase64");
+        const name = sessionStorage.getItem("pdfName");
+        const size = parseFloat(sessionStorage.getItem("pdfSize"));
+        if (base64 && name && size) {
+          const byteCharacters = atob(base64);
+          const byteArrays = [];
+          for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+            const slice = byteCharacters.slice(offset, offset + 512);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+            byteArrays.push(new Uint8Array(byteNumbers));
+          }
+          const blob = new Blob(byteArrays, { type: "application/pdf" });
+          const file = new File([blob], name, { type: "application/pdf" });
+          analisarPdf(file, "automatico");
+        } else {
+          showToast("Erro: ficheiro PDF não encontrado.", "error");
+        }
+        return;
+      }
+
+      // estado de carregamento (sem remover os botões!)
+      continuarBtn.disabled = true;
+      naoGostoBtn.disabled = true;
+      const prevText = continuarBtn.textContent;
+      continuarBtn.textContent = "A finalizar...";
+
+      try {
+        const resp = await fetch(
+          `http://localhost:5000/outputs/${encodeURIComponent(questionario)}/finalize`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ strategy: "use_preview_blocks" }),
+          }
+        );
+        const data = await resp.json().catch(() => ({}));
+        console.log("Finalize response:", data);
+        if (!resp.ok || data.ok === false) {
+          throw new Error(data.mensagem || `HTTP ${resp.status}`);
+        }
+
+        // substitui o conteúdo pelo resultado
+        const out = document.getElementById("output");
+        out.innerHTML = `
+          <div class="mt-4 p-4 bg-highlight rounded">
+            <h3 class="text-lg font-bold mb-2 text-accent">Resultado da Consolidação</h3>
+            <p class="text-sm text-white">${data.mensagem || "Blocos consolidados a partir do preview."}</p>
+          </div>
+        `;
+
+        // mostrar botão de download se houver excel
+        const excelReady = data.excel === true || !!data.download_excel;
+        if (excelReady) {
+          const downloadContainer = document.createElement("div");
+          downloadContainer.className = "mt-4 flex justify-center";
+          const downloadBtn = document.createElement("a");
+          downloadBtn.href = data.download_excel || "http://localhost:5000/download-excel";
+          downloadBtn.download = true;
+          downloadBtn.className =
+            "inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition";
+          downloadBtn.textContent = "⬇️ Descarregar Excel Gerado";
+          downloadContainer.appendChild(downloadBtn);
+          out.appendChild(downloadContainer);
+        }
+
+        // limpar flags para não refazer finalize sem querer
+        sessionStorage.removeItem("fromPreview");
+        sessionStorage.removeItem("previewQuestionario");
+
+        showToast("Consolidação concluída com sucesso!", "success");
+      } catch (err) {
+        console.error(err);
+        showToast("Erro ao consolidar a partir do preview.", "error");
+        // reativar botões e texto
+        continuarBtn.disabled = false;
+        naoGostoBtn.disabled = false;
+        continuarBtn.textContent = prevText;
+      }
+    });
+
+    // handler NÃO GOSTO (modal)
+    const ensureModal = () => {
+      if (document.getElementById("feedbackModal")) return;
+
       const modal = document.createElement("div");
       modal.id = "feedbackModal";
       modal.className =
@@ -300,86 +366,67 @@ function renderPreviewBlock(payload) {
       `;
       document.body.appendChild(modal);
 
-      modal.querySelector("#closeModalBtn").addEventListener("click", () => {
-        modal.classList.add("hidden");
-      });
-
+      modal.querySelector("#closeModalBtn").addEventListener("click", () => modal.classList.add("hidden"));
       modal.addEventListener("click", (e) => {
         if (e.target === modal) modal.classList.add("hidden");
       });
 
-modal.querySelector("#saveSuggestionBtn").addEventListener("click", () => {
-  const texto = modal.querySelector("#modalTextarea").value.trim();
-  if (texto.length === 0) {
-    showToast("Por favor escreva algo primeiro.", "warning");
-    return;
-  }
+      modal.querySelector("#saveSuggestionBtn").addEventListener("click", () => {
+        const texto = modal.querySelector("#modalTextarea").value.trim();
+        if (!texto) return showToast("Por favor escreva algo primeiro.", "warning");
 
-  const questionario = navState.questionario;
-  const ident = navState.ident || "";  // bloco atual
-  const file  = navState.file  || "";  // se navegas por ficheiro
+        const questionario = navState.questionario;
+        const ident = navState.ident || "";
+        const file = navState.file || "";
+        if (!questionario || (!ident && !file)) return showToast("Bloco atual não identificado.", "error");
 
-  // proteger contra estado inválido
-  if (!questionario || (!ident && !file)) {
-    showToast("Bloco atual não identificado.", "error");
-    return;
-  }
+        const btn = modal.querySelector("#saveSuggestionBtn");
+        btn.disabled = true;
+        btn.textContent = "A reprocessar bloco...";
 
-  // evitar duplo clique
-  const btn = modal.querySelector("#saveSuggestionBtn");
-  btn.disabled = true;
-  btn.textContent = "A reprocessar bloco...";
-
-  fetch(`http://localhost:5000/outputs/${encodeURIComponent(questionario)}/item/reprocess`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ident: ident,          // usa ident se existir…
-      file: file,            // …ou file, o backend aceita ambos
-      instructions: texto,   // instruções apenas para ESTE bloco
-    }),
-  })
-    .then(async (r) => {
-      const txt = await r.text();
-      if (!r.ok) throw new Error(`${r.status} ${txt}`);
-      return JSON.parse(txt);
-    })
-    .then((payload) => {
-      // fecha modal e atualiza o preview deste mesmo bloco
-      modal.classList.add("hidden");
-      showToast("Bloco reprocessado com as instruções dadas.", "success");
-      renderPreviewBlock(payload);  // atualiza navState internamente
-      attachPreviewActions();       // reata os botões
-    })
-    .catch((err) => {
-      console.error(err);
-      showToast("Erro ao reprocessar o bloco.", "error");
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.textContent = "💾 Usar estas instruções";
-    });
-});
-    }
-
-    const naoGostoModalBtn = document.getElementById("feedbackModal") ? naoGostoBtn : null;
-    if (naoGostoModalBtn) {
-      naoGostoBtn.addEventListener("click", () => {
-        const modal = document.getElementById("feedbackModal");
-        if (modal) {
-          modal.classList.remove("hidden");
-          modal.querySelector("#modalTextarea").value = "";
-        }
+        fetch(`http://localhost:5000/outputs/${encodeURIComponent(questionario)}/item/reprocess`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ident, file, instructions: texto }),
+        })
+          .then(async (r) => {
+            const txt = await r.text();
+            if (!r.ok) throw new Error(`${r.status} ${txt}`);
+            return JSON.parse(txt);
+          })
+          .then((payload) => {
+            modal.classList.add("hidden");
+            showToast("Bloco reprocessado com as instruções dadas.", "success");
+            renderPreviewBlock(payload);
+            attachPreviewActions();
+          })
+          .catch((err) => {
+            console.error(err);
+            showToast("Erro ao reprocessar o bloco.", "error");
+          })
+          .finally(() => {
+            btn.disabled = false;
+            btn.textContent = "💾 Usar estas instruções";
+          });
       });
-    }
+    };
+
+    ensureModal();
+    naoGostoBtn.addEventListener("click", () => {
+      const modal = document.getElementById("feedbackModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.querySelector("#modalTextarea").value = "";
+      }
+    });
   }
 
   // ======== PROCESSAMENTO ========
   function analisarPdf(file, modoForcado = null) {
     analyzing = true;
     navState = { questionario: null, ident: null };
-navBusy = false;
-navToken = 0;
+    navBusy = false;
+    navToken = 0;
     const output = document.getElementById("output");
     const button = document.getElementById("analisarBtn");
 
@@ -416,12 +463,15 @@ navToken = 0;
         loader.remove();
 
         // limpa previews e botões antigos
-        document.querySelectorAll(".continuar-btn, .naogosto-btn").forEach((el) => el.remove());
+        document.querySelectorAll(".continuar-btn, .naogosto-btn, .actions-wrap").forEach((el) => el.remove());
 
         if (modoAtual === "preview") {
           // Novo formato (recomendado): {questionario, ident, prev_ident, next_ident, item, file}
           if (data && data.item && data.ident && data.questionario) {
             renderPreviewBlock(data);
+            // ✅ marca fromPreview logo no 1º payload do /upload
+            sessionStorage.setItem("fromPreview", "true");
+            sessionStorage.setItem("previewQuestionario", data.questionario || "");
             attachPreviewActions();
           }
           // Compat: formato antigo flat {Pergunta, ...}
@@ -437,6 +487,9 @@ navToken = 0;
               item: data,
               file: null,
             });
+            // ✅ marca fromPreview aqui também (compat)
+            sessionStorage.setItem("fromPreview", "true");
+            sessionStorage.setItem("previewQuestionario", questionarioSlug);
             attachPreviewActions();
           } else {
             showToast("Preview inválido: resposta inesperada da API.", "error");
@@ -446,7 +499,9 @@ navToken = 0;
           const resultadoDiv = document.createElement("div");
           resultadoDiv.className = "mt-4 p-4 bg-highlight rounded";
           resultadoDiv.innerHTML = `<h3 class="text-lg font-bold mb-2 text-accent">Resultado da Análise</h3>`;
-          resultadoDiv.innerHTML += `<p class="text-sm text-white">${data.mensagem || "Análise concluída."}</p>`;
+          resultadoDiv.innerHTML += `<p class="text-sm text-white">${
+            data.mensagem || "Análise concluída."
+          }</p>`;
           output.innerHTML = "";
           output.appendChild(resultadoDiv);
 
@@ -499,8 +554,11 @@ navToken = 0;
         console.error(err);
       })
       .finally(() => {
-        button.disabled = false;
-        button.textContent = "Analisar PDF";
+        const button = document.getElementById("analisarBtn");
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Analisar PDF";
+        }
         analyzing = false;
       });
   }
