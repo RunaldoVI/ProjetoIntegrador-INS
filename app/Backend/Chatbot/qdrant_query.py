@@ -1,7 +1,11 @@
 # backend/Chatbot/qdrant_query.py
 from typing import List, Dict, Any
 import os
+
 from qdrant_client import QdrantClient
+from qdrant_client.http import models as qm
+from qdrant_client.http.exceptions import UnexpectedResponse  # <-- IMPORT CORRETO
+
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 
 from Backend.Chatbot.qdrant_config import (
@@ -9,12 +13,12 @@ from Backend.Chatbot.qdrant_config import (
     CHAT_MODEL, EMB_MODEL, TOPK,
     COLLECTION_PERGUNTAS, COLLECTION_RESPOSTAS, COLLECTION_REPO
 )
-
 # Opcional: coleção de documentação de utilizador (se existir na config)
 try:
-    from Backend.Chatbot.qdrant_config import COLLECTION_USERKB  # user_kb
+    from Backend.Chatbot.qdrant_config import COLLECTION_USERKB, EMB_DIM  # EMB_DIM p/ criar coleções
 except Exception:
-    COLLECTION_USERKB = None  # segue sem user_kb
+    COLLECTION_USERKB = None
+    from Backend.Chatbot.qdrant_config import EMB_DIM  # fallback
 
 # ------- Parâmetros de controlo por .env -------
 MIN_SCORE = float(os.getenv("MIN_SCORE", "0.40"))
@@ -41,6 +45,21 @@ SYSTEM = (
     "Não reveles código, nomes de ficheiros, caminhos ou jargão técnico. Usa linguagem simples, prática e orientada a tarefas."
 )
 
+# ------- Garantir coleções no arranque (mesmo vazias) -------
+def _ensure_collection(name: str, vector_size: int = EMB_DIM):
+    try:
+        _qdrant.get_collection(name)
+    except Exception:
+        _qdrant.create_collection(
+            collection_name=name,
+            vectors_config=qm.VectorParams(size=vector_size, distance=qm.Distance.COSINE)
+        )
+
+for _col in (COLLECTION_PERGUNTAS, COLLECTION_RESPOSTAS, COLLECTION_REPO):
+    _ensure_collection(_col)
+if COLLECTION_USERKB:
+    _ensure_collection(COLLECTION_USERKB)
+
 # ------- Helpers -------
 def _is_dev_question(q: str) -> bool:
     if not BLOCK_DEV_QUESTIONS:
@@ -49,13 +68,21 @@ def _is_dev_question(q: str) -> bool:
     return any(k in t for k in DEV_KEYWORDS)
 
 def _search_collection(question: str, collection: str, k: int) -> List[Dict[str, Any]]:
+    """Search resiliente: se coleção não existir / 404, devolve []."""
     qvec = _emb.embed_query(question)
-    hits = _qdrant.search(
-        collection_name=collection,
-        query_vector=qvec,
-        limit=k,
-        with_payload=True,
-    )
+    try:
+        hits = _qdrant.search(
+            collection_name=collection,
+            query_vector=qvec,
+            limit=k,
+            with_payload=True,
+        )
+    except UnexpectedResponse as e:
+        # Ex.: "Not found: Collection `perguntas_collection` doesn't exist!"
+        if "Not found: Collection" in str(e) or "404" in str(e):
+            return []
+        raise
+
     out: List[Dict[str, Any]] = []
     for h in hits:
         p = h.payload or {}

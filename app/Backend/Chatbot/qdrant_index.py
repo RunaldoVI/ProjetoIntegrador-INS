@@ -4,7 +4,6 @@ from pathlib import Path
 import os
 import uuid
 from typing import List, Dict, Any
-import uuid
 
 import mysql.connector
 from qdrant_client import QdrantClient
@@ -55,6 +54,7 @@ def fetch_rows(table_cfg: Dict[str, str], limit: int | None = None) -> List[Dict
     rows = cur.fetchall()
     cur.close(); cn.close()
     return rows
+
 # ------------------ User KB -----------------------
 def _load_userkb_docs(root: str) -> list[Document]:
     rootp = Path(root)
@@ -69,11 +69,14 @@ def _load_userkb_docs(root: str) -> list[Document]:
     return docs
 
 def index_userkb(client: QdrantClient, emb: OllamaEmbeddings, root: str, collection: str, batch: int = 64):
-    docs = _load_userkb_docs(root)
-    if not docs:
-        print("[userkb] nada para indexar."); return
+    # Garantir coleção mesmo sem docs
     dim = len(emb.embed_query("probe"))
     ensure_collection(client, collection, vector_size=dim)
+
+    docs = _load_userkb_docs(root)
+    if not docs:
+        print(f"[userkb] nada para indexar (coleção '{collection}' criada vazia).")
+        return
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     points, sent = [], 0
@@ -87,10 +90,10 @@ def index_userkb(client: QdrantClient, emb: OllamaEmbeddings, root: str, collect
             payload = {"table":"userkb", "path": d.metadata["path"], "texto": ch, "title": d.metadata["path"]}
             points.append(qm.PointStruct(id=pid, vector=vec, payload=payload))
             if len(points) >= batch:
-                client.upsert(collection_name=collection, points=points)
+                client.upsert(collection_name=collection, points=points, wait=True)
                 sent += len(points); points = []
     if points:
-        client.upsert(collection_name=collection, points=points); sent += len(points)
+        client.upsert(collection_name=collection, points=points, wait=True); sent += len(points)
     print(f"[userkb] done ✔ ({sent} chunks)")
 
 
@@ -119,14 +122,17 @@ def batched(it, size: int):
 # ------------- Indexar tabelas (perguntas/respostas) -------------
 def index_table(client: QdrantClient, emb: OllamaEmbeddings, key: str, limit: int | None, batch: int):
     cfg = TABLES[key]
-    rows = fetch_rows(cfg, limit=limit)
-    if not rows:
-        print(f"[{key}] nada para indexar.")
-        return
 
+    # 1) garantir coleção (mesmo vazia)
     dim = len(emb.embed_query("probe"))
     collection = cfg["collection"]
     ensure_collection(client, collection, vector_size=dim)
+
+    # 2) só depois ir buscar linhas
+    rows = fetch_rows(cfg, limit=limit)
+    if not rows:
+        print(f"[{key}] nada para indexar (coleção '{collection}' criada vazia).")
+        return
 
     print(f"[{key}] {len(rows)} registos → coleção '{collection}' (batch={batch})")
     sent = 0
@@ -144,7 +150,7 @@ def index_table(client: QdrantClient, emb: OllamaEmbeddings, key: str, limit: in
                 "identificador_semantico": r["identificador_semantico"],
             }
             points.append(qm.PointStruct(id=pid, vector=v, payload=payload))
-        client.upsert(collection_name=collection, points=points)
+        client.upsert(collection_name=collection, points=points, wait=True)
         sent += len(points)
         print(f"  -> {sent}/{len(rows)}")
     print(f"[{key}] done ✔")
@@ -191,13 +197,14 @@ def load_repo_chunks(root: str, patterns: List[str]) -> List[Document]:
     return chunks
 
 def index_repo(client: QdrantClient, emb: OllamaEmbeddings, root: str, patterns: List[str], collection: str, batch: int):
-    docs = load_repo_chunks(root, patterns)
-    if not docs:
-        print("[repo] nada para indexar.")
-        return
-
+    # Garantir coleção mesmo sem docs
     dim = len(emb.embed_query("probe"))
     ensure_collection(client, collection, vector_size=dim)
+
+    docs = load_repo_chunks(root, patterns)
+    if not docs:
+        print(f"[repo] nada para indexar (coleção '{collection}' criada vazia).")
+        return
 
     print(f"[repo] {len(docs)} chunks → coleção '{collection}' (batch={batch})")
 
@@ -213,7 +220,7 @@ def index_repo(client: QdrantClient, emb: OllamaEmbeddings, root: str, patterns:
             payload = {"table": "repo", "path": d.metadata.get("path"), "texto": d.page_content}
             points.append(qm.PointStruct(id=pid, vector=v, payload=payload))
             sent += 1
-        client.upsert(collection_name=collection, points=points)
+        client.upsert(collection_name=collection, points=points, wait=True)
 
     print("[repo] done ✔")
 
