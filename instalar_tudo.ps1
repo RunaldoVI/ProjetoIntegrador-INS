@@ -1,27 +1,27 @@
 ﻿[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-Write-Host '⚙️ Script de instalação do ambiente completo para Docker + WSL2 + GPU (opcional)'
+Write-Host '⚙️ Instalação do ambiente (Docker + WSL2) sem reiniciar o Docker'
 Write-Host ''
 
-# [0/8] Verifica se o sistema é Windows
+# [0/8] Windows?
 if (-not (Get-ComputerInfo | Where-Object { $_.OsName -like '*Windows*' })) {
-    Write-Host '❌ Este script é apenas para Windows com WSL. No macOS não há suporte a GPU com Docker.'
+    Write-Host '❌ Este script é apenas para Windows com WSL.'
     exit 0
 }
 
-# [1/8] Verifica se há GPU NVIDIA no sistema
-Write-Host '🔍 [1/8] Verificar presença de GPU NVIDIA no sistema...'
+# [1/8] GPU NVIDIA presente no Windows?
+Write-Host '🔍 [1/8] Verificar GPU NVIDIA no Windows...'
 $hasNvidia = Get-CimInstance Win32_VideoController | Where-Object { $_.Name -like "*NVIDIA*" }
-$gpuAvailable = $false
+$gpuOnWindows = $false
 if ($hasNvidia) {
-    Write-Host "✅ GPU NVIDIA detectada: $($hasNvidia.Name)"
-    $gpuAvailable = $true
+    Write-Host "✅ GPU NVIDIA detetada: $($hasNvidia.Name)"
+    $gpuOnWindows = $true
 } else {
-    Write-Host '⚠️ Nenhuma GPU NVIDIA detetada. O sistema correrá com CPU.'
+    Write-Host '⚠️ Nenhuma GPU NVIDIA detetada no Windows — seguiremos em CPU.'
 }
 
-# [2/8] Verifica WSL
-Write-Host '🔍 [2/8] Verificar instalação do WSL...'
+# [2/8] WSL instalado?
+Write-Host '🔍 [2/8] Verificar WSL...'
 $wslVersion = wsl.exe --version 2>$null
 if (-not $wslVersion) {
     Write-Host '🔧 A instalar o WSL com Ubuntu 22.04...'
@@ -31,109 +31,118 @@ if (-not $wslVersion) {
     Write-Host '✅ WSL já está instalado.'
 }
 
-# [3/8] Verifica se o WSL 2 está ativo
-Write-Host '🔍 [3/8] Verificar se WSL 2 está ativo...'
-$kernelVersion = (wsl --status) -match 'Default Version: 2'
-if (-not $kernelVersion) {
+# [3/8] WSL 2 ativo?
+Write-Host '🔍 [3/8] Verificar WSL 2...'
+$defaultIsV2 = (wsl --status) -match 'Default Version: 2'
+if (-not $defaultIsV2) {
     Write-Host '🔧 A definir WSL 2 como padrão...'
     wsl --set-default-version 2
 } else {
     Write-Host '✅ WSL 2 já está ativo.'
 }
 
-# [4/8] Verifica instalação do Ubuntu
-Write-Host '🔍 [4/8] Verificar se o Ubuntu 22.04 está instalado no WSL...'
-$distros = wsl -l
-if ($distros -notmatch 'Ubuntu-22.04') {
-    Write-Host '🔧 A instalar Ubuntu 22.04...'
-    wsl --install -d Ubuntu-22.04
+# [4/8] Ubuntu 22.04 disponível?
+
+Write-Host '🔍 [4/8] Verificar Ubuntu no WSL...'
+
+# Lista “limpa” das distros (sem o asterisco do default, sem espaços)
+$distros = (& wsl.exe -l -q 2>$null) | ForEach-Object { $_.Trim().TrimStart('*').Trim() }
+
+$hasUbuntu2204 = $distros -contains 'Ubuntu-22.04'
+$hasUbuntu      = $hasUbuntu2204 -or ($distros -contains 'Ubuntu')
+
+if ($hasUbuntu) {
+    Write-Host '✅ Ubuntu já está instalado no WSL.'
+    # Garante que é WSL2 e define como default (não abre shell)
+    try {
+        # Se a distro “Ubuntu” existir mas não “Ubuntu-22.04”, ainda assim força V2 e default
+        $distroName = if ($hasUbuntu2204) { 'Ubuntu-22.04' } else { 'Ubuntu' }
+        wsl.exe -l -v | Out-Null  # aquece
+        wsl.exe --set-version $distroName 2 | Out-Null
+        wsl.exe --set-default $distroName  | Out-Null
+    } catch { }
+}
+else {
+    Write-Host '⚠️ Ubuntu 22.04 não encontrado.'
+    Write-Host '   Vai instalar agora (apenas esta 1ª vez poderás ver uma shell; se aparecer, escreve "exit" no fim).'
+    Start-Process -FilePath "wsl.exe" -ArgumentList "--install -d Ubuntu-22.04" -NoNewWindow -Wait
     Start-Sleep -Seconds 15
-} else {
-    Write-Host '✅ Ubuntu 22.04 já está instalado.'
+    Write-Host '✅ Ubuntu 22.04 instalado.'
+    # Depois da instalação, define default e V2 sem abrir shell
+    try {
+        wsl.exe --set-default Ubuntu-22.04 | Out-Null
+        wsl.exe --set-version Ubuntu-22.04 2 | Out-Null
+    } catch { }
 }
 
-# [5/8] Verifica Docker Desktop
-Write-Host '🔍 [5/8] Verificar instalação do Docker Desktop...'
+# [5/8] Docker Desktop instalado e a correr?
+Write-Host '🔍 [5/8] Verificar Docker Desktop...'
 $dockerPath = 'C:\Program Files\Docker\Docker\Docker Desktop.exe'
 if (-not (Test-Path $dockerPath)) {
-    Write-Host '❌ Docker Desktop não encontrado. Instala manualmente: https://www.docker.com/products/docker-desktop/'
+    Write-Host '❌ Docker Desktop não encontrado. Instala a partir de docker.com.'
     exit 1
 }
 
-# [6/8] Inicia Docker Desktop se necessário
-Write-Host '🖥️ [6/8] A iniciar Docker Desktop (se necessário)...'
+Write-Host '🖥️ [6/8] A iniciar Docker Desktop se necessário...'
 $dockerRunning = Get-Process -Name 'Docker Desktop' -ErrorAction SilentlyContinue
 if (-not $dockerRunning) {
     Start-Process $dockerPath
     Start-Sleep -Seconds 10
 } else {
-    Write-Host '✅ Docker já está em execução.'
+    Write-Host '✅ Docker Desktop já está em execução.'
 }
 
-# [7/8] Aguarda Docker Engine
+# [7/8] Aguardar Docker Engine (sem reiniciar)
 Write-Host '⏳ [7/8] A aguardar Docker Engine...'
-$maxTries = 30
+$maxTries = 60
 $tries = 0
 do {
-    $dockerInfo = docker info 2>$null
-    if ($dockerInfo) {
-        Write-Host '✅ Docker está pronto!'
-        break
-    }
-    Write-Host "⌛ Esperando Docker... ($tries/$maxTries)"
+    $dockerInfo = docker version 2>$null
+    if ($dockerInfo) { break }
     Start-Sleep -Seconds 2
     $tries++
+    if ($tries % 5 -eq 0) { Write-Host "⌛ Aguardando Docker... ($tries/$maxTries)" }
 } while ($tries -lt $maxTries)
 
 if (-not $dockerInfo) {
-    Write-Host '❌ Docker não arrancou corretamente. Abortar.'
+    Write-Host '❌ Docker não ficou pronto. Abortar sem reiniciar.'
     exit 1
 }
+Write-Host '✅ Docker está pronto!'
 
-# [8/8] Verifica GPU dentro do WSL e instala Toolkit se for utilizável
-$gpuFunctional = $false
-if ($gpuAvailable) {
-    Write-Host '🔍 Verificando se a GPU está acessível dentro do WSL...'
-
-    $gpuTest = wsl -d Ubuntu-22.04 -- nvidia-smi 2>&1
-    if ($gpuTest -like "*failed*" -or $gpuTest -like "*not found*" -or $gpuTest -like "*no adapters*" -or $gpuTest -like "*error*") {
-        Write-Host '⚠️ GPU não está funcional dentro do WSL. Ignorar instalação do NVIDIA Toolkit.'
-    } else {
-        Write-Host '✅ GPU detetada dentro do WSL. A instalar NVIDIA Container Toolkit...'
-        $gpuFunctional = $true
-
-        $bashScript = @'
-#!/bin/bash
-set -e
-distribution=$(. /etc/os-release; echo $ID$VERSION_ID)
-
-echo '🔧 A instalar NVIDIA Container Toolkit...'
-curl -fsSL https://nvidia.github.io/nvidia-docker/gpgkey | gpg --dearmor | sudo tee /usr/share/keyrings/nvidia-docker.gpg > /dev/null
-distribution="ubuntu22.04"
-echo "deb [signed-by=/usr/share/keyrings/nvidia-docker.gpg] https://nvidia.github.io/nvidia-docker/$distribution/x86_64 stable" | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-sudo apt update
-sudo apt install -y nvidia-container-toolkit
-sudo systemctl restart docker || true
-'@
-
-        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($bashScript))
-        wsl -d Ubuntu-22.04 -- bash -c "echo $encoded | base64 -d | bash"
-
+# [8/8] Teste de GPU por container (sem instalar toolkit no WSL e sem reiniciar)
+$useGpu = $false
+if ($gpuOnWindows) {
+    Write-Host '🔍 Testar acesso à GPU via Docker (Docker Desktop + WSL2)...'
+    try {
+        # Pull rápido e teste de nvidia-smi; se falhar, seguimos em CPU
+        docker pull --quiet nvidia/cuda:12.2.0-base-ubuntu22.04 | Out-Null
+        $gpuTest = docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi 2>&1
+        if ($LASTEXITCODE -eq 0 -and $gpuTest -match "NVIDIA-SMI") {
+            Write-Host '✅ GPU acessível dentro de containers.'
+            $useGpu = $true
+        } else {
+            Write-Host '⚠️ GPU não acessível via Docker neste momento. Vamos seguir em CPU sem reiniciar o Docker.'
+            Write-Host 'ℹ️ Verifica no Docker Desktop: Settings > Resources > WSL integration (ativar Ubuntu) e GPU support.'
+        }
+    } catch {
+        Write-Host '⚠️ Falha no teste de GPU. Vamos seguir em CPU.'
     }
 } else {
-    Write-Host '⚠️ GPU não disponível — a correr com CPU.'
+    Write-Host 'ℹ️ Sem GPU no Windows → CPU.'
 }
 
-# Final
+# Lançar os serviços com/sem GPU (sem reiniciar nada)
 Write-Host ''
-Write-Host '✅ Instalação concluída!'
-Write-Host '⚡ Podes agora correr: docker compose up --build'
-Write-Host '🧠 O sistema usará GPU se disponível, caso contrário, CPU.'
-
-if ($gpuFunctional) {
-    Write-Host "⚡ A correr docker-compose com suporte a GPU..."
-    docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
+if ($useGpu) {
+    if (Test-Path "docker-compose.gpu.yml") {
+        Write-Host "⚡ A correr docker compose com GPU (sem reinício do Docker)..."
+        docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
+    } else {
+        Write-Host "⚡ A correr docker compose (GPU via --gpus all nos serviços que suportem)..."
+        docker compose up --build
+    }
 } else {
-    Write-Host "⚡ A correr docker-compose sem GPU (CPU apenas)..."
+    Write-Host "⚡ A correr docker compose (CPU apenas, sem reinício do Docker)..."
     docker compose up --build
 }

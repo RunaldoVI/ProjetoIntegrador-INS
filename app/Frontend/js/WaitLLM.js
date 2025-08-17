@@ -46,7 +46,7 @@ async function monitorLLMProgress() {
       console.error("Erro ao obter progresso/status:", err);
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
   overlay?.classList.add("hidden");

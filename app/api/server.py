@@ -24,6 +24,8 @@ ROOT_DIR    = os.path.abspath(os.path.join(HERE, ".."))         # raiz do projet
 BACKEND_DIR = os.path.join(ROOT_DIR, "Backend")
 FRONTEND_DIR= os.path.join(ROOT_DIR, "Frontend")
 OUTPUT_BLOCKS_ROOT = os.path.join(BACKEND_DIR, "OutputBlocks")
+OLLAMA_PROGRESS_LOG = os.getenv("OLLAMA_PROGRESS_LOG", "/app/logs/ollama-progress.log")
+
 
 # Permitir "from Backend...." ao correr a partir de /app/api
 if ROOT_DIR not in sys.path:
@@ -51,6 +53,46 @@ app = Flask(
     static_folder=os.path.join(FRONTEND_DIR, "static"),
 )
 CORS(app)
+
+# ---------------- Healthcheck ----------------
+@app.get("/health")
+def health():
+    """
+    /health          -> verifica só se a API está de pé (liveness)
+    /health?deep=1   -> também verifica dependências (readiness)
+    Retorna 200 se OK; 503 se alguma dependência falhar no deep.
+    """
+    deep = (request.args.get("deep") or "").strip() in ("1", "true", "yes")
+    res = {"status": "ok"}
+
+    if not deep:
+        return jsonify(res), 200
+
+    ok = True
+    errors = {}
+
+    # URLs padrão (podem vir do .env)
+    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+    qdrant_url = os.getenv("QDRANT_URL", "http://qdrant:6333")
+
+    # Qdrant
+    try:
+        r = requests.get(f"{qdrant_url}/readyz", timeout=2)
+        if r.status_code >= 400:
+            ok = False
+            errors["qdrant"] = f"HTTP {r.status_code}"
+    except Exception as e:
+        ok = False
+        errors["qdrant"] = str(e)
+
+
+    res["deps_ok"] = ok
+    if errors:
+        res["errors"] = errors
+
+    return (jsonify(res), 200) if ok else (jsonify(res), 503)
+
+
 
 # Sem cache para estáticos (dev)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=0)
@@ -327,8 +369,9 @@ def llm_status():
 # 7) LLM progress
 @app.get('/llm-progress')
 def llm_progress():
+    global _last_progress
     try:
-        with open("/app/ollama-progress.log", "r") as f:
+        with open(OLLAMA_PROGRESS_LOG, "r") as f:
             lines = f.readlines()
         completed = total = 0
         for line in reversed(lines):
@@ -337,12 +380,11 @@ def llm_progress():
                 completed = int(data.get("completed", 0))
                 total = int(data.get("total", 0))
                 break
-        if total == 0:
-            return jsonify({"progress": 0})
-        percent = round(100 * completed / total, 2)
-        return jsonify({"progress": percent})
-    except Exception as e:  # noqa: BLE001
-        return jsonify({"progress": 0, "error": str(e)})
+        if total > 0:
+            _last_progress = round(100 * completed / total, 2)
+        return jsonify({"progress": _last_progress})
+    except Exception as e:
+        return jsonify({"progress": _last_progress, "error": str(e)})
 
 # 8) Download do Excel final
 @app.get('/download-excel')

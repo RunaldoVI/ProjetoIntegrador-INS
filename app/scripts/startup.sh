@@ -1,25 +1,40 @@
 #!/bin/sh
 set -eu
 
-# limpa/cria o log do pull do Ollama
-: > /app/ollama-progress.log
+LOG_DIR=/app/logs
+LOG_FILE="$LOG_DIR/ollama-progress.log"
+mkdir -p "$LOG_DIR"
+: > "$LOG_FILE"
 
 echo '⏳ A aguardar que o Ollama esteja pronto...'
 until curl -sf http://ollama:11434/ >/dev/null; do
   sleep 2
 done
 
-# lê nomes dos modelos do .env (ou usa defaults)
 MODEL_CHAT="${CHAT_MODEL:-mistral}"
 MODEL_EMB="${EMB_MODEL:-nomic-embed-text}"
 
 pull_model() {
   name="$1"
-  echo "✅ A puxar modelo: $name ..."
-  curl -s -X POST http://ollama:11434/api/pull \
+
+  # 1) Já existe? (200 = disponível)
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST http://ollama:11434/api/show \
     -H 'Content-Type: application/json' \
-    -d "{\"name\":\"${name}\"}" | tee -a /app/ollama-progress.log
-  printf "\n" >> /app/ollama-progress.log
+    -d "{\"model\":\"${name}\"}")
+
+  if [ "$http_code" = "200" ]; then
+    echo "✅ Modelo '${name}' já disponível. (skip pull)"
+    return 0
+  fi
+
+  echo "⬇️  A puxar modelo: $name ..."
+  # no-buffer para atualizar o log em tempo real
+  stdbuf -oL -eL curl -N -sS -X POST http://ollama:11434/api/pull \
+    -H 'Content-Type: application/json' \
+    -d "{\"name\":\"${name}\"}" | stdbuf -oL -eL tee -a "$LOG_FILE"
+  printf "\n" >> "$LOG_FILE"
+  sync
 }
 
 pull_model "$MODEL_CHAT"
@@ -55,9 +70,9 @@ fi
 
 if [ "$needs_ingest" -eq 1 ]; then
   echo "🚧 A iniciar ingestão para '$QDRANT_COLLECTION' (targets=$INGEST_TARGETS, batch=$INGEST_BATCH)..."
-  PYTHONPATH=/app python Backend/Chatbot/qdrant_index.py \
+  PYTHONPATH=/app python -m Backend.Chatbot.qdrant_index \
     --targets "$INGEST_TARGETS" --batch "$INGEST_BATCH" || {
-      echo "❌ Falha na ingestão inicial. Vai arrancar mesmo assim."; 
+      echo "❌ Falha na ingestão inicial. Vai arrancar mesmo assim."
     }
   echo "✅ Ingestão inicial concluída."
 fi
