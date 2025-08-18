@@ -2,7 +2,9 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.2rem;
+  font-size: 0.95rem;
+  letter-spacing: .2px;
   border-radius: 0.5rem;
   background-color: transparent;
   color: inherit;
@@ -12,11 +14,13 @@
 
 .nav-link i {
   margin-right: 0.5rem;
+  transition: transform .2s;
 }
 
 .nav-link:hover {
   background-color: #dbeafe;
   color: #1f2937;
+  transform: scale(1.1);
 }
 
 .dark .nav-link:hover {
@@ -25,6 +29,13 @@
 }
 
 .nav-link.active {
-  background-color: #3b82f6;
-  color: #ffffff;
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+  color: #fff;
+  box-shadow: inset 3px 0 0 #60a5fa; /* barra à esquerda */
 }
+
+.dark .nav-link:hover {
+  background-color: rgba(125, 211, 252, 0.1); /* tom azul claro */
+  color: #7dd3fc; /* darkAccent */
+}
+

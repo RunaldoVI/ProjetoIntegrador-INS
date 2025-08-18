@@ -13,7 +13,7 @@ import json
 import unicodedata
 import subprocess
 from datetime import timedelta
-
+from Database.logger import get_logs
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import requests
@@ -25,7 +25,6 @@ BACKEND_DIR = os.path.join(ROOT_DIR, "Backend")
 FRONTEND_DIR= os.path.join(ROOT_DIR, "Frontend")
 OUTPUT_BLOCKS_ROOT = os.path.join(BACKEND_DIR, "OutputBlocks")
 OLLAMA_PROGRESS_LOG = os.getenv("OLLAMA_PROGRESS_LOG", "/app/logs/ollama-progress.log")
-
 
 # Permitir "from Backend...." ao correr a partir de /app/api
 if ROOT_DIR not in sys.path:
@@ -45,6 +44,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 from user import user_bp  # type: ignore
 from Backend.Chatbot.qdrant_query import answer_question  # type: ignore
 from Backend.PdfViewMode.PreviewMode import finalizar_a_partir_dos_blocos  # type: ignore
+
+# >>>>>>>>>>> ADICIONADO: helpers para tempo/duração <<<<<<<<<<
+from api_utils import now, fmt_duration  # <- cria api_utils.py com now() e fmt_duration()
 
 # ---------------- App Flask ----------------
 app = Flask(
@@ -85,14 +87,11 @@ def health():
         ok = False
         errors["qdrant"] = str(e)
 
-
     res["deps_ok"] = ok
     if errors:
         res["errors"] = errors
 
     return (jsonify(res), 200) if ok else (jsonify(res), 503)
-
-
 
 # Sem cache para estáticos (dev)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=0)
@@ -187,12 +186,15 @@ def _carregar_por_file(questionario: str, fname: str):
 # 1) Finalizar a partir dos blocos do preview (sem LLM e sem reconstruir PDF)
 @app.post("/outputs/<questionario>/finalize")
 def finalize(questionario):
+    t0 = now()  # <<< medir tempo
     try:
         res = finalizar_a_partir_dos_blocos(questionario, gerar_excel=True, importar_bd=True)
 
         # Confirmar no disco (caso a função não tenha conseguido detetar)
         excel_path = os.path.join(UPLOAD_FOLDER, "INS-NHANES-DPQ_J.xlsx")
         excel_exists = os.path.exists(excel_path) or bool(res.get("excel"))
+
+        elapsed = now() - t0  # <<< fim medição
 
         payload = {
             "ok": True,
@@ -201,14 +203,26 @@ def finalize(questionario):
             "excel": excel_exists,
             "bd_import": res.get("bd_import"),
             "erros": res.get("erros", []),
+            # >>> novos campos para o front
+            "files_count": int(res.get("total", 0)),
+            "duration_ms": int(elapsed * 1000),
+            "duration_human": fmt_duration(elapsed),
+            "warnings": res.get("warnings", []),
+            "warnings_count": len(res.get("warnings", [])),
         }
         if excel_exists:
             payload["download_excel"] = "http://localhost:5000/download-excel"
 
         return jsonify(payload)
     except Exception as e:
+        elapsed = now() - t0
         app.logger.exception("Erro no finalize")
-        return jsonify({"ok": False, "mensagem": f"{type(e).__name__}: {e}"}), 500
+        return jsonify({
+            "ok": False,
+            "mensagem": f"{type(e).__name__}: {e}",
+            "duration_ms": int(elapsed * 1000),
+            "duration_human": fmt_duration(elapsed),
+        }), 500
 
 # 2) Chatbot RAG
 @app.post('/chat-rag')
@@ -246,6 +260,7 @@ def upload_pdf():
     idx[questionario_slug] = filepath
     _save_preview_index(idx)
 
+    t0 = now()  # <<< medir tempo do processamento (subprocess)
     try:
         modo_bruto = request.form.get("modo", "automatico")
         modo = modo_bruto.replace("--modo", "").strip().lower()
@@ -260,6 +275,8 @@ def upload_pdf():
 
         subprocess.run(args, check=True)
 
+        elapsed = now() - t0  # <<< fim medição
+
         if modo == "preview":
             # Devolve o primeiro bloco e apontadores de navegação
             itens = _listar_itens(questionario_slug)
@@ -268,6 +285,12 @@ def upload_pdf():
                 if os.path.exists(preview_path):
                     with open(preview_path, "r", encoding="utf-8") as f:
                         preview_data = json.load(f)
+                    # incluir meta de tempo/ficheiro
+                    preview_data.update({
+                        "file_name": file.filename,
+                        "duration_ms": int(elapsed * 1000),
+                        "duration_human": fmt_duration(elapsed),
+                    })
                     return jsonify(preview_data), 200
                 return jsonify({'error': 'Nenhum bloco encontrado para este questionário.'}), 500
 
@@ -288,12 +311,29 @@ def upload_pdf():
                 "prev_file": prev_file,
                 "next_file": next_file,
                 "item": data0,
+                # meta útil para UI:
+                "file_name": file.filename,
+                "duration_ms": int(elapsed * 1000),
+                "duration_human": fmt_duration(elapsed),
             }), 200
 
-        return jsonify({'status': 'Processamento concluído com sucesso'}), 200
+        # automático
+        return jsonify({
+            'status': 'Processamento concluído com sucesso',
+            'file_name': file.filename,
+            'questionario': questionario_slug,
+            'duration_ms': int(elapsed * 1000),
+            'duration_human': fmt_duration(elapsed),
+        }), 200
 
     except subprocess.CalledProcessError as e:
-        return jsonify({'error': f'Erro ao processar PDF: {str(e)}'}), 500
+        elapsed = now() - t0
+        return jsonify({
+            'error': f'Erro ao processar PDF: {str(e)}',
+            'file_name': file.filename,
+            'duration_ms': int(elapsed * 1000),
+            'duration_human': fmt_duration(elapsed),
+        }), 500
 
 # 4) Listar itens (para navegação)
 @app.get("/outputs/<questionario>/items")
@@ -367,6 +407,7 @@ def llm_status():
         return jsonify({"ready": False, "error": str(e)})
 
 # 7) LLM progress
+_last_progress = 0  # evitar NameError
 @app.get('/llm-progress')
 def llm_progress():
     global _last_progress
@@ -399,6 +440,11 @@ def download_excel():
         )
     else:
         return jsonify({'error': 'Ficheiro Excel não encontrado'}), 404
+
+@app.get("/logs")
+def logs():
+    tail = int(request.args.get("tail") or 500)
+    return jsonify({"lines": get_logs(tail)})
 
 # 9) Reprocessar apenas um bloco (aplica instruções extra)
 @app.post("/outputs/<questionario>/item/reprocess")

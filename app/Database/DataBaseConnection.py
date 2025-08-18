@@ -6,6 +6,9 @@ import sys
 from sentence_transformers import SentenceTransformer, util
 import torch
 
+# 👇 importa o logger simples
+from Database.logger import get_logs, log
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Backend', 'SemanticComparison')))
 from SemanticQuestionComparison import limpar_texto, atribuir_identificador
 
@@ -34,6 +37,9 @@ def extrair_ident_pergunta(pergunta_raw, entrada):
     return None
 
 def importar_json_para_bd(caminho_json):
+    # log de arranque
+    log(f"📥 Importar JSON para BD: {os.path.basename(caminho_json)}")
+
     conn = conectar_bd()
     cursor = conn.cursor()
 
@@ -71,12 +77,12 @@ def importar_json_para_bd(caminho_json):
 
         ident_pergunta = extrair_ident_pergunta(pergunta_raw, entrada)
         if not ident_pergunta:
-            print(f"⚠️ Sem identificador-pergunta (tipo DPQ.010) para: {pergunta_raw[:80]!r}. A ignorar.")
+            log(f"⚠️ Sem identificador-pergunta (tipo DPQ.010) para: {pergunta_raw[:80]!r}. A ignorar.")
             continue
 
         # já existe exatamente igual? (evita duplicado literal)
         if pergunta in perguntas_bd:
-            print(f"⚠️ Pergunta duplicada ignorada (exata): '{pergunta}'")
+            log(f"⚠️ Pergunta duplicada ignorada (exata): '{pergunta}'")
             continue
 
         # decidir identificador-semantico da pergunta
@@ -91,7 +97,7 @@ def importar_json_para_bd(caminho_json):
             (pergunta_raw.strip(), ident_pergunta, sem_id_pergunta)
         )
         pergunta_id = cursor.lastrowid
-        print(f"✅ Pergunta: '{pergunta}' id={pergunta_id} ident-pergunta={ident_pergunta} sem={sem_id_pergunta}")
+        log(f"✅ Pergunta: '{pergunta}' id={pergunta_id} ident-pergunta={ident_pergunta} sem={sem_id_pergunta}")
 
         # atualizar memória local para próximas comparações
         perguntas_bd.append(pergunta)
@@ -113,18 +119,18 @@ def importar_json_para_bd(caminho_json):
                 if max_sim >= 0.85:
                     idx = sims.argmax().item()
                     sem_id_resp = respostas_sem_ids[idx]
-                    print(f"♻️ Resposta semelhante → sem={sem_id_resp}")
+                    log(f"♻️ Resposta semelhante → sem={sem_id_resp}")
             if sem_id_resp is None:
                 sem_id_resp = proximo_sem_resposta
                 proximo_sem_resposta += 1
-                print(f"🆕 Nova resposta → novo sem={sem_id_resp}")
+                log(f"🆕 Nova resposta → novo sem={sem_id_resp}")
 
             cursor.execute(
                 "INSERT INTO respostas (texto, `identificador-pergunta`, `identificador-semantico`) VALUES (%s, %s, %s)",
                 (texto_resp_raw.strip(), ident_pergunta, sem_id_resp)
             )
             id_resposta = cursor.lastrowid
-            print(f"✅ Resposta: '{texto_resp}' id={id_resposta} ident-pergunta={ident_pergunta} sem={sem_id_resp}")
+            log(f"✅ Resposta: '{texto_resp}' id={id_resposta} ident-pergunta={ident_pergunta} sem={sem_id_resp}")
 
             # atualizar memória local para próximas comparações
             respostas_bd.append(texto_resp)
@@ -141,4 +147,4 @@ def importar_json_para_bd(caminho_json):
     conn.commit()
     cursor.close()
     conn.close()
-    print("✅ Done: pergunta/respostas com o mesmo `identificador-pergunta` e agrupamento por `identificador-semantico`.")
+    log("✅ Done: pergunta/respostas com o mesmo `identificador-pergunta` e agrupamento por `identificador-semantico`.")
