@@ -43,7 +43,10 @@ window.IngestHelpers = window.IngestHelpers || {};
     dropzone?.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("bg-lightHighlight", "dark:bg-darkHighlight"); });
     dropzone?.addEventListener("dragleave", () => { dropzone.classList.remove("bg-lightHighlight", "dark:bg-darkHighlight"); });
     dropzone?.addEventListener("drop", (e) => { e.preventDefault(); dropzone.classList.remove("bg-lightHighlight", "dark:bg-darkHighlight"); if (e.dataTransfer.files.length) handlePdfFile(e.dataTransfer.files[0]); });
-    dropzone?.addEventListener("click", () => input.click());
+    dropzone?.addEventListener("click", () => {
+    input.value = "";
+    input.click();
+});
   }
 
   ns.uploader = { setupPdfUpload, handlePdfFile };
