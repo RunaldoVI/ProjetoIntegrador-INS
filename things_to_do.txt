@@ -19,5 +19,4 @@ server.py
 FRONTEND:
 
 - Quando alterar qualquer coisa no perfil ele não voltar para o login.
-- Ajustar estrutura da página sobre.
 - Quando selecionamos na dropbox não precisar de selecionar duas vezes.
