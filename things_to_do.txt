@@ -11,3 +11,8 @@ LLM Mudar Modelo FIcheiros:
 startup.sh
 promptllm.py
 server.py
+
+
+FRONTEND:
+ - Pop up aparecer á frente do chatbot.
+ - Aparecer pop ups para o registo e login em vez dos warnings do js.
