@@ -1,0 +1,99 @@
+ID: 1. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Little interest or pleasure in doing things
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 2. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Feeling down, depressed, or hopeless
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 3. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Trouble falling or staying asleep, or sleeping too much
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 4. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Feeling tired or having little energy
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 5. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Poor appetite or overeating
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 6. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Feeling bad about yourself   or that you are a failure or have let yourself or your family down
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 7. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Trouble concentrating on things, such as reading the newspaper or watching television
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 8. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Moving or speaking so slowly that other people could have noticed. Or the opposite    being so figety or restless that you have been moving around a lot more than usual
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 9. | Página: 1
+Secção: Nenhuma
+Pergunta:
+Thoughts that you would be better off dead, or of hurting yourself
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------

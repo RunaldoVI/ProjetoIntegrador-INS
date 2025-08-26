@@ -5,13 +5,55 @@ import cv2
 import numpy as np
 
 # Aceita DPQ.010, DMQ.281a, DMQ.281b/c, e variantes com pontuação a seguir
+
 REGEX_ID = re.compile(
-    r"^([A-Z]{2,5}[-._]?\d{2,4}(?:[A-Za-z]+(?:[/-][A-Za-z]+)*)?)(?:[:;\]\)\.])?$"
+    r"""^(
+            (?:[A-Z]{2,5}[-._]?\d{2,4}(?:[A-Za-z]+(?:[/-][A-Za-z]+)*)?)   # formato antigo
+          | (?:[A-Z])                                                    # letra única (A, B, C)
+          | (?:(?=[MDCLXVI]+\b)                                          # romanos (I, II, IV, V...)
+              M{0,3}(?:CM|CD|D?C{0,3})
+              (?:XC|XL|L?X{0,3})
+              (?:IX|IV|V?I{0,3}))
+              (?:[:;\]\)\.])?                                            # romanos podem ter pontuação ou não
+          | (?:[1-9]\d{0,2}(?:[:;\]\)\.]))                               # números: OBRIGATÓRIO ter pontuação
+        )$
+    """,
+    re.VERBOSE
 )
+
 
 def eh_identificador(word: str):
     m = REGEX_ID.match(word.strip())
     return m.group(1) if m else None
+
+def _tamanho_span_para_word(pagina, b_no, l_no):
+    rd = pagina.get_text("rawdict")
+    for b in rd["blocks"]:
+        if b.get("type") != 0:
+            continue
+        if int(b.get("number", -1)) != b_no:
+            continue
+        linhas = b.get("lines", [])
+        if l_no < 0 or l_no >= len(linhas):
+            continue
+        spans = linhas[l_no].get("spans", [])
+        if not spans:
+            continue
+        sizes = [s.get("size", 10.0) for s in spans]
+        return sorted(sizes)[len(sizes)//2]
+    return None
+
+def _corrigir_bbox_y_com_span(pagina, item, margem_top=1.05, margem_bot=0.25, max_alt_sem_corr=30):
+    x0, y0, x1, y1 = item["bbox"]
+    alt = y1 - y0
+    if alt <= max_alt_sem_corr:
+        return item  # já está ok
+    size = _tamanho_span_para_word(pagina, item["block"], item["line"]) or 11.0
+    y_base = y1
+    y0c = y_base - size * margem_top
+    y1c = y_base + size * margem_bot
+    item["bbox"] = [float(x0), float(y0c), float(x1), float(y1c)]
+    return item
 
 # ---------- Caixas (opcional: para ignorar texto dentro) ----------
 def detetar_caixas_vetor(pagina, min_w=40, min_h=20):
@@ -183,11 +225,15 @@ def localizar_ids_pagina(pagina,
             continue
         vistos.add(chave)
 
-        resultados.append({
+        item = {
             "identificador": ident,
             "bbox": [float(x0), float(y0), float(x1), float(y1)],
             "block": int(b_no), "line": int(l_no), "word": int(w_no),
-        })
+        }
+        
+        item = _corrigir_bbox_y_com_span(pagina, item)
+        
+        resultados.append(item)
     return resultados, caixas
 
 # ---------- desenho (ids + linhas-guia) ----------

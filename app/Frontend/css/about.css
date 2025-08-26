@@ -99,7 +99,51 @@
   transform:rotateY(180deg);
 }
 
+/* FAQ — acordeão sem JS */
+#section-faq .faq-wrap {
+  max-width: 64rem; margin: 0 auto;
+  display: grid; gap: .75rem;
+}
+
+#section-faq details.faq-item {
+  border: 1px solid #e5e7eb; background: #f9fafb;
+  border-radius: .75rem; box-shadow: 0 4px 8px rgba(0,0,0,.06);
+}
+
+/* Cabeçalho (pergunta) com “look” de <p> */
+#section-faq summary.faq-q {
+  padding: 1rem 1.25rem; cursor: pointer;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem;
+  list-style: none; user-select: none;
+}
+#section-faq summary.faq-q::-webkit-details-marker { display: none; }
+
+#section-faq .q-text {
+  margin: 0; font-weight: 600; font-size: 1.05rem; line-height: 1.5; color: #111827;
+}
+
+/* Setinha */
+#section-faq .chev { width: 1.25rem; height: 1.25rem; margin-top: .25rem; flex-shrink: 0;
+  transition: transform .2s ease; color: #6b7280; }
+#section-faq details[open] .chev { transform: rotate(180deg); }
+
+/* Corpo (resposta) */
+#section-faq .faq-a { padding: .25rem 1.25rem 1rem; }
+#section-faq .faq-a p { margin: .5rem 0 0 0; line-height: 1.7; color: #374151; }
+#section-faq .faq-a ul { margin: .5rem 0 0 0; padding-left: 1.25rem; list-style: disc; color: #374151; }
+#section-faq .faq-a li { margin: .25rem 0; }
+
+/* Dark mode, se usares .dark no <html> ou <body> */
+.dark #section-faq details.faq-item { border-color: #374151; background: #1f2937; }
+.dark #section-faq .q-text { color: #f3f4f6; }
+.dark #section-faq .faq-a p,
+.dark #section-faq .faq-a ul { color: #d1d5db; }
+
+
 /* Preferências de movimento */
 @media (prefers-reduced-motion: reduce){
   .flip-card{ transition:none; }
 }
+
+
+
