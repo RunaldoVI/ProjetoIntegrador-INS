@@ -3,9 +3,35 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Mostrar alerta
-function showAlert(msg) {
-  alert(msg);
+// Mostrar alerta (agora com pop-up customizado)
+function showAlert(msg, type = "error") {
+  const popup = document.getElementById("popup");
+  const popupMessage = document.getElementById("popup-message");
+
+  if (!popup || !popupMessage) {
+    console.warn("Elemento de pop-up não encontrado no HTML.");
+    return;
+  }
+
+  popupMessage.textContent = msg;
+
+  // Cor dependendo do tipo
+  if (type === "success") {
+    popup.classList.remove("bg-red-600");
+    popup.classList.add("bg-green-600");
+  } else {
+    popup.classList.remove("bg-green-600");
+    popup.classList.add("bg-red-600");
+  }
+
+  popup.classList.remove("hidden", "opacity-0");
+  popup.classList.add("opacity-100");
+
+  // Esconde após 3 segundos
+  setTimeout(() => {
+    popup.classList.add("opacity-0");
+    setTimeout(() => popup.classList.add("hidden"), 300);
+  }, 3000);
 }
 
 // Obter utilizador autenticado de qualquer storage
@@ -28,11 +54,10 @@ async function register() {
     return;
   }
 
-
   if (avatarFile && !avatarFile.name.endsWith(".png")) {
-  showAlert("Por favor seleciona uma imagem em formato .png");
-  return;
-}
+    showAlert("Por favor seleciona uma imagem em formato .png");
+    return;
+  }
 
   const formData = new FormData();
   formData.append("nome", nome);
@@ -53,8 +78,10 @@ async function register() {
     if (res.status === 409) throw new Error("Email já registado.");
     if (!res.ok) throw new Error("Erro ao registar.");
 
-    showAlert("Conta criada com sucesso!");
-    window.location.href = "../sections/login.html";
+    showAlert("Conta criada com sucesso!", "success");
+    setTimeout(() => {
+      window.location.href = "../sections/login.html";
+    }, 1500);
   } catch (err) {
     console.error("Erro no registo:", err);
     showAlert(err.message || "Erro ao registar.");
@@ -96,7 +123,14 @@ async function login() {
       sessionStorage.setItem("user", JSON.stringify(userData));
     }
 
-    window.location.href = "../index.html#ingest";
+    // ✅ Mostra toast e só depois redireciona
+    showAlert("Login realizado com sucesso!", "success");
+
+    // ✅ Bloqueia qualquer ação imediata de reload/redirecionamento
+    setTimeout(() => {
+      window.location.href = "../index.html#ingest";
+    }, 2000); // 2s dá tempo para ver o toast
+
   } catch (err) {
     console.error("Erro no login:", err);
     showAlert(err.message || "Erro ao autenticar.");
@@ -117,8 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const authButtons = document.getElementById("authButtons");
   const logoutBtn = document.getElementById("logoutBtn");
 
-
-    const avatarInput = document.getElementById("avatar");
+  const avatarInput = document.getElementById("avatar");
   const avatarLabel = document.getElementById("avatarLabel");
 
   if (avatarInput && avatarLabel) {

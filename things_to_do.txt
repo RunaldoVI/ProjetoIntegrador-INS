@@ -14,5 +14,4 @@ server.py
 
 
 FRONTEND:
- - Aparecer pop ups para o registo e login em vez dos warnings do js.
  - O nao gosto resposta ja nao faz nada ver o que se passa (Nao passa do frontend para o backend)
