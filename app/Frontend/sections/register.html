@@ -18,38 +18,48 @@
       <h2 class="form-title">Criar Conta</h2>
 
       <div class="input-group">
-        <input type="text" id="nome" required />
+        <input type="text" id="nome" placeholder=" " required />
         <label for="nome">Nome completo</label>
         <span class="icon">👤</span>
       </div>
 
       <div class="input-group">
-        <input type="email" id="email" required />
+        <input type="email" id="email" placeholder=" " required />
         <label for="email">Email</label>
         <span class="icon">@</span>
       </div>
 
       <div class="input-group">
-        <input type="password" id="password" required />
+        <input type="password" id="password" placeholder=" " required />
         <label for="password">Palavra-passe</label>
         <span class="icon">🔒</span>
       </div>
 
-      <!-- NOVO: Campo Função -->
-      <div class="input-group">
-        <input type="text" id="funcao" required />
-        <label for="funcao">Função</label>
-        <span class="icon">💼</span>
+      <!-- FUNÇÃO (DROPDOWN CUSTOM) -->
+      <div class="input-group custom-select" id="funcaoSelect">
+        <div class="select-trigger" tabindex="0">
+          <span class="icon">💼</span>
+          <span class="select-text"></span>
+          <label for="funcao">Função</label>
+        </div>
+        <div class="select-menu hidden">
+          <div class="option" data-value="Estudante">Estudante</div>
+          <div class="option" data-value="Professor">Professor</div>
+          <div class="option" data-value="Investigador">Investigador</div>
+          <div class="option" data-value="Outro">Outro</div>
+        </div>
+        <!-- input escondido que realmente envia o valor -->
+        <input type="hidden" id="funcao" name="funcao" required />
       </div>
 
-      <!-- NOVO: Campo Instituição -->
+      <!-- INSTITUIÇÃO (abre modal) -->
       <div class="input-group">
-        <input type="text" id="instituicao" required />
+        <input type="text" id="instituicao" placeholder=" " readonly required />
         <label for="instituicao">Instituição</label>
         <span class="icon">🏛️</span>
       </div>
 
-      <!-- NOVO: Upload de Avatar -->
+      <!-- Upload de Avatar -->
       <div class="mb-4">  
         <div class="mt-4 w-full">
           <label for="avatar" id="avatarLabel" class="block cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg text-center shadow transition-all duration-200">
@@ -58,6 +68,7 @@
         </div>
         <input type="file" id="avatar" accept="image/png" class="hidden" />
       </div>
+
       <button type="submit" class="btn-primary">
         <span class="btn-text">Registar</span>
         <span class="spinner"></span>
@@ -68,10 +79,39 @@
     </form>
   </div>
 
+  <!-- Modal Instituições (agora FORA do form) -->
+  <div id="instModal" class="modal hidden">
+    <div class="modal__dialog">
+      <div class="modal__header">
+        <h3 id="modalTitle">Escolhe um país</h3>
+        <button type="button" id="modalClose" class="modal__close">✕</button>
+      </div>
+
+      <div class="modal__breadcrumbs">
+        <span id="crumbCountry" class="crumb disabled">País</span>
+        <span class="sep">›</span>
+        <span id="crumbInst" class="crumb disabled">Instituição</span>
+      </div>
+
+      <div class="modal__search">
+        <input id="modalSearch" type="text" placeholder="Pesquisar..." />
+      </div>
+
+      <div id="modalList" class="modal__list">
+        <!-- itens renderizados via JS -->
+      </div>
+
+      <div class="modal__footer">
+        <button type="button" id="modalBack" class="btn-secondary" disabled>Voltar</button>
+        <button type="button" id="modalCancel" class="btn-ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Pop-up customizado -->
-<div id="popup" class="hidden fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0">
-  <span id="popup-message"></span>
-</div>
+  <div id="popup" class="hidden fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0">
+    <span id="popup-message"></span>
+  </div>
 
   <script src="../js/auth.js"></script>
 </body>

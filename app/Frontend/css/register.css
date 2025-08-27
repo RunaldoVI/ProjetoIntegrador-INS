@@ -1,209 +1,224 @@
+/* =========================================================
+   Base
+========================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-:root {
-  --primary: #1d4ed8;
-  --primary-hover: #2563eb;
-  --text: #1f2937;
-  --background: #f9fafb;
-  --glass: rgba(255, 255, 255, 0.65);
-  --border: rgba(0, 0, 0, 0.05);
-  --radius: 12px;
+:root{
+  --primary:#1d4ed8;
+  --primary-hover:#2563eb;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --background:#f9fafb;
+  --glass:rgba(255,255,255,.65);
+  --border:rgba(0,0,0,.06);
+  --radius:12px;
+  --shadow-xs:0 2px 6px rgba(0,0,0,.05);
+  --shadow-sm:0 4px 10px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.10);
+  --shadow-xl:0 30px 80px rgba(0,0,0,.20);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Inter',sans-serif;
+  color:var(--text);
+  background:var(--background);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
 }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--background);
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
+/* =========================================================
+   Background
+========================================================= */
+.background-gradient{
+  position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(circle at 20% 30%, #93c5fd 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, #bfdbfe 0%, transparent 40%);
+  animation:moveBg 15s infinite alternate ease-in-out;
+}
+@keyframes moveBg{from{transform:translate(0,0)}to{transform:translate(-20px,20px)}}
+
+/* =========================================================
+   Form layout
+========================================================= */
+.form-container{width:100%;max-width:420px;padding:2rem}
+.form-card{
+  background:var(--glass);backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:2rem;box-shadow:var(--shadow-lg);animation:fade-in .8s ease-out
+}
+@keyframes fade-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.form-title{font-size:1.5rem;font-weight:600;text-align:center;margin-bottom:2rem}
+
+/* =========================================================
+   Inputs + Custom Select (estilo partilhado)
+========================================================= */
+.input-group{position:relative;margin-bottom:1.75rem}
+
+/* estilo comum para input normal e botão do custom select */
+.input-group input,
+.select-trigger{
+  width:100%;
+  padding:1rem 1rem 1rem 2.5rem;   /* espaço para o ícone à esquerda */
+  font-size:1rem;
+  border:1px solid #d1d5db;border-radius:var(--radius);
+  background:rgba(255,255,255,.6);color:var(--text);
+  outline:0;transition:border .2s, background .2s, box-shadow .2s;
+  box-shadow:var(--shadow-xs);
+}
+.input-group input:hover,
+.select-trigger:hover{
+  border-color:var(--primary);
+  box-shadow:var(--shadow-sm);
+  background:#fff;
+}
+.input-group input:focus{
+  border-color:var(--primary);
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(29,78,216,.12)
 }
 
-.background-gradient {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 20% 30%, #93c5fd 0%, transparent 40%),
-              radial-gradient(circle at 80% 70%, #bfdbfe 0%, transparent 40%);
-  z-index: -1;
-  animation: moveBg 15s infinite alternate ease-in-out;
+/* label flutuante (aplica a inputs e ao "botão" do select) */
+.input-group label{
+  position:absolute;left:2.5rem;top:50%;transform:translateY(-50%);
+  pointer-events:none;font-size:.9rem;color:var(--muted);
+  transition:all .18s ease;background:transparent;padding:0 .25rem;
 }
 
-@keyframes moveBg {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-20px, 20px); }
-}
-
-.form-container {
-  width: 100%;
-  max-width: 400px;
-  padding: 2rem;
-}
-
-.form-card {
-  background: var(--glass);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-  position: relative;
-  animation: fade-in 1s ease-out;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.form-title {
-  text-align: center;
-  font-size: 1.5rem;
-  color: var(--text);
-  margin-bottom: 2rem;
-  font-weight: 600;
-}
-
-.input-group {
-  position: relative;
-  margin-bottom: 1.75rem;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 1rem 1rem 1rem 2.5rem;
-  font-size: 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--text);
-  outline: none;
-  transition: border 0.3s;
-}
-
-.input-group input:focus {
-  border-color: var(--primary);
-  background: white;
-}
-
-.input-group label {
-  position: absolute;
-  top: 50%;
-  left: 2.5rem;
-  transform: translateY(-50%);
-  pointer-events: none;
-  font-size: 0.9rem;
-  color: #6b7280;
-  transition: all 0.2s ease;
-}
-
+/* sobe quando o input tem valor (não mostra placeholder) ou está em foco */
 .input-group input:focus + label,
-.input-group input:valid + label {
-  top: -0.6rem;
-  font-size: 0.75rem;
-  background: white;
-  padding: 0 0.25rem;
-  left: 2rem;
-  color: var(--primary);
+.input-group input:not(:placeholder-shown) + label{
+  top:-.6rem;font-size:.75rem;background:#fff;left:2rem;color:var(--primary)
 }
 
-.icon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  color: #6b7280;
+/* ícone à esquerda */
+.icon{
+  position:absolute;left:1rem;top:50%;transform:translateY(-50%);
+  font-size:1rem;color:var(--muted)
 }
 
-.btn-primary {
-  position: relative;
-  width: 100%;
-  padding: 0.9rem 1rem;
-  font-size: 1rem;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  overflow: hidden;
-  font-weight: 600;
-  transition: background 0.3s ease;
+/* =========================================================
+   Custom Select (dropdown)
+========================================================= */
+.custom-select{position:relative}
+
+/* botão visual do select */
+.select-trigger{
+  display:flex;align-items:center;min-height:52px;background:#fff;
+  cursor:pointer;position:relative;padding-right:2.5rem /* espaço seta */
+}
+.select-trigger:focus-visible{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(29,78,216,.12);
+  background:#fff;
+}
+.select-trigger::after{
+  content:"▾";position:absolute;right:1rem;top:50%;transform:translateY(-50%);
+  color:var(--muted);pointer-events:none
 }
 
-.btn-primary:hover {
-  background: var(--primary-hover);
+/* label do custom select: flutua quando aberto ou quando tem valor */
+.custom-select.open label,
+.custom-select.has-value label{
+  top:-.6rem;font-size:.75rem;background:#fff;padding:0 .25rem;left:2rem;color:var(--primary)
 }
 
-.btn-primary .spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255,255,255,0.6);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: none;
-  margin-left: 0.75rem;
+/* menu suspenso */
+.select-menu{
+  position:absolute;left:0;right:0;top:calc(100% + .4rem);
+  background:#fff;border:1px solid #e5e7eb;border-radius:10px;
+  box-shadow:0 16px 40px rgba(0,0,0,.12);z-index:20;
+  max-height:260px;overflow:auto
+}
+.select-menu .option{
+  padding:.75rem 1rem .75rem 2.5rem;cursor:pointer;
+  transition:background .15s,color .15s
+}
+.select-menu .option:hover{background:#eff6ff}
+.select-menu .option.active{background:#dbeafe;font-weight:600}
+
+.hidden{display:none}
+
+/* =========================================================
+   Buttons
+========================================================= */
+.btn-primary{
+  width:100%;padding:.9rem 1rem;font-size:1rem;font-weight:600;
+  background:var(--primary);color:#fff;border:0;border-radius:var(--radius);
+  cursor:pointer;transition:background .2s, transform .05s;position:relative;overflow:hidden
+}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-primary:active{transform:translateY(1px)}
+.btn-primary .spinner{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,.6);
+  border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:none;margin-left:.75rem
+}
+.btn-primary.loading .spinner{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.form-footer{margin-top:1.5rem;text-align:center;font-size:.9rem;color:#4b5563}
+.form-footer a{color:var(--primary);font-weight:600;text-decoration:none}
+.form-footer a:hover{text-decoration:underline}
+
+/* =========================================================
+   Modal País → Instituição (responsivo)
+========================================================= */
+.modal.hidden{display:none}
+.modal{
+  position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.35);
+  display:flex;align-items:center;justify-content:center;padding:1rem
 }
 
-.btn-primary.loading .spinner {
-  display: inline-block;
+.modal__dialog {
+  width:95vw;max-width:1600px;
+  height:90vh;max-height:1000px;
+  background:#fff;border-radius:16px;box-shadow:var(--shadow-xl);
+  display:grid;grid-template-rows:auto auto auto 1fr auto;overflow:hidden;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.modal__header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.25rem;border-bottom:1px solid #eef2f7
 }
+.modal__close{background:transparent;border:0;font-size:1.1rem;color:var(--muted);cursor:pointer}
+.modal__breadcrumbs{padding:.5rem 1.25rem;font-size:.9rem;color:var(--muted)}
+.crumb{padding:.15rem .4rem;border-radius:6px}
+.crumb.active{color:#111827;background:#e5edff}
+.sep{margin:0 .25rem;color:#9ca3af}
 
-.btn-text {
-  z-index: 2;
+.modal__search{padding:.75rem 1.25rem;border-top:1px solid #eef2f7;border-bottom:1px solid #eef2f7}
+.modal__search input{
+  width:100%;padding:.65rem .9rem;border:1px solid #e5e7eb;border-radius:10px;outline:0
 }
+.modal__search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(29,78,216,.1)}
 
-.ripple {
-  position: absolute;
-  display: block;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  transform: scale(0);
-  animation: ripple 0.6s linear;
-  pointer-events: none;
+.modal__list{padding:.5rem;overflow:auto}
+.modal__item{
+  display:flex;align-items:center;gap:.6rem;padding:.7rem .8rem;border-radius:10px;
+  cursor:pointer;transition:background .15s, transform .06s
 }
+.modal__item:hover{background:#f5f8ff}
+.modal__item:active{transform:translateY(1px)}
+.flag{width:24px;height:16px;object-fit:cover;border-radius:3px;border:1px solid #e5e7eb}
+.badge{margin-left:auto;font-size:.75rem;color:#374151;background:#eef2ff;border-radius:999px;padding:.15rem .5rem}
 
-@keyframes ripple {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
+.modal__footer{display:flex;justify-content:flex-end;gap:.5rem;padding:.75rem 1.25rem;border-top:1px solid #eef2f7}
+.btn-secondary{
+  background:var(--primary);color:#fff;border:0;border-radius:10px;padding:.6rem 1rem;font-weight:600;cursor:pointer
 }
+.btn-secondary[disabled]{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:transparent;color:#374151;border:0;border-radius:10px;padding:.6rem .9rem;cursor:pointer}
 
-.form-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
-  color: #4b5563;
-}
-
-.form-footer a {
-  color: var(--primary);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.form-footer a:hover {
-  text-decoration: underline;
+/* =========================================================
+   Responsividade
+========================================================= */
+@media (max-width: 640px){
+  .form-container{max-width:92%;padding:1.25rem}
+  .form-card{padding:1.25rem}
+  .form-title{font-size:1.35rem}
+  .icon{font-size:.95rem}
+  .modal{padding:.5rem}
+  .modal__dialog{width:96vw;height:92vh;border-radius:12px}
+  .flag{width:22px;height:14px}
 }
