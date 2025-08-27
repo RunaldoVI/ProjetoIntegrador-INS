@@ -211,5 +211,6 @@ glove/*
 !glove/.gitkeep
 *.xlsx
 *.json
-*.png
+app/frontend/static/*
+pdfs-excels/
 *.pdf
