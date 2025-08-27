@@ -44,6 +44,7 @@ def obter_pergunta(instrucoes_adicionais=None):
     if instrucoes_adicionais:
         prompt += (
             "\n\n📌 Instruções adicionais do utilizador:\n"
+            "Não apagues nada de que não te peça, se te pedir para adicionar não deves apagar coisas."
             f"{instrucoes_adicionais.strip()}\n"
         )
 

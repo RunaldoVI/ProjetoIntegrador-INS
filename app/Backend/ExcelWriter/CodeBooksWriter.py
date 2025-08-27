@@ -1,18 +1,34 @@
+import re
 import pandas as pd
-from langdetect import detect
+from langdetect import detect, detect_langs, DetectorFactory
 
-def detectar_idioma(texto):
-    try:
-        return detect(texto.strip()) if texto.strip() else "und"
-    except:
+DetectorFactory.seed = 0  # garante resultados consistentes
+
+# remove prefixos como "0 -", "1)", "2." etc.
+def clean_text(texto: str) -> str:
+    return re.sub(r"^\s*\d+\s*[-.)]?\s*", "", (texto or "")).strip()
+
+# detetor robusto
+def detectar_idioma(texto: str, default="en") -> str:
+    t = (texto or "").strip()
+    if not t:
         return "und"
+    if len(t) < 15:   # respostas muito curtas dão falsos positivos
+        return default
+    try:
+        langs = detect_langs(t)
+        top = max(langs, key=lambda x: x.prob)
+        if top.lang == "en":
+            return "en"
+        return top.lang if top.prob >= 0.92 else default
+    except Exception:
+        return default
 
 def escrever_codebooks(blocos, writer):
     dados = []
 
     for bloco in blocos:
         identificador = bloco["Identificador"]
-        ident_norm = identificador.replace(".", "_")
         pergunta = bloco["Pergunta"].strip()
 
         # Linha da pergunta
@@ -22,7 +38,7 @@ def escrever_codebooks(blocos, writer):
             "rdf:type": "vstoi:Codebook",
             "rdfs:label": f"PHQ-9: {pergunta}",
             "vstoi:hasContent": "",
-            "vstoi:hasLanguage": detectar_idioma(pergunta),
+            "vstoi:hasLanguage": detectar_idioma(pergunta),  # análise direta
             "vstoi:hasVersion": "1",
             "rdfs:comment": "",
             "hasco:hasImage": "",
@@ -34,13 +50,16 @@ def escrever_codebooks(blocos, writer):
             texto = resposta["opção"].strip()
             numero = resposta["valor"]
 
+            texto_limpo = clean_text(texto)  # limpa antes de detetar
+            idioma = detectar_idioma(texto_limpo)
+
             dados.append({
                 "hasURI": f"nhanes:CB-{identificador}-{numero}",
                 "hasco:hascoType": "vstoi:Codebook",
                 "rdf:type": "vstoi:Codebook",
-                "rdfs:label": f"{numero} - {texto}",
+                "rdfs:label": f"{numero} - {texto}",  # mantém original
                 "vstoi:hasContent": "",
-                "vstoi:hasLanguage": detectar_idioma(texto),
+                "vstoi:hasLanguage": idioma,          # idioma do texto limpo
                 "vstoi:hasVersion": "1",
                 "rdfs:comment": "",
                 "hasco:hasImage": "",

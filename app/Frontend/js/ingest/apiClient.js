@@ -21,6 +21,14 @@ window.IngestHelpers = window.IngestHelpers || {};
       const res = await fetch(url);
       return jsonOrThrow(res);
     },
+    async reprocessItem(questionnaire, { ident, file, instructions }) {
+  const res = await fetch(`${BASE}/outputs/${encodeURIComponent(questionnaire)}/item/reprocess`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ident, file, instructions })
+  });
+  return jsonOrThrow(res);
+},
     async finalize(questionnaire) {
       const res = await fetch(`${BASE}/outputs/${encodeURIComponent(questionnaire)}/finalize`, {
         method: "POST",

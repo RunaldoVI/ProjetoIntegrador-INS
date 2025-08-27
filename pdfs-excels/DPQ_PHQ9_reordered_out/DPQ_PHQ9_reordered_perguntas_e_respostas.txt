@@ -1,0 +1,231 @@
+ID: DPQ.010 | Página: 1
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+little interest or pleasure in doing things?  Would you say . . .
+Resposta:
+Not at all,  0
+several days,  1
+more than half the days, or  2
+nearly every day?  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.020 | Página: 1
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+feeling down, depressed, or hopeless?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.030 | Página: 1
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+trouble falling or staying asleep, or sleeping too much?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.040 | Página: 3
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+feeling tired or having little energy?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.050 | Página: 3
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+poor appetite or overeating?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.060 | Página: 3
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+feeling bad about yourself – or that you are a failure or have let yourself or your family down?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.070 | Página: 3
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+trouble concentrating on things, such as reading the newspaper or watching TV?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.080 | Página: 4
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+moving or speaking so slowly that other people could have noticed?  Or the opposite – being so fidgety or restless
+that you have been moving around a lot more than usual?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.090 | Página: 4
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Thoughts that you would be better off dead or of hurting yourself in some way?
+Resposta:
+NOT AT ALL  0
+SEVERAL DAYS  1
+MORE THAN HALF THE DAYS  2
+NEARLY EVERY DAY  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: DPQ.100 | Página: 4
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+How difficult have these problems made it for you to do your work, take care of things at home, or get along with
+people?
+Resposta:
+Not at all difficult,  0
+Somewhat difficult,  1
+Very difficult,  2
+Extremely difficult?  3
+REFUSED  7
+DON’T KNOW  9
+
+------------------------------------------------------------
+ID: 1. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Little interest or pleasure in doing things
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 2. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Feeling down, depressed, or hopeless
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 3. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Trouble falling or staying asleep, or sleeping too much
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 4. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Feeling tired or having little energy
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 5. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Poor appetite or overeating
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 6. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Feeling bad about yourself   or that you are a failure or have let yourself or your family down
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 7. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Trouble concentrating on things, such as reading the newspaper or watching television
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 8. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Moving or speaking so slowly that other people could have noticed. Or the opposite    being so figety or restless that you have been moving around a lot more than usual
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------
+ID: 9. | Página: 2
+Secção: Over the last 2 weeks, how often have you been bothered by the following problems:
+Pergunta:
+Thoughts that you would be better off dead, or of hurting yourself
+Resposta:
+Not at all  0
+Several days  1
+More than half the days  2
+Nearly every day  3
+
+------------------------------------------------------------

@@ -219,13 +219,41 @@ window.IngestHelpers = window.IngestHelpers || {};
 
         btnCancel.onclick = btnClose.onclick = closeModal;
 
-        btnSave.onclick = () => {
-          const text = textarea.value.trim();
-          if (!text) return showToast("Por favor escreve algo primeiro.", "warning");
-          closeModal();
-          // TODO: integrar com o teu endpoint (/item/reprocess)
-          showToast("Instruções guardadas (liga aqui ao teu /item/reprocess).", "success");
-        };
+btnSave.onclick = async () => {
+  const text = textarea.value.trim();
+  if (!text) return showToast("Por favor escreve algo primeiro.", "warning");
+
+  btnSave.disabled = true;
+  btnSave.textContent = "A reenviar...";
+
+  try {
+    // usar o contexto atual do preview
+    const questionnaire = session.get("previewQuestionario") || state.nav.questionnaire;
+    const ident = state.nav.ident;
+    const file  = state.nav.file;
+
+    if (!questionnaire || (!ident && !file)) {
+      showToast("Sem bloco selecionado para reprocessar.", "error");
+      return;
+    }
+
+    // 🔁 chama o backend para reprocessar ESTE bloco com as instruções
+    const data = await apiClient.reprocessItem(questionnaire, {
+      ident, file, instructions: text
+    });
+
+    // atualiza o preview com o bloco devolvido
+    previewRenderer.render(data, loadPreviewBlock);
+    showToast("Instruções aplicadas e bloco reprocessado.", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("Falha ao reprocessar: " + (err?.message || err), "error");
+  } finally {
+    closeModal();
+    btnSave.disabled = false;
+    btnSave.textContent = "Usar estas instruções";
+  }
+};
       }
     );
   }
