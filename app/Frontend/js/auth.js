@@ -7,14 +7,15 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Mostrar alerta (pop-up customizado)
 function showAlert(msg, type = "error") {
   const popup = document.getElementById("popup");
   const popupMessage = document.getElementById("popup-message");
+
   if (!popup || !popupMessage) return;
 
   popupMessage.textContent = msg;
 
+  // Cor dependendo do tipo
   if (type === "success") {
     popup.classList.remove("bg-red-600");
     popup.classList.add("bg-green-600");
@@ -23,12 +24,21 @@ function showAlert(msg, type = "error") {
     popup.classList.add("bg-red-600");
   }
 
-  popup.classList.remove("hidden", "opacity-0");
-  popup.classList.add("opacity-100");
-
+  // Mostra com slide-in
+  popup.classList.remove("hidden");
   setTimeout(() => {
-    popup.classList.add("opacity-0");
-    setTimeout(() => popup.classList.add("hidden"), 300);
+    popup.classList.remove("translate-y-10", "opacity-0");
+    popup.classList.add("translate-y-0", "opacity-100");
+  }, 10);
+
+  // Esconde após 3 segundos com animação reversa
+  setTimeout(() => {
+    popup.classList.remove("translate-y-0", "opacity-100");
+    popup.classList.add("translate-y-10", "opacity-0");
+
+    setTimeout(() => {
+      popup.classList.add("hidden");
+    }, 500); // Espera a animação terminar
   }, 3000);
 }
 
