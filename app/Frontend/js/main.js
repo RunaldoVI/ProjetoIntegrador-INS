@@ -17,28 +17,24 @@ function updateActiveNav(route) {
 async function handleRouteChange() {
   const hash = window.location.hash || "#ingest";
   const route = routes[hash] ?? routes["#ingest"];
-  updateActiveNav(hash);
   const container = document.getElementById("external-content");
   if (!container) return;
 
+  const bust = "v=" + Date.now(); // cache-buster
+
   try {
-    const htmlRes = await fetch(route.html);
+    const htmlRes = await fetch(route.html + "?" + bust);
     if (!htmlRes.ok) throw new Error("Erro ao carregar HTML.");
     const html = await htmlRes.text();
     container.innerHTML = html;
 
     const script = document.createElement("script");
-    script.src = route.js;
+    script.src = route.js + "?" + bust; // <<< importante
     script.defer = true;
-
-    // Chama a função certa: loadIngest, loadProfile, etc.
     script.onload = () => {
       const funcName = `load${hash.slice(1).charAt(0).toUpperCase()}${hash.slice(2)}`;
-      if (typeof window[funcName] === "function") {
-        window[funcName]();
-      }
+      if (typeof window[funcName] === "function") window[funcName]();
     };
-
     document.body.appendChild(script);
   } catch (err) {
     container.innerHTML = `<div class="text-red-600 p-4">Erro ao carregar a seção: ${hash}</div>`;

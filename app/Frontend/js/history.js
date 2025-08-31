@@ -1,9 +1,18 @@
 console.log("✅ history.js carregado!");
 
-// 🔐 Verificar login antes de carregar histórico
-const user = JSON.parse(localStorage.getItem("user") || "null");
+// Ler utilizador de forma unificada (localStorage ou sessionStorage)
+const user = (typeof getUser === "function" ? getUser() : (() => {
+  const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+  console.log("✅ [history.js] carregado!");
+  
+  console.log("📌 [history.js] user lido:", user);
+  return raw ? JSON.parse(raw) : null;
+})());
+
+
 if (!user || !user.email) {
-  window.location.href = "sections/login.html";
+  console.warn("⚠️ [history.js] utilizador não autenticado, redirecionar...");
+  window.location.href = "../sections/login.html";
   throw new Error("Histórico bloqueado: utilizador não autenticado");
 }
 

@@ -139,3 +139,59 @@ html.dark #section-about .flip-back *{
   color:#f3f4f6 !important; /* texto claro no dark */
 }
 
+/* ===== Custom Select (Função) ===== */
+.input-group.custom-select { position: relative; }
+.input-group.custom-select .select-trigger {
+  display:flex; align-items:center; gap:.5rem;
+  width:100%; min-height:2.5rem; padding:.5rem .75rem;
+  border:1px solid #d1d5db; border-radius:.5rem; background:#fff; cursor:pointer;
+}
+.dark .input-group.custom-select .select-trigger { border-color:#4b5563; background:var(--darkCard, #2b2c3e); color:#fff; }
+.input-group.custom-select .select-trigger .select-text { flex:1; opacity:.9; }
+.input-group.custom-select.open .select-trigger,
+.input-group.custom-select.has-value .select-trigger { border-color:#3b82f6; }
+.input-group.custom-select .select-menu {
+  position:absolute; top:100%; left:0; right:0; z-index:20;
+  background:#fff; border:1px solid #e5e7eb; border-radius:.5rem; margin-top:.25rem;
+  max-height:220px; overflow:auto; box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+.dark .input-group.custom-select .select-menu { background:#1f2937; border-color:#374151; color:#e5e7eb; }
+.input-group.custom-select .option {
+  padding:.5rem .75rem; cursor:pointer;
+}
+.input-group.custom-select .option:hover { background:#f3f4f6; }
+.dark .input-group.custom-select .option:hover { background:#374151; }
+
+/* ===== Modal de Instituições ===== */
+.modal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:50; }
+.modal.hidden { display:none; }
+.modal__dialog {
+  width:100%; max-width:720px; background:#fff; color:#111827;
+  border:1px solid #e5e7eb; border-radius:1rem; overflow:hidden; box-shadow:0 25px 50px rgba(0,0,0,.2);
+}
+.dark .modal__dialog { background:#2b2c3e; color:#e5e7eb; border-color:#374151; }
+.modal__header { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; border-bottom:1px solid #e5e7eb; }
+.dark .modal__header { border-color:#374151; }
+.modal__close { font-size:1.25rem; line-height:1; padding:.25rem .5rem; }
+.modal__breadcrumbs { padding:.5rem 1.25rem; font-size:.875rem; color:#6b7280; }
+.modal__search { padding: .5rem 1.25rem 0; }
+.modal__search input {
+  width:100%; padding:.5rem .75rem; border:1px solid #d1d5db; border-radius:.5rem; background:#fff;
+}
+.dark .modal__search input { background:#1f2937; border-color:#4b5563; color:#e5e7eb; }
+.modal__list { padding:.5rem 1.25rem 1rem; max-height:420px; overflow:auto; }
+.modal__item {
+  display:flex; align-items:center; gap:.5rem; padding:.5rem .5rem; border-radius:.5rem; cursor:pointer;
+}
+.modal__item:hover { background:#f3f4f6; }
+.dark .modal__item:hover { background:#374151; }
+.modal__item .flag { width:24px; height:16px; object-fit:cover; border:1px solid #e5e7eb; }
+.modal__footer { display:flex; gap:.5rem; justify-content:flex-end; padding: .75rem 1.25rem; border-top:1px solid #e5e7eb; }
+.dark .modal__footer { border-color:#374151; }
+.btn-secondary { padding:.5rem .75rem; border:1px solid #d1d5db; border-radius:.5rem; }
+.dark .btn-secondary { border-color:#4b5563; }
+.btn-ghost { padding:.5rem .75rem; }
+
+/* Input de instituição “clicável” */
+#editInstituicao[readonly] { cursor: pointer; background:#fff; }
+.dark #editInstituicao[readonly] { background:#1f2937; }

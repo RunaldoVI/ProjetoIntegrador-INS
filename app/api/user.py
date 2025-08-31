@@ -149,44 +149,65 @@ def user_profile():
         return jsonify(user)
 
     elif request.method == 'PUT':
-        
-        print(f"Conteúdo recebido: {request.form}")  # Para debug, veja o conteúdo
-        data = request.form  # Use form se você estiver enviando arquivos
-        email = data.get('email', '').strip().lower()
-        nome = data.get('nome', '').strip()
-        funcao = data.get('funcao', '').strip()
-        instituicao = data.get('instituicao', '').strip()
-        senha = data.get('senha', '').strip()  # Senha (opcional)
-        avatar = data.get('avatar', None)  # Avatar (opcional)
-
-        if not email or not nome:
-            return jsonify({'error': 'Campos obrigatórios em falta'}), 400
-
-        # Atualizar o perfil
-        update_query = "UPDATE utilizador SET nome = %s, funcao = %s, instituicao = %s"
-        update_values = [nome, funcao, instituicao]
-
-        # Se a senha foi fornecida, fazer o hash e atualizar
-        if senha:
-            hashed_pw = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
-            update_query += ", password = %s"
-            update_values.append(hashed_pw.decode('utf-8'))
-
-        # Se o avatar foi fornecido, atualizar
-        if avatar:
-            update_query += ", avatar = %s"
-            update_values.append(avatar)
-
-        update_query += " WHERE email = %s"
-        update_values.append(email)
-
-        cursor.execute(update_query, tuple(update_values))
+        # Aceita JSON ou multipart/form-data
+        is_multipart = request.content_type and request.content_type.startswith("multipart/form-data")
+    
+        if is_multipart:
+            form = request.form
+            email = (form.get('email') or '').strip().lower()
+            nome = (form.get('nome') or '').strip()
+            funcao = (form.get('funcao') or '').strip()
+            instituicao = (form.get('instituicao') or '').strip()
+            avatar_file = request.files.get('avatar')
+            avatar_filename = None
+            if avatar_file and avatar_file.filename:
+                ext = os.path.splitext(avatar_file.filename)[1].lower()
+                if ext in ['.png', '.jpg', '.jpeg']:
+                    filename = secure_filename(avatar_file.filename)
+                    timestamp = int(time.time())
+                    avatar_filename = f"{timestamp}_{filename}"
+                    avatar_path = os.path.join(current_app.static_folder, "uploads", "avatars", avatar_filename)
+                    os.makedirs(os.path.dirname(avatar_path), exist_ok=True)
+                    avatar_file.save(avatar_path)
+        else:
+            data = request.get_json(silent=True) or {}
+            email = (data.get('email') or '').strip().lower()
+            nome = (data.get('nome') or '').strip()
+            funcao = (data.get('funcao') or '').strip()
+            instituicao = (data.get('instituicao') or '').strip()
+            avatar_filename = data.get('avatar')  # opcional (string)
+    
+        if not email:
+            return jsonify({'error': 'Email não fornecido'}), 400
+    
+        # Construir update dinâmico (parcial)
+        fields = []
+        values = []
+        if nome:        fields.append("nome = %s");         values.append(nome)
+        if funcao:      fields.append("funcao = %s");       values.append(funcao)
+        if instituicao: fields.append("instituicao = %s");  values.append(instituicao)
+        if avatar_filename: fields.append("avatar = %s");   values.append(avatar_filename)
+    
+        if not fields:
+            return jsonify({'error': 'Nada para atualizar'}), 400
+    
+        values.append(email)
+        query = "UPDATE utilizador SET " + ", ".join(fields) + " WHERE email = %s"
+        cursor.execute(query, tuple(values))
         conn.commit()
-
+    
+        # Voltar a ler o utilizador atualizado
+        cursor.execute("SELECT nome, email, funcao, instituicao, avatar FROM utilizador WHERE email = %s", (email,))
+        user = cursor.fetchone()
         cursor.close()
         conn.close()
+    
+        if not user:
+            return jsonify({'error': 'Utilizador não encontrado após atualizar'}), 404
+    
+        user['pdfs'] = []
+        return jsonify(user), 200
 
-        return jsonify({'status': 'Perfil atualizado com sucesso'})
 
 @user_bp.route('/api/user/upload_pdf', methods=['POST'])
 def guardar_pdf_historico():

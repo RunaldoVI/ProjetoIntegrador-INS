@@ -144,22 +144,36 @@
         </div>
 
         <!-- Função -->
-        <div>
-          <label for="editFuncao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Função</label>
-          <input id="editFuncao" type="text"
-                 class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900
-                        focus:outline-none focus:ring-2 focus:ring-blue-500
-                        dark:border-gray-600 dark:bg-darkCard dark:text-white" />
-        </div>
+<!-- Função (dropdown custom, igual ao registo) -->
+<div>
+  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Função</label>
 
-        <!-- Instituição -->
-        <div>
-          <label for="editInstituicao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instituição</label>
-          <input id="editInstituicao" type="text"
-                 class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900
-                        focus:outline-none focus:ring-2 focus:ring-blue-500
-                        dark:border-gray-600 dark:bg-darkCard dark:text-white" />
-        </div>
+  <div class="input-group custom-select" id="editFuncaoSelect">
+    <div class="select-trigger" tabindex="0">
+      <span class="icon">💼</span>
+      <span class="select-text"></span>
+      <label for="editFuncao"></label>
+    </div>
+    <div class="select-menu hidden">
+      <div class="option" data-value="Estudante">Estudante</div>
+      <div class="option" data-value="Professor">Professor</div>
+      <div class="option" data-value="Investigador">Investigador</div>
+      <div class="option" data-value="Outro">Outro</div>
+    </div>
+    <!-- mantém o mesmo id "editFuncao" que o JS já lê -->
+    <input type="hidden" id="editFuncao" name="editFuncao" required />
+  </div>
+</div>
+
+<!-- Instituição (abre modal como no registo) -->
+<div>
+  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instituição</label>
+  <input id="editInstituicao" type="text" placeholder=" "
+         class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+                dark:border-gray-600 dark:bg-darkCard dark:text-white"
+         readonly required />
+</div>
 
         <!-- Avatar -->
         <div>
@@ -188,9 +202,41 @@
   </div>
 </div>
 
+
+<!-- Modal Instituições (Edição) -->
+<div id="instModal" class="modal hidden">
+    <div class="modal__dialog">
+      <div class="modal__header">
+        <h3 id="modalTitle">Escolhe um país</h3>
+        <button type="button" id="modalClose" class="modal__close">✕</button>
+      </div>
+
+      <div class="modal__breadcrumbs">
+        <span id="crumbCountry" class="crumb disabled">País</span>
+        <span class="sep">›</span>
+        <span id="crumbInst" class="crumb disabled">Instituição</span>
+      </div>
+
+      <div class="modal__search">
+        <input id="modalSearch" type="text" placeholder="Pesquisar..." />
+      </div>
+
+      <div id="modalList" class="modal__list">
+        <!-- itens renderizados via JS -->
+      </div>
+
+      <div class="modal__footer">
+        <button type="button" id="modalBack" class="btn-secondary" disabled>Voltar</button>
+        <button type="button" id="modalCancel" class="btn-ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Scripts -->
   <script src="../js/toast.js"></script>
   <script src="../js/theme.js"></script>
+  <script src="../js/auth.js"></script>
   <script src="../js/profile.js"></script>
 </body>
 </html>
