@@ -271,6 +271,7 @@ window.IngestHelpers = window.IngestHelpers || {};
 
             const data = await apiClient.reprocessItem(questionnaire, { ident, file, instructions: text });
             previewRenderer.render(data, loadPreviewBlock);
+            mountPreviewActions();
             showToast("Instruções aplicadas e bloco reprocessado.", "success");
           } catch (err) {
             console.error(err);

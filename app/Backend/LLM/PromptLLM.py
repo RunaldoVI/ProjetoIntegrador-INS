@@ -25,29 +25,27 @@ def obter_pergunta(instrucoes_adicionais=None):
         "  - apenas instruções técnicas (ex: 'CHECK ITEM', 'BOX 1', 'GO TO', 'HANDCARD', 'ENTER AGE', etc.),\n"
         "  - ou uma pergunta que não tenha pelo menos uma opção de resposta com valor numérico (ex: 0, 1, 2, ...).\n"
         "- A pergunta pode vir imediatamente após o identificador ou numa linha seguinte. Junta as partes corretamente.\n"
-        "- As respostas devem ser listadas com o seu texto e valor numérico.\n\n"
-        "- Matem as respostas todas e a estrutura original do ficheiro."
-        "✅ Formato obrigatório de saída (em JSON):\n\n"
-        "{\n"
-        "  \"Identificador\": \"XXX.###\",\n"
-        "  \"Secção\": \"Texto da secção ou 'Nenhuma'\",\n"
-        "  \"Pergunta\": \"Texto da pergunta\",\n"
-        "  \"Respostas\": [\n"
-        "    { \"opção\": \"Texto da resposta\", \"valor\": \"0\" },\n"
-        "    { \"opção\": \"Texto da resposta\", \"valor\": \"1\" },\n"
-        "    etc..\n"
-        "  ]\n"
-        "}\n\n"
-        "Returna me o output em formato JSON!"
+        "- As respostas devem ser listadas com o seu texto e valor numérico.\n"
+        "- Mantém todas as respostas e a estrutura original do ficheiro.\n\n"
+        "⚠️ Responde **exclusivamente** em JSON válido UTF-8.\n"
+        "⚠️ Não escrevas comentários, markdown, explicações, nem emojis.\n\n"
+        "✅ Formato obrigatório da saída: um ARRAY de objetos, cada um assim:\n\n"
+        "[\n"
+        "  {\n"
+        "    \"Identificador\": \"XXX.###\",\n"
+        "    \"Secção\": \"Texto da secção ou 'Nenhuma'\",\n"
+        "    \"Pergunta\": \"Texto da pergunta\",\n"
+        "    \"Respostas\": [\n"
+        "      { \"opção\": \"Texto da resposta\", \"valor\": \"0\" },\n"
+        "      { \"opção\": \"Texto da resposta\", \"valor\": \"1\" }\n"
+        "    ]\n"
+        "  },\n"
+        "  {...}\n"
+        "]\n\n"
+        "Só devolvas este JSON."
     )
-
     if instrucoes_adicionais:
-        prompt += (
-            "\n\n📌 Instruções adicionais do utilizador:\n"
-            "Não apagues nada de que não te peça, se te pedir para adicionar não deves apagar coisas."
-            f"{instrucoes_adicionais.strip()}\n"
-        )
-
+        prompt += "\n\nInstruções adicionais: " + instrucoes_adicionais
     return prompt
 
 
