@@ -190,39 +190,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const pageUsesHeader = !!(input || authButtons || logoutBtn);
 
-  // Se NÃO é a home (perfil, histórico, etc.), não validar nem redirecionar aqui.
-  if (!pageUsesHeader) {
-    console.log("[auth] página interna; não vou validar nem redirecionar aqui.");
-    return;
-  }
-
   // ---- Gestão da home/ingest ----
-  const user = getUser();
+  if (pageUsesHeader) {
+    const user = getUser();
 
-  if (user && user.email) {
-    fetch("http://localhost:5000/api/user/profile?email=" + encodeURIComponent(user.email))
-      .then(res => {
-        console.log("[auth] validação perfil status:", res.status);
-        if (!res.ok) throw new Error("Sessão inválida");
-        return res.json();
-      })
-      .then(() => {
-        authButtons?.classList.add("hidden");
-        logoutBtn?.classList.remove("hidden");
-        input?.classList.remove("hidden");
-      })
-      .catch(err => {
-        console.warn("[auth] validação falhou:", err);
-        localStorage.removeItem("user");
-        sessionStorage.removeItem("user");
-        //window.location.href = "../sections/login.html";
-      });
+    if (user && user.email) {
+      fetch("http://localhost:5000/api/user/profile?email=" + encodeURIComponent(user.email))
+        .then(res => {
+          console.log("[auth] validação perfil status:", res.status);
+          if (!res.ok) throw new Error("Sessão inválida");
+          return res.json();
+        })
+        .then(() => {
+          authButtons?.classList.add("hidden");
+          logoutBtn?.classList.remove("hidden");
+          input?.classList.remove("hidden");
+        })
+        .catch(err => {
+          console.warn("[auth] validação falhou:", err);
+          localStorage.removeItem("user");
+          sessionStorage.removeItem("user");
+          //window.location.href = "../sections/login.html";
+        });
+    } else {
+      authButtons?.classList.remove("hidden");
+      logoutBtn?.classList.add("hidden");
+      input?.classList.add("hidden");
+    }
   } else {
-    authButtons?.classList.remove("hidden");
-    logoutBtn?.classList.add("hidden");
-    input?.classList.add("hidden");
+    console.log("[auth] página interna; não vou validar nem redirecionar aqui.");
   }
-
 
   // Avatar input (se existir)
   const avatarInput = document.getElementById("avatar");
@@ -244,264 +241,263 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalList   = document.getElementById("modalList");
   const modalSearch = document.getElementById("modalSearch");
 
-  // Se a página não tem modal, terminar aqui
-  if (!(instInput && instModal && modalTitle && modalList && modalSearch)) {
-    return;
-  }
+  // Se a página não tem modal, continuar (não interromper o resto)
+  if (instInput && instModal && modalTitle && modalList && modalSearch) {
 
-  const HIPOLABS_DATASET_URL =
-    "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json";
+    const HIPOLABS_DATASET_URL =
+      "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json";
 
-  let countries = [];        // [{displayName, apiName, flag, code}]
-  let allUnis = [];          // dataset completo (fallback local)
-  let universities = [];     // resultados correntes
-  let currentCountry = null; // objeto do país selecionado
-  let view = "countries";    // "countries" | "universities"
+    let countries = [];        // [{displayName, apiName, flag, code}]
+    let allUnis = [];          // dataset completo (fallback local)
+    let universities = [];     // resultados correntes
+    let currentCountry = null; // objeto do país selecionado
+    let view = "countries";    // "countries" | "universities"
 
-  on(instInput, "click", async () => {
-    instModal.classList.remove("hidden");
-    if (countries.length === 0) {
-      modalList.innerHTML = "<p style='padding:1rem'>A carregar países...</p>";
-      await loadCountries();
-    }
-    openCountriesView();
-  });
-
-  [modalClose, modalCancel].filter(Boolean).forEach(btn => {
-    on(btn, "click", () => {
-      instModal.classList.add("hidden");
+    on(instInput, "click", async () => {
+      instModal.classList.remove("hidden");
+      if (countries.length === 0) {
+        modalList.innerHTML = "<p style='padding:1rem'>A carregar países...</p>";
+        await loadCountries();
+      }
       openCountriesView();
     });
-  });
 
-  document.addEventListener("keydown", e => {
-    if (!instModal.classList.contains("hidden") && e.key === "Escape") {
-      instModal.classList.add("hidden");
-      openCountriesView();
+    [modalClose, modalCancel].filter(Boolean).forEach(btn => {
+      on(btn, "click", () => {
+        instModal.classList.add("hidden");
+        openCountriesView();
+      });
+    });
+
+    document.addEventListener("keydown", e => {
+      if (!instModal.classList.contains("hidden") && e.key === "Escape") {
+        instModal.classList.add("hidden");
+        openCountriesView();
+      }
+    });
+
+    on(instModal, "click", e => {
+      if (e.target === instModal) {
+        instModal.classList.add("hidden");
+        openCountriesView();
+      }
+    });
+
+    on(modalBack, "click", openCountriesView);
+
+    function openCountriesView() {
+      view = "countries";
+      currentCountry = null;
+      universities = [];
+      modalTitle.textContent = "Escolha um país";
+      if (modalBack) modalBack.disabled = true;
+      modalSearch.value = "";
+      renderCountries(countries);
+      setTimeout(() => modalSearch.focus(), 10);
     }
-  });
 
-  on(instModal, "click", e => {
-    if (e.target === instModal) {
-      instModal.classList.add("hidden");
-      openCountriesView();
-    }
-  });
-
-  on(modalBack, "click", openCountriesView);
-
-  function openCountriesView() {
-    view = "countries";
-    currentCountry = null;
-    universities = [];
-    modalTitle.textContent = "Escolha um país";
-    if (modalBack) modalBack.disabled = true;
-    modalSearch.value = "";
-    renderCountries(countries);
-    setTimeout(() => modalSearch.focus(), 10);
-  }
-
-  async function loadCountries() {
-    try {
-      const res = await fetch(HIPOLABS_DATASET_URL, { cache: "no-store" });
-      const data = await res.json();
-      allUnis = Array.isArray(data) ? data : [];
-
-      const set = new Set(allUnis.map(u => u.country).filter(Boolean));
-      const names = Array.from(set).sort((a, b) =>
-        a.localeCompare(b, "en", { sensitivity: "base" })
-      );
-
-      countries = names.map(n => ({
-        displayName: n,
-        apiName: n,
-        flag: null,
-        code: ""
-      }));
-
+    async function loadCountries() {
       try {
-        const rc = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2,flags")
-          .then(r => r.json());
-        const byName = new Map(
-          rc.map(c => [c && c.name && c.name.common, { flag: (c.flags && (c.flags.png || c.flags.svg)) || null, code: c.cca2 || "" }])
+        const res = await fetch(HIPOLABS_DATASET_URL, { cache: "no-store" });
+        const data = await res.json();
+        allUnis = Array.isArray(data) ? data : [];
+
+        const set = new Set(allUnis.map(u => u.country).filter(Boolean));
+        const names = Array.from(set).sort((a, b) =>
+          a.localeCompare(b, "en", { sensitivity: "base" })
         );
-        countries = countries.map(c => {
-          const m = byName.get(c.apiName);
-          return m ? { ...c, flag: m.flag, code: m.code } : c;
-        });
-      } catch (_) {
-        // sem flags se falhar
+
+        countries = names.map(n => ({
+          displayName: n,
+          apiName: n,
+          flag: null,
+          code: ""
+        }));
+
+        try {
+          const rc = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2,flags")
+            .then(r => r.json());
+          const byName = new Map(
+            rc.map(c => [c && c.name && c.name.common, { flag: (c.flags && (c.flags.png || c.flags.svg)) || null, code: c.cca2 || "" }])
+          );
+          countries = countries.map(c => {
+            const m = byName.get(c.apiName);
+            return m ? { ...c, flag: m.flag, code: m.code } : c;
+          });
+        } catch (_) {
+          // sem flags se falhar
+        }
+
+      } catch (e) {
+        console.error(e);
+        modalList.innerHTML = "<p style='padding:1rem;color:#b91c1c'>Erro ao carregar países.</p>";
+      }
+    }
+
+    function renderCountries(list) {
+      modalList.innerHTML = "";
+      if (!list || list.length === 0) {
+        modalList.innerHTML = "<p style='padding:1rem'>Nenhum país encontrado.</p>";
+        return;
       }
 
-    } catch (e) {
-      console.error(e);
-      modalList.innerHTML = "<p style='padding:1rem;color:#b91c1c'>Erro ao carregar países.</p>";
-    }
-  }
+      const frag = document.createDocumentFragment();
+      list.forEach(c => {
+        const item = document.createElement("div");
+        item.className = "modal__item";
+        item.setAttribute("role", "button");
+        item.setAttribute("tabindex", "0");
 
-  function renderCountries(list) {
-    modalList.innerHTML = "";
-    if (!list || list.length === 0) {
-      modalList.innerHTML = "<p style='padding:1rem'>Nenhum país encontrado.</p>";
-      return;
-    }
-
-    const frag = document.createDocumentFragment();
-    list.forEach(c => {
-      const item = document.createElement("div");
-      item.className = "modal__item";
-      item.setAttribute("role", "button");
-      item.setAttribute("tabindex", "0");
-
-      if (c.flag) {
-        const img = document.createElement("img");
-        img.className = "flag";
-        img.loading = "lazy";
-        img.src = c.flag;
-        img.alt = c.displayName;
-        img.onerror = () => {
+        if (c.flag) {
+          const img = document.createElement("img");
+          img.className = "flag";
+          img.loading = "lazy";
+          img.src = c.flag;
+          img.alt = c.displayName;
+          img.onerror = () => {
+            const span = document.createElement("span");
+            span.textContent = flagEmojiFromCCA2(c.code || "");
+            span.style = "font-size:18px;width:24px;display:inline-block;text-align:center;";
+            img.replaceWith(span);
+          };
+          item.appendChild(img);
+        } else {
           const span = document.createElement("span");
           span.textContent = flagEmojiFromCCA2(c.code || "");
           span.style = "font-size:18px;width:24px;display:inline-block;text-align:center;";
-          img.replaceWith(span);
-        };
-        item.appendChild(img);
-      } else {
-        const span = document.createElement("span");
-        span.textContent = flagEmojiFromCCA2(c.code || "");
-        span.style = "font-size:18px;width:24px;display:inline-block;text-align:center;";
-        item.appendChild(span);
+          item.appendChild(span);
+        }
+
+        const label = document.createElement("span");
+        label.textContent = " " + c.displayName;
+        item.appendChild(label);
+
+        const choose = () => selectCountry(c);
+        on(item, "click", choose);
+        on(item, "keydown", e => {
+          if (e.key === "Enter" || e.key === " ") choose();
+        });
+
+        frag.appendChild(item);
+      });
+      modalList.appendChild(frag);
+    }
+
+    async function selectCountry(countryObj) {
+      view = "universities";
+      currentCountry = countryObj;
+      modalTitle.textContent = "Universidades em " + countryObj.displayName;
+      if (modalBack) modalBack.disabled = false;
+      modalSearch.value = "";
+      universities = [];
+
+      modalList.innerHTML =
+        "<p style='padding:1rem;color:#374151'>Escreva pelo menos 2 letras para pesquisar universidades em " +
+        countryObj.displayName + ".</p>";
+
+      setTimeout(() => modalSearch.focus(), 20);
+    }
+
+    async function fetchUniversitiesFiltered(countryEn, term) {
+      const qs = new URLSearchParams({ country: countryEn, name: term || "" });
+      const url = "https://universities.hipolabs.com/search?" + qs.toString();
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("Falha ao obter universidades");
+      return await res.json();
+    }
+
+    function localFilterUniversities(countryEn, term) {
+      const t = (term || "").toLowerCase();
+      return allUnis.filter(
+        u =>
+          u.country === countryEn &&
+          (!t || ((u.name || "").toLowerCase().includes(t)))
+      );
+    }
+
+    function renderUniversities(list) {
+      modalList.innerHTML = "";
+      if (!list || list.length === 0) {
+        modalList.innerHTML = "<p style='padding:1rem'>Nenhuma universidade encontrada.</p>";
+        return;
       }
 
-      const label = document.createElement("span");
-      label.textContent = " " + c.displayName;
-      item.appendChild(label);
+      const take = 300;
+      const slice = list.slice(0, take);
+      const frag = document.createDocumentFragment();
 
-      const choose = () => selectCountry(c);
-      on(item, "click", choose);
-      on(item, "keydown", e => {
-        if (e.key === "Enter" || e.key === " ") choose();
+      slice.forEach(u => {
+        const item = document.createElement("div");
+        item.className = "modal__item";
+        item.setAttribute("role", "button");
+        item.setAttribute("tabindex", "0");
+        item.textContent = u.name || "-";
+        item.title = (u.web_pages && u.web_pages[0]) || "";
+
+        const choose = () => {
+          const instEl = document.getElementById("instituicao");
+          if (instEl) instEl.value = u.name || "";
+          instModal.classList.add("hidden");
+          openCountriesView();
+        };
+
+        on(item, "click", choose);
+        on(item, "keydown", e => {
+          if (e.key === "Enter" || e.key === " ") choose();
+        });
+
+        frag.appendChild(item);
       });
 
-      frag.appendChild(item);
-    });
-    modalList.appendChild(frag);
-  }
+      modalList.appendChild(frag);
 
-  async function selectCountry(countryObj) {
-    view = "universities";
-    currentCountry = countryObj;
-    modalTitle.textContent = "Universidades em " + countryObj.displayName;
-    if (modalBack) modalBack.disabled = false;
-    modalSearch.value = "";
-    universities = [];
-
-    modalList.innerHTML =
-      "<p style='padding:1rem;color:#374151'>Escreva pelo menos 2 letras para pesquisar universidades em " +
-      countryObj.displayName + ".</p>";
-
-    setTimeout(() => modalSearch.focus(), 20);
-  }
-
-  async function fetchUniversitiesFiltered(countryEn, term) {
-    const qs = new URLSearchParams({ country: countryEn, name: term || "" });
-    const url = "https://universities.hipolabs.com/search?" + qs.toString();
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("Falha ao obter universidades");
-    return await res.json();
-  }
-
-  function localFilterUniversities(countryEn, term) {
-    const t = (term || "").toLowerCase();
-    return allUnis.filter(
-      u =>
-        u.country === countryEn &&
-        (!t || ((u.name || "").toLowerCase().includes(t)))
-    );
-  }
-
-  function renderUniversities(list) {
-    modalList.innerHTML = "";
-    if (!list || list.length === 0) {
-      modalList.innerHTML = "<p style='padding:1rem'>Nenhuma universidade encontrada.</p>";
-      return;
+      if (list.length > take) {
+        const more = document.createElement("button");
+        more.className = "btn-secondary";
+        more.style.margin = "0.75rem";
+        more.textContent = "Carregar mais (" + (list.length - take) + ")";
+        on(more, "click", () => renderUniversities(list.slice(take)));
+        modalList.appendChild(more);
+      }
     }
 
-    const take = 300;
-    const slice = list.slice(0, take);
-    const frag = document.createDocumentFragment();
+    const handleSearch = debounce(async () => {
+      const term = (modalSearch.value || "").trim();
 
-    slice.forEach(u => {
-      const item = document.createElement("div");
-      item.className = "modal__item";
-      item.setAttribute("role", "button");
-      item.setAttribute("tabindex", "0");
-      item.textContent = u.name || "-";
-      item.title = (u.web_pages && u.web_pages[0]) || "";
+      if (view === "countries") {
+        const t = term.toLowerCase();
+        const filtered = countries.filter(c => c.displayName.toLowerCase().includes(t));
+        renderCountries(filtered);
+        return;
+      }
 
-      const choose = () => {
-        const instEl = document.getElementById("instituicao");
-        if (instEl) instEl.value = u.name || "";
-        instModal.classList.add("hidden");
-        openCountriesView();
-      };
+      if (!currentCountry) return;
+      if (term.length < 2) {
+        modalList.innerHTML =
+          "<p style='padding:1rem;color:#374151'>Escreva pelo menos 2 letras para pesquisar universidades.</p>";
+        return;
+      }
 
-      on(item, "click", choose);
-      on(item, "keydown", e => {
-        if (e.key === "Enter" || e.key === " ") choose();
-      });
-
-      frag.appendChild(item);
-    });
-
-    modalList.appendChild(frag);
-
-    if (list.length > take) {
-      const more = document.createElement("button");
-      more.className = "btn-secondary";
-      more.style.margin = "0.75rem";
-      more.textContent = "Carregar mais (" + (list.length - take) + ")";
-      on(more, "click", () => renderUniversities(list.slice(take)));
-      modalList.appendChild(more);
-    }
-  }
-
-  const handleSearch = debounce(async () => {
-    const term = (modalSearch.value || "").trim();
-
-    if (view === "countries") {
-      const t = term.toLowerCase();
-      const filtered = countries.filter(c => c.displayName.toLowerCase().includes(t));
-      renderCountries(filtered);
-      return;
-    }
-
-    if (!currentCountry) return;
-    if (term.length < 2) {
-      modalList.innerHTML =
-        "<p style='padding:1rem;color:#374151'>Escreva pelo menos 2 letras para pesquisar universidades.</p>";
-      return;
-    }
-
-    const countryApi = currentCountry.apiName;
-    modalList.innerHTML = "<p style='padding:1rem'>A procurar...</p>";
-    try {
-      const list = await fetchUniversitiesFiltered(countryApi, term);
-      if (Array.isArray(list) && list.length) {
-        universities = list;
-        renderUniversities(universities);
-      } else {
+      const countryApi = currentCountry.apiName;
+      modalList.innerHTML = "<p style='padding:1rem'>A procurar...</p>";
+      try {
+        const list = await fetchUniversitiesFiltered(countryApi, term);
+        if (Array.isArray(list) && list.length) {
+          universities = list;
+          renderUniversities(universities);
+        } else {
+          universities = localFilterUniversities(countryApi, term);
+          renderUniversities(universities);
+        }
+      } catch (e) {
+        console.error(e);
         universities = localFilterUniversities(countryApi, term);
         renderUniversities(universities);
       }
-    } catch (e) {
-      console.error(e);
-      universities = localFilterUniversities(countryApi, term);
-      renderUniversities(universities);
-    }
-  }, 300);
+    }, 300);
 
-  on(modalSearch, "input", handleSearch);
+    on(modalSearch, "input", handleSearch);
+  }
 
   // Select custom de função (se existir na página)
   const funcaoSelect = document.getElementById("funcaoSelect");
