@@ -33,6 +33,34 @@ DEV_KEYWORDS = {
     "sql","schema","código","codigo","api route","rota","framework","método","metodo"
 }
 
+# --- NOVO: padrões para detetar disclaimers/out-of-scope duplicados no conteúdo ---
+_OOS_PATTERNS = (
+    "este assistente responde apenas a perguntas sobre o projeto integrador",
+    "não encontro relação com o contexto",
+    "fora de escopo",
+)
+
+def _looks_like_disclaimer(text: str) -> bool:
+    t = (text or "").lower()
+    return any(p in t for p in _OOS_PATTERNS)
+
+def _filter_disclaimers(hits: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    # Remove trechos que são, eles próprios, avisos de fora-de-escopo
+    return [h for h in hits if not _looks_like_disclaimer(h.get("texto", ""))]
+
+def _strip_oos(text: str) -> str:
+    """Remove linhas com a mensagem de fora-de-escopo se por algum motivo vierem do LLM."""
+    if not text:
+        return text
+    low = text.lower()
+    # inclui também a versão vinda do .env
+    patterns = _OOS_PATTERNS + (OUT_OF_SCOPE_MSG.lower(),)
+    lines = text.splitlines()
+    kept = [ln for ln in lines if all(p not in ln.lower() for p in patterns)]
+    # compacta linhas vazias seguidas
+    cleaned = "\n".join([ln for ln in kept if ln.strip()])
+    return cleaned.strip()
+
 # ------- Modelos / clientes -------
 _qdrant = QdrantClient(url=QDRANT_URL)
 _emb = OllamaEmbeddings(model=EMB_MODEL, base_url=OLLAMA_BASE_URL)
@@ -41,8 +69,10 @@ _llm = ChatOllama(model=CHAT_MODEL, temperature=0, base_url=OLLAMA_BASE_URL)
 SYSTEM = (
     "És um assistente do Projeto Integrador para UTILIZADORES FINAIS. "
     "Responde APENAS a perguntas relacionadas com o Projeto Integrador e SOMENTE com base no CONTEXTO fornecido. "
-    f"Se a pergunta não estiver relacionada com o projeto ou o contexto não suportar uma resposta, responde exatamente: '{OUT_OF_SCOPE_MSG}'. "
-    "Não reveles código, nomes de ficheiros, caminhos ou jargão técnico. Usa linguagem simples, prática e orientada a tarefas."
+    "Se algo não estiver no contexto, explica de forma breve o que falta. "
+    "Não reveles código, nomes de ficheiros, caminhos ou jargão técnico. "
+    "Usa linguagem simples, prática e orientada a tarefas. "
+    "Não adiciones avisos genéricos de fora de escopo; isso é tratado pela aplicação."
 )
 
 # ------- Garantir coleções no arranque (mesmo vazias) -------
@@ -109,9 +139,10 @@ def retrieve(question: str, k: int = TOPK) -> List[Dict[str, Any]]:
     # repo é útil para conceitos, mas não mostramos caminhos ao utilizador
     hits += _search_collection(question, COLLECTION_REPO, max(1, k // 2))
 
-    # Ordena por score e aplica limiar + corta a k
+    # Ordena por score, aplica limiar, remove disclaimers e corta a k
     hits = sorted(hits, key=lambda x: x["score"], reverse=True)
     hits = [h for h in hits if h["score"] >= MIN_SCORE]
+    hits = _filter_disclaimers(hits)   # <-- evita levar a frase para o contexto
     return hits[:k]
 
 def _build_context(chunks: List[Dict[str, Any]]) -> str:
@@ -150,7 +181,8 @@ def answer_question(question: str, k: int = TOPK) -> Dict[str, Any]:
         f"PERGUNTA DO UTILIZADOR: {question}\n\n"
         f"CONTEXTO (não mostrar metadados ao utilizador):\n{context}\n\n"
         "Responde de forma clara e breve para utilizadores finais. "
-        "Se algo não estiver no contexto, diz que não encontras essa informação no contexto."
+        "Se algo não estiver no contexto, diz explicitamente o que falta (ex.: 'Não encontro essa informação no contexto.'). "
+        "Não uses nenhuma mensagem de fora de escopo padrão."
     )
 
     msg = _llm.invoke([
@@ -158,7 +190,18 @@ def answer_question(question: str, k: int = TOPK) -> Dict[str, Any]:
         {"role": "user", "content": prompt},
     ])
 
+    # --- NOVO: sanity check para nunca devolver o aviso se houve contexto ---
+    answer_text = (getattr(msg, "content", str(msg)) or "").strip()
+    answer_text = _strip_oos(answer_text)  # limpa frases de OOS se tiverem escapado
+
+    # Se por alguma razão ficou vazio, dá uma resposta útil por defeito
+    if not answer_text:
+        answer_text = (
+            "Podes fazer upload de PDF de questionários, pré-visualizar, processar automaticamente e exportar para Excel, "
+            "atribuir identificadores às perguntas e consultar o histórico de uploads e o teu perfil. Em que parte queres ajuda?"
+        )
+
     # Referências genéricas (sem caminhos/IDs)
     sources = [{"ref": _public_ref(c), "score": c["score"]} for c in chunks]
 
-    return {"answer": getattr(msg, "content", str(msg)), "sources": sources}
+    return {"answer": answer_text, "sources": sources}
