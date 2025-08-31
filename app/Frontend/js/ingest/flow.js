@@ -359,7 +359,7 @@ window.IngestHelpers = window.IngestHelpers || {};
           showToast("Em breve: resumo detalhado da execução.","info");
         });
       }
-      PDF_Keeper.done({ message: "Processo concluído." });
+
       showToast("Análise concluída com sucesso!", "success");
     } finally {
       if (button) { button.disabled = false; button.textContent = "Analisar PDF"; }
