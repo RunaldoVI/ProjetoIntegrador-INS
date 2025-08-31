@@ -211,46 +211,60 @@ def user_profile():
 
 @user_bp.route('/api/user/upload_pdf', methods=['POST'])
 def guardar_pdf_historico():
-    email = request.form.get('email')
-    pdf = request.files.get('pdf')
+    email = (request.form.get('email') or '').strip().lower()
+    pdf_file = request.files.get('pdf')
+    nome_pdf_form = (request.form.get('nome_pdf') or '').strip()
 
-    if not email or not pdf:
-        return jsonify({'error': 'Email ou ficheiro não fornecido'}), 400
+    # DEBUG opcional: ver o que chegou
+    current_app.logger.info("upload_pdf — form=%s files=%s",
+                            dict(request.form), list(request.files.keys()))
+
+    if not email:
+        return jsonify({'error': 'Email não fornecido'}), 400
 
     try:
         conn = get_db()
         cursor = conn.cursor()
 
-        # Buscar ID do utilizador
+        # Buscar utilizador
         cursor.execute("SELECT id FROM utilizador WHERE email = %s", (email,))
-        resultado = cursor.fetchone()
-        if not resultado:
-            cursor.close()
-            conn.close()
+        row = cursor.fetchone()
+        if not row:
+            cursor.close(); conn.close()
             return jsonify({'error': 'Utilizador não encontrado'}), 404
+        utilizador_id = row[0]
 
-        utilizador_id = resultado[0]
+        # Caso 1: veio ficheiro -> guarda e regista
+        if pdf_file and pdf_file.filename:
+            nome_pdf = secure_filename(pdf_file.filename)
+            pasta_pdfs = os.path.join(current_app.static_folder, 'uploads', 'pdfs')
+            os.makedirs(pasta_pdfs, exist_ok=True)
+            pdf_file.save(os.path.join(pasta_pdfs, nome_pdf))
 
-        # Guardar ficheiro no sistema
-        nome_pdf = secure_filename(pdf.filename)
-        pasta_pdfs = os.path.join(current_app.static_folder, 'uploads', 'pdfs')
-        os.makedirs(pasta_pdfs, exist_ok=True)
-        caminho_pdf = os.path.join(pasta_pdfs, nome_pdf)
-        pdf.save(caminho_pdf)
+            cursor.execute(
+                "INSERT INTO historico_pdfs (utilizador_id, nome_pdf, data_upload) VALUES (%s, %s, NOW())",
+                (utilizador_id, nome_pdf)
+            )
+            conn.commit()
+            cursor.close(); conn.close()
+            return jsonify({'status': 'PDF guardado e registado no histórico'}), 201
 
-        # Inserir na tabela historico_pdfs
-        cursor.execute(
-            "INSERT INTO historico_pdfs (utilizador_id, nome_pdf, data_upload) VALUES (%s, %s, NOW())",
-            (utilizador_id, nome_pdf)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        # Caso 2: só veio nome_pdf -> regista sem guardar ficheiro
+        if nome_pdf_form:
+            cursor.execute(
+                "INSERT INTO historico_pdfs (utilizador_id, nome_pdf, data_upload) VALUES (%s, %s, NOW())",
+                (utilizador_id, nome_pdf_form)
+            )
+            conn.commit()
+            cursor.close(); conn.close()
+            return jsonify({'status': 'Histórico registado'}), 201
 
-        return jsonify({'status': 'PDF guardado com sucesso'})
+        cursor.close(); conn.close()
+        return jsonify({'error': 'Fornece um ficheiro (pdf) ou um nome_pdf'}), 400
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @user_bp.route('/api/user/historico', methods=['GET'])
 def obter_historico_pdfs():

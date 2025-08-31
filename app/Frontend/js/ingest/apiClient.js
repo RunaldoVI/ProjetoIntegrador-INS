@@ -29,6 +29,15 @@ window.IngestHelpers = window.IngestHelpers || {};
   });
   return jsonOrThrow(res);
 },
+async logHistory({ email, nome_pdf, pdfFile = null }) {
+  const fd = new FormData();
+  fd.append("email", email);
+  if (pdfFile) fd.append("pdf", pdfFile);
+  else if (nome_pdf) fd.append("nome_pdf", nome_pdf);
+
+  const res = await fetch(`${BASE}/api/user/upload_pdf`, { method: "POST", body: fd });
+  return jsonOrThrow(res);
+},
     async finalize(questionnaire) {
       const res = await fetch(`${BASE}/outputs/${encodeURIComponent(questionnaire)}/finalize`, {
         method: "POST",

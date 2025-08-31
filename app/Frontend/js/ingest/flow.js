@@ -3,7 +3,31 @@ window.IngestHelpers = window.IngestHelpers || {};
 (function (ns) {
   const { state, session, apiClient, previewRenderer, previewActions, logsModal } = ns;
 
-  // === estilos do modal (uma vez) ===
+  // ===== helpers =====
+  function getCurrentUserSafe() {
+    try {
+      if (typeof getUser === "function") return getUser();
+      const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+
+  async function logHistorySafe({ email, nome_pdf, pdfFile = null }) {
+    try {
+      if (apiClient && typeof apiClient.logHistory === "function") {
+        return await apiClient.logHistory({ email, nome_pdf, pdfFile });
+      }
+      const fd = new FormData();
+      fd.append("email", email);
+      if (pdfFile) fd.append("pdf", pdfFile);
+      else if (nome_pdf) fd.append("nome_pdf", nome_pdf);
+      await fetch("http://localhost:5000/api/user/upload_pdf", { method: "POST", body: fd });
+    } catch (e) {
+      console.warn("[history] falha a registar:", e);
+    }
+  }
+
+  // ===== estilos modal feedback =====
   function ensureFeedbackModalStyles() {
     if (document.getElementById("feedback-modal-styles")) return;
     const css = `
@@ -22,7 +46,6 @@ window.IngestHelpers = window.IngestHelpers || {};
     .fbk-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 18px;border-top:1px solid rgba(255,255,255,.08)}
     .fbk-btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);padding:.6rem 1rem;color:#fff;background:rgba(255,255,255,.06);transition:.15s}
     .fbk-btn:hover{background:rgba(255,255,255,.1)}
-    /* novas cores */
     .fbk-btn-green{background:#22c55e;border-color:transparent}
     .fbk-btn-green:hover{filter:brightness(1.05)}
     .fbk-btn-red{background:#ef4444;border-color:transparent}
@@ -64,7 +87,7 @@ window.IngestHelpers = window.IngestHelpers || {};
       .forEach((el) => el.remove());
 
     previewActions.mount(
-      // onContinue
+      // onContinue — (só aqui grava histórico no modo preview)
       async () => {
         const fromPreview = session.get("fromPreview") === "true";
         const questionnaire = session.get("previewQuestionario") || state.nav.questionnaire;
@@ -83,6 +106,17 @@ window.IngestHelpers = window.IngestHelpers || {};
 
         try {
           const data = await apiClient.finalize(questionnaire);
+
+          // === HISTÓRICO (preview → continuar) ===
+          try {
+            const user = getCurrentUserSafe();
+            const nomePdf = session.get("pdfName");
+            if (user?.email && nomePdf) {
+              await logHistorySafe({ email: user.email, nome_pdf: nomePdf });
+            } else {
+              console.warn("[history][preview→continuar] faltam dados (email/nome_pdf)");
+            }
+          } catch (e) { console.warn("[history][preview→continuar] falha:", e); }
 
           const out = document.getElementById("output");
           const msg = data.mensagem || "Blocos consolidados a partir do preview.";
@@ -141,10 +175,9 @@ window.IngestHelpers = window.IngestHelpers || {};
         }
       },
 
-      // onDislike (MODAL novo)
+      // onDislike (modal de instruções)
       () => {
         ensureFeedbackModalStyles();
-
         const id = "feedbackModal";
         let modal = document.getElementById(id);
         if (!modal) {
@@ -219,41 +252,35 @@ window.IngestHelpers = window.IngestHelpers || {};
 
         btnCancel.onclick = btnClose.onclick = closeModal;
 
-btnSave.onclick = async () => {
-  const text = textarea.value.trim();
-  if (!text) return showToast("Por favor escreve algo primeiro.", "warning");
+        btnSave.onclick = async () => {
+          const text = textarea.value.trim();
+          if (!text) return showToast("Por favor escreve algo primeiro.", "warning");
 
-  btnSave.disabled = true;
-  btnSave.textContent = "A reenviar...";
+          btnSave.disabled = true;
+          btnSave.textContent = "A reenviar...";
 
-  try {
-    // usar o contexto atual do preview
-    const questionnaire = session.get("previewQuestionario") || state.nav.questionnaire;
-    const ident = state.nav.ident;
-    const file  = state.nav.file;
+          try {
+            const questionnaire = session.get("previewQuestionario") || state.nav.questionnaire;
+            const ident = state.nav.ident;
+            const file  = state.nav.file;
 
-    if (!questionnaire || (!ident && !file)) {
-      showToast("Sem bloco selecionado para reprocessar.", "error");
-      return;
-    }
+            if (!questionnaire || (!ident && !file)) {
+              showToast("Sem bloco selecionado para reprocessar.", "error");
+              return;
+            }
 
-    // 🔁 chama o backend para reprocessar ESTE bloco com as instruções
-    const data = await apiClient.reprocessItem(questionnaire, {
-      ident, file, instructions: text
-    });
-
-    // atualiza o preview com o bloco devolvido
-    previewRenderer.render(data, loadPreviewBlock);
-    showToast("Instruções aplicadas e bloco reprocessado.", "success");
-  } catch (err) {
-    console.error(err);
-    showToast("Falha ao reprocessar: " + (err?.message || err), "error");
-  } finally {
-    closeModal();
-    btnSave.disabled = false;
-    btnSave.textContent = "Usar estas instruções";
-  }
-};
+            const data = await apiClient.reprocessItem(questionnaire, { ident, file, instructions: text });
+            previewRenderer.render(data, loadPreviewBlock);
+            showToast("Instruções aplicadas e bloco reprocessado.", "success");
+          } catch (err) {
+            console.error(err);
+            showToast("Falha ao reprocessar: " + (err?.message || err), "error");
+          } finally {
+            closeModal();
+            btnSave.disabled = false;
+            btnSave.textContent = "Usar estas instruções";
+          }
+        };
       }
     );
   }
@@ -264,6 +291,10 @@ btnSave.onclick = async () => {
     const button = document.getElementById("analisarBtn");
     if (!file || !button) return;
 
+    // guarda o nome do ficheiro para usar depois no "Continuar" (preview)
+    session.set("pdfName", file?.name || session.get("pdfName") || "");
+    const modeNow = (forcedMode || state.processingMode);
+    PDF_Keeper.start({ pdfName: file?.name, mode: modeNow });
     button.disabled = true;
     button.textContent = "Analisando...";
 
@@ -277,10 +308,25 @@ btnSave.onclick = async () => {
     formData.append("modo", forcedMode || state.processingMode);
 
     try {
+      // === HISTÓRICO (automático) — logo ao iniciar a análise
+      const modeNow = (forcedMode || state.processingMode);
+      if (modeNow !== "preview") {
+        try {
+          const user = getCurrentUserSafe();
+          const nomePdf = file?.name || session.get("pdfName");
+          if (user?.email && nomePdf) {
+            await logHistorySafe({ email: user.email, nome_pdf: nomePdf });
+          } else {
+            console.warn("[history][automatico] faltam dados (email/nome_pdf)");
+          }
+        } catch (e) { console.warn("[history][automatico] falha:", e); }
+      }
+
       const data = await apiClient.upload(formData);
       loader.remove();
 
       if ((forcedMode || state.processingMode) === "preview") {
+        // PREVIEW: não gravar histórico aqui
         if (data && data.item && data.ident && data.questionario) {
           previewRenderer.render(data, loadPreviewBlock);
           session.set("fromPreview", "true");
@@ -290,6 +336,7 @@ btnSave.onclick = async () => {
           showToast("Preview inválido: resposta inesperada da API.", "error");
         }
       } else {
+        // AUTOMÁTICO: UI de resultado
         const excelUrl = "http://localhost:5000/download-excel";
         output.innerHTML = `
           <div class="mt-4 p-0 rounded-xl overflow-hidden border border-white/10 bg-[#212433]">
@@ -312,7 +359,7 @@ btnSave.onclick = async () => {
           showToast("Em breve: resumo detalhado da execução.","info");
         });
       }
-
+      PDF_Keeper.done({ message: "Processo concluído." });
       showToast("Análise concluída com sucesso!", "success");
     } finally {
       if (button) { button.disabled = false; button.textContent = "Analisar PDF"; }

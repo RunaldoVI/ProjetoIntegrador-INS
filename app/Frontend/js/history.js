@@ -1,23 +1,30 @@
 console.log("✅ history.js carregado!");
 
-// Ler utilizador de forma unificada (localStorage ou sessionStorage)
-const user = (typeof getUser === "function" ? getUser() : (() => {
-  const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-  console.log("✅ [history.js] carregado!");
-  
-  console.log("📌 [history.js] user lido:", user);
-  return raw ? JSON.parse(raw) : null;
-})());
+// Helper igual ao profile.js
+function readUserAnyStorage() {
+  const ls = localStorage.getItem("user");
+  const ss = sessionStorage.getItem("user");
+  try {
+    return ls ? JSON.parse(ls) : (ss ? JSON.parse(ss) : null);
+  } catch {
+    return null;
+  }
+}
 
+// Usa getUser() do auth.js se existir; senão fallback
+const currentUser = (typeof getUser === "function") ? getUser() : readUserAnyStorage();
+console.log("📌 [history.js] user lido:", currentUser);
 
-if (!user || !user.email) {
+if (!currentUser || !currentUser.email) {
   console.warn("⚠️ [history.js] utilizador não autenticado, redirecionar...");
   window.location.href = "../sections/login.html";
   throw new Error("Histórico bloqueado: utilizador não autenticado");
 }
 
+// ---- Render do histórico global ----
 (() => {
   const lista = document.getElementById("pdf-history");
+  if (!lista) return;
 
   fetch("http://localhost:5000/api/pdf/todos")
     .then(res => res.json())
