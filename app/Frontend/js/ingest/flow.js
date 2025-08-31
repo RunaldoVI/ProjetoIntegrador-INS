@@ -293,8 +293,6 @@ window.IngestHelpers = window.IngestHelpers || {};
 
     // guarda o nome do ficheiro para usar depois no "Continuar" (preview)
     session.set("pdfName", file?.name || session.get("pdfName") || "");
-    const modeNow = (forcedMode || state.processingMode);
-    PDF_Keeper.start({ pdfName: file?.name, mode: modeNow });
     button.disabled = true;
     button.textContent = "Analisando...";
 
